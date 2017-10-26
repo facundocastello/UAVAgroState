@@ -72,26 +72,45 @@ public:
         //intrinsic matrix and distortion coeffs are property of the camera and lens. so if you don't change it focal lengths zoom lenses you
         //can reuse it.
                                 
-        string folder = "Data/Calibrar/";
-        CommonFunctions::writeMatOnFile(folder+"distCoeffs" + cameraName,distCoeffs);
-        CommonFunctions::writeMatOnFile(folder+"intrinsic" + cameraName,intrinsic);
+        // string folder = "Data/Calibrar/";
+
+        // CommonFunctions::writeMatOnFile(folder+"distCoeffs" + cameraName,distCoeffs);
+        // CommonFunctions::writeMatOnFile(folder+"intrinsic" + cameraName,intrinsic);
+        UAVAgroStateCalibration::storeCalibrationMat(intrinsic,distCoeffs,cameraName);
 
     }
 
     void static undistortImgs(string cameraName){
         string folder = "Data/Calibrar/";
-        Mat distCoeffs = CommonFunctions::readMatFromFile(folder+"distCoeffs" + cameraName);
-        Mat intrinsic = CommonFunctions::readMatFromFile(folder+"intrinsic" + cameraName);
+        vector<Mat> calibrationMat =  UAVAgroStateCalibration::readCalibrationMat(cameraName);
         vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/");
         for(int i = 0 ; i < strImgs.size() ; i++){
             Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
             Mat frameUndistorted;
-            undistort(frame, frameUndistorted, intrinsic, distCoeffs);
+            undistort(frame, frameUndistorted, calibrationMat[0], calibrationMat[1]);
             size_t position = strImgs[i].find_last_of("/");
             strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
             string res = "Imagenes/Undistort" + strImgs[i];
             imwrite(res, frameUndistorted);
         }
+    }
+
+
+    void static storeCalibrationMat(Mat intrinsic, Mat distCoeffs, string cameraName){
+        FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::WRITE);
+        fs << "intrinsic" << intrinsic << "distCoeffs" << distCoeffs;
+        fs.release();
+    }
+    vector<Mat> static readCalibrationMat(string cameraName){
+        FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::READ);
+
+        Mat intrinsic, distCoeffs;
+        fs["intrinsic"] >> intrinsic;
+        fs["distCoeffs"] >> distCoeffs;
+        
+        fs.release();
+
+        return {intrinsic, distCoeffs};
     }
 };
 

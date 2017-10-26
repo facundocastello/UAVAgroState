@@ -46,10 +46,10 @@ class CommonFunctions{
 			resize(img, img, Size(img.cols / tamano, img.rows / tamano));
 			return img;
 		}
-		vector<Mat> static cargarImagenes(vector<String> strImgs, int tamano = 4)
+		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4)
 		{
 			vector<Mat> imgs;
-			cout << "-|-|-|-|-|-|-|-|-|-|-|-|-|Cargando Imagenes: (tamaño: "<< strImgs.size()<< ")" << endl;
+			cout << "\033[1;32m-|-|-|-|-|-|-|-|-|-|-|-|-|Cargando Imagenes: (tamaño: "<< strImgs.size()<< ")\033[0m" << endl;
 			for (int i = 0; i < strImgs.size(); i++){
 				cout << "Imagen: "<< i+1 << endl;
 				imgs.push_back(cargarImagen(strImgs[i], tamano));
@@ -89,7 +89,8 @@ class CommonFunctions{
 		}
 		clock_t static tiempo(clock_t begin, string msg){
 			clock_t end = clock();
-			cout << msg << double(end - begin) / CLOCKS_PER_SEC << '\n';
+
+			cout << "\033[1;33m" << msg << double(end - begin) / CLOCKS_PER_SEC << "\033[0m" << '\n';
 			return end;
 		}
 		//OBTIENE EL RECT BOUNDINGBOX DE LA REGION DE INTERES PARA LUEGO CORTARLO
