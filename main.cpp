@@ -64,15 +64,9 @@ int main(int argc, char** argv)
 			case 2:{
 				//clock_t begin = clock();
 				////Cargo los string de imagenes
-				int rowGrid = 10;
-				int colGrid = 3;
-				float rowOverlap = 0.7;
-				float colOverlap = 0.7;
-				int position = 0;
-				//position: -abDer = 0 -abIzq = 1 -arDer = 2 -arIzq = 3
 				int tamano = 4;
 				bool undistort = false;
-				int kPoints = 1	;
+				float kPoints = 3	;
 				
 				if(argc > 2){
 					if( atoi(argv[2]) == 0 ){
@@ -86,17 +80,9 @@ int main(int argc, char** argv)
 					undistort = stoi(argv[3]);
 				}
 				if(argc > 4){
-					position = stoi(argv[4]);
+					kPoints = stof(argv[4]);
 				}
-				if(argc > 5){
-					kPoints = stoi(argv[5]);
-				}
-				if(argc > 6){
-					rowGrid = stoi(argv[6]);
-				}
-				if(argc > 7){
-					colGrid = stoi(argv[7]);
-				}
+
 				vector<string> strImgs;
 				if(undistort){
 					strImgs = CommonFunctions::obtenerImagenes("Imagenes/Undistort/");
@@ -105,8 +91,7 @@ int main(int argc, char** argv)
 				}
 			
 				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-					tamano,position,rowGrid,colGrid,
-					rowOverlap,colOverlap,kPoints);
+					tamano,kPoints);
 				Mat img = uav->stitchImgs(strImgs);
 						
 				imwrite("Imagenes/resultados/Pegado/resultado.png",img);

@@ -49,11 +49,13 @@ class CommonFunctions{
 		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4)
 		{
 			vector<Mat> imgs;
-			cout << "\033[1;32m-|-|-|-|-|-|-|-|-|-|-|-|-|Cargando Imagenes: (tamaño: "<< strImgs.size()<< ")\033[0m" << endl;
+			cout << "\033[1;32m-|-|-|-|-|-|-|-|-|-|-|-|-|Cargando Imagenes: (resize: 1/"
+			+ to_string(tamano) +" Cantidad:"<< strImgs.size()<<")\033[0m" << endl;
 			for (int i = 0; i < strImgs.size(); i++){
-				cout << "Imagen: "<< i+1 << endl;
+				cout << "-" << (i+1) * 100 / strImgs.size() << "%"<<endl;
 				imgs.push_back(cargarImagen(strImgs[i], tamano));
 			}
+			cout<<endl;
 			return imgs;
 		}
 		vector<string> static obtenerImagenes(const char* carpeta , bool reverse = false){

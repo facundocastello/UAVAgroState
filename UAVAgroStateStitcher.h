@@ -20,29 +20,14 @@ bool sortByDist(DMatch a, DMatch b){
 
 class UAVAgroStateStitcher{
 	public:
-		int rowGrid;
-		int colGrid;
-		float rowOverlap;
-		float colOverlap;
-		int position;
 		int tamano;
-		int kPoints;
+		float kPoints;
 
 		UAVAgroStateStitcher(int tamano = 4,
-					int position= 1,
-					int rowGrid = 5,
-					int colGrid = 2,
-					float rowOverlap = 0.9,
-					float colOverlap = 0.9,
-					int kPoints = 300
+					float kPoints = 3
 					)
 		{
 			this->tamano = tamano;
-			this->rowGrid = rowGrid;
-			this->colGrid = colGrid;
-			this->rowOverlap = rowOverlap;
-			this->colOverlap = colOverlap;
-			this->position = position;
 			this->kPoints = kPoints;
 			//position: -abDer = 0 -abIzq = 1 -arDer = 2 -arIzq = 3
 		}
@@ -79,25 +64,25 @@ class UAVAgroStateStitcher{
 		}
 
 		void saveDetectAndCompute(Mat img, Mat mask, Mat &descriptors, vector<KeyPoint> &keypoints){
-		   	clock_t begin = clock();
+		   	// clock_t begin = clock();
 		   	///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 		  	//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
-			Ptr<cv::BRISK> orb = cv::BRISK::create(3);
+			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
 			cout << "--------------------------------------------------------" << endl;
 			cout << "Calculando KeyPoints y descriptores de la imagen sola: ... ";
 
 			orb->detectAndCompute(img , mask , keypoints , descriptors);
 			cout << "\n KeyPoint imagen: " << keypoints.size()<< endl;
-			begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores: ");
+			// begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores: ");
 		}
 
 		void saveDetectAndCompute(vector<Mat> imgs,
 			 vector<Mat> &vecDesc,
 			 vector< vector<KeyPoint> > &vecKp){
-			clock_t begin = clock();
+			// clock_t begin = clock();
 			///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 			//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
-			Ptr<cv::BRISK> orb = cv::BRISK::create(3);
+			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
 			FileStorage fsDesc("Data/DetectCompute/descriptores.yml", FileStorage::WRITE);
 			for(int i = 0;i < imgs.size() ; i++){
 				cout << "--------------------------------------------------------" << endl;
@@ -115,7 +100,7 @@ class UAVAgroStateStitcher{
 				vecDesc.push_back(descriptors);
 				vecKp.push_back(keypoints);
 				cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size()<< endl;
-				begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores" + to_string(i) + ": ");
+				// begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores" + to_string(i) + ": ");
 			}
 			fsDesc.release();
 		}
@@ -148,13 +133,11 @@ class UAVAgroStateStitcher{
 			vector<KeyPoint> keypoints_1, vector<KeyPoint> keypoints_2 )
 		{
 			Mat H;
-			clock_t beginTime = clock();
-			cout << "Realizando Matching: ... \n";
 			BFMatcher matcher(NORM_HAMMING,true);
 			vector< DMatch > matches;
 			matcher.match(descriptors_1, descriptors_2, matches);
 			sort(matches.begin(), matches.end(), sortByDist);
-			cout << "Matches size: "<<matches.size()<<" \n";
+			cout << "Cantidad de matches: "<<matches.size()<<" \n";
 			int matchSize = (matches.size() >=30)?30 : matches.size();
 			vector< DMatch > good_matches(matches.begin(),matches.begin() + matchSize);
 			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
@@ -168,7 +151,6 @@ class UAVAgroStateStitcher{
 			Mat maskH;
 			H = findHomography(scene, obj, CV_RANSAC);
 			/// DEVUELVO H
-			beginTime = CommonFunctions::tiempo(beginTime, "Tiempo para match y homografia: ");
 			cout << "--------------------------------------------------------" << endl;
 			return{ H };
 		}
@@ -187,7 +169,7 @@ class UAVAgroStateStitcher{
 			double xMin=0;double xMax=0;double yMin=0;double yMax=0;
 			//obtengo kp
 			vector<Mat> imgs = CommonFunctions::cargarImagenes(strImgs , this->tamano);
-			CommonFunctions::tiempo(begin, "********************Tiempo en cargar las imagenes:");
+			begin = CommonFunctions::tiempo(begin, "********************Tiempo en cargar las imagenes:");
 			vector<Mat> vecDesc;
 			vector< vector<KeyPoint> > vecKp;
 			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Obteniendo keypoints y descriptores: " + normal<< endl;
@@ -196,7 +178,7 @@ class UAVAgroStateStitcher{
 			//usado para documentar las homografias
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
 			for (int i = 0; i < strImgs.size()-1; i++){
-				cout << "Match y Homografia de "+to_string(i)+" :" <<endl;
+				cout << "Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] + " :" <<endl;
 				vector<Mat> aux = matchAndTransform(
 					vecDesc[i], vecDesc[i+1],
 					vecKp[i], vecKp[i+1]);
@@ -210,17 +192,21 @@ class UAVAgroStateStitcher{
 				//homografias para despues poder hacer el bounding box;
 				if(H[i+1].at<double>(0,2) < xMin){
 					xMin = H[i+1].at<double>(0,2);
+					cout << "xmin " << xMin << endl;
 				}
 				if(H[i+1].at<double>(0,2) > xMax){
 					xMax = H[i+1].at<double>(0,2);
+					cout << "xmax " << xMax << endl;
 				}
 				if(H[i+1].at<double>(1,2) < yMin){
 					yMin = H[i+1].at<double>(1,2);
+					cout << "ymin " << yMin << endl;
 				}
 				if(H[i+1].at<double>(1,2) > yMax){
 					yMax = H[i+1].at<double>(1,2);
+					cout << "ymax " << yMax << endl;
 				}
-				fsHomo << "homografia"+to_string(i) << H[i+1];
+				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
 
@@ -243,17 +229,17 @@ class UAVAgroStateStitcher{
 				// H[i] = H[i] / H[i].at<double>(2,2);
 			}
 			
-			CommonFunctions::tiempo(begin, "********************Tiempo en obtener las homografias: ");
+			begin = CommonFunctions::tiempo(begin, "********************Tiempo en obtener las homografias: ");
 			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Pegando imagenes: ... ("<< strImgs.size()-1<< ")" + normal<< endl;
+			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Generando orthomosaico: ... ("<< strImgs.size()-1<< ")" + normal<< endl;
 			for (int i = 1; i < strImgs.size(); i++){
-				cout << "imagen: "<< i+1 << endl;
-				Mat img = CommonFunctions::cargarImagen(strImgs[i] , this->tamano);
-				boundBox = stitchWarp(boundBox, img, H[i])[0];
+				cout << "-" << (i+1) * 100 / strImgs.size() << "%" << endl;
+				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
 				string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
 				imwrite(res, boundBox);
-			}	
-			CommonFunctions::tiempo(begin, "********************Tiempo en pegar imagenes: ");
+			}
+
+			begin = CommonFunctions::tiempo(begin, "********************Tiempo en pegar imagenes: ");
 
 			Mat tmp,alpha;
 			
