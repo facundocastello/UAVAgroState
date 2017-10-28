@@ -76,7 +76,7 @@ class UAVAgroStateStitcher{
 			cout << "\n KeyPoint imagen: " << keypoints.size()<< endl;
 			// begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores: ");
 		}
-
+		
 		void saveDetectAndCompute(vector<Mat> imgs,
 			 vector<Mat> &vecDesc,
 			 vector< vector<KeyPoint> > &vecKp){
@@ -85,6 +85,7 @@ class UAVAgroStateStitcher{
 			//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
 			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
 			FileStorage fsDesc("Data/DetectCompute/descriptores.yml", FileStorage::WRITE);
+			
 			for(int i = 0;i < imgs.size() ; i++){
 				cout << "--------------------------------------------------------" << endl;
 				cout << "Calculando KeyPoints y descriptores de la imagen" + to_string(i) +": ... ";
@@ -149,25 +150,43 @@ class UAVAgroStateStitcher{
 			for(int i = 1;i < descriptors.size() ; i++){
 				matches.push_back(this->matchKp(descriptors[0],descriptors[i]));
 			}
-			vector< DMatch > good_matches;
-			int maxMatch = 60;
-			int matchSize = (matches[0].size() >=(maxMatch/matches.size()) )?(maxMatch/matches.size()) : matches[0].size();
+			vector< DMatch > matchAux;
+			int maxMatch = 30;
 			for(int i = 1;i < matches.size() ; i++){
-				vector< DMatch > matchAux;
-				for(int j = 1; j < matches[0].size();j++){
-					for(int k = 1;k < matches[i].size();k++){
+				for(int j = 0; j < matches[0].size();j++){
+					for(int k = 0;k < matches[i].size();k++){
 						if(matches[0][j].queryIdx ==  matches[i][k].queryIdx){
-							matchAux.push_back(matches[0][j]);
+							bool agregar = true;
+							for( int l = 0;l < matchAux.size(); l++){
+								if(matchAux[l].queryIdx == matches[0][j].queryIdx){
+									agregar = false;
+									break;
+								}
+							}
+							if(agregar){
+								matchAux.push_back(matches[0][j]);
+							}
 						}
 					}
 				}
-				sort(matchAux.begin(), matchAux.end(), sortByDist);
-				good_matches.insert(good_matches.end(),matchAux.begin(),matchAux.begin() + matchSize);
-				cout<< "matchaux size: " << matchAux.size() << "goodmatches" << good_matches.size() << endl;
+				cout<< "matchaux size: " << matchAux.size();
 			}
-			
-			sort(matches[0].begin(), matches[0].end(), sortByDist);
-			good_matches.insert(good_matches.end(),matches[0].begin(),matches[0].begin() + matchSize);
+			sort(matchAux.begin(), matchAux.end(), sortByDist);
+			sort(matches[0].begin(),matches[0].end(),sortByDist);
+			if(matchAux.size() < maxMatch) maxMatch = matchAux.size();
+			vector< DMatch > good_matches(matchAux.begin(),matchAux.begin() + maxMatch);
+			for(int i = 0; i < 40; i++){
+				bool agregar = true;
+				for(int j = 0 ; j < good_matches.size(); j++){
+					if(good_matches[j].queryIdx == matches[0][i].queryIdx){
+						agregar = false;
+					}
+				}
+				if(agregar){
+					good_matches.push_back(matches[0][i]);
+				}
+			}
+			cout<< "goodmatches" << good_matches.size() << endl;
 			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
@@ -208,21 +227,26 @@ class UAVAgroStateStitcher{
 			for (int i = 0; i < strImgs.size()-1; i++){
 				cout << "Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] + " :" <<endl;
 				vector<Mat> aux;
-				if((vecDesc.size()-i-2) > 0 ) {
-					if((vecDesc.size()-i-3) > 0 ) {
-						aux = matchAndTransform(
-							{vecDesc[i], vecDesc[i+1],vecDesc[i+2],vecDesc[i+3]},
-							{vecKp[i], vecKp[i+1],vecKp[i+2],vecKp[i+3]});	
-					}else{
-						aux = matchAndTransform(
-							{vecDesc[i], vecDesc[i+1],vecDesc[i+2]},
-							{vecKp[i], vecKp[i+1],vecKp[i+2]});	
-					}
-				}else{
-					aux = matchAndTransform(
-						{vecDesc[i], vecDesc[i+1]},
-						{vecKp[i], vecKp[i+1]});
+				int nMin;
+				(i<3)?nMin=i:nMin=3;
+				int nMax;
+				int nMaxVal=3;
+				((vecDesc.size()-i-1) < nMaxVal )? nMax=(vecDesc.size()-i-1) : nMax=nMaxVal;
+
+				vector<Mat> newVecDesc;
+				vector< vector<KeyPoint> > newVecKp;
+				newVecDesc.push_back(vecDesc[i]);
+				newVecKp.push_back(vecKp[i]);
+				// for(int j=1;j <= nMin;j++){
+				// 	newVecDesc.push_back(vecDesc[i-j]);
+				// 	newVecKp.push_back(vecKp[i-j]);
+				// }
+				for(int j=1;j <= nMax;j++){
+					newVecDesc.push_back(vecDesc[i+j]);
+					newVecKp.push_back(vecKp[i+j]);
 				}
+				aux = matchAndTransform(newVecDesc,newVecKp);
+
 				//Una homografia es para calcular el boundbox (H) y la otra es para
 				//con ese boundbox calcular las otras homografias, multiplicandolas 
 				//esta es homonomultpilicates
@@ -233,26 +257,26 @@ class UAVAgroStateStitcher{
 				//homografias para despues poder hacer el bounding box;
 				if(H[i+1].at<double>(0,2) < xMin){
 					xMin = H[i+1].at<double>(0,2);
-					cout << "xmin " << xMin << endl;
+					// cout << "xmin " << xMin << endl;
 				}
 				if(H[i+1].at<double>(0,2) > xMax){
 					xMax = H[i+1].at<double>(0,2);
-					cout << "xmax " << xMax << endl;
+					// cout << "xmax " << xMax << endl;
 				}
 				if(H[i+1].at<double>(1,2) < yMin){
 					yMin = H[i+1].at<double>(1,2);
-					cout << "ymin " << yMin << endl;
+					// cout << "ymin " << yMin << endl;
 				}
 				if(H[i+1].at<double>(1,2) > yMax){
 					yMax = H[i+1].at<double>(1,2);
-					cout << "ymax " << yMax << endl;
+					// cout << "ymax " << yMax << endl;
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
 
 			Mat boundBox = CommonFunctions::cargarImagen(strImgs[0], this->tamano);;
-			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1), yMax , (xMin * -1),xMax);
+			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1) + boundBox.cols, yMax , (xMin * -1),xMax);
 			Mat boundBoxMask;
 			threshold( boundBox, boundBoxMask, 1, 255,THRESH_BINARY );
 			cvtColor(boundBoxMask, boundBoxMask, cv::COLOR_RGB2GRAY);

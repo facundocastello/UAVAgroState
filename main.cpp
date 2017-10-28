@@ -89,12 +89,22 @@ int main(int argc, char** argv)
 				}else{
 					strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/");
 				}
-			
+
 				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
 					tamano,kPoints);
-				Mat img = uav->stitchImgs(strImgs);
-						
+				Mat img = uav->stitchImgs(strImgs);		
 				imwrite("Imagenes/resultados/Pegado/resultado.png",img);
+
+				// for(int i = 0; i < strImgs.size(); i++){
+				// 	UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
+				// 		tamano,kPoints);
+				// 	vector<string> strImgsAux;
+					
+				// 	strImgsAux.insert(strImgsAux.end(),strImgs.begin(), strImgs.begin() + i);
+				// 	strImgsAux.insert(strImgsAux.end(),strImgs.begin() + i + 1, strImgs.end());
+				// 	Mat img = uav->stitchImgs(strImgsAux, i);
+				// 	imwrite("Imagenes/resultados/Pegado/resultado.png",img);
+				// }
 			}
 			break;
 			case 3:{
