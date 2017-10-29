@@ -111,7 +111,8 @@ class UAVAgroStateStitcher{
 			// fsDesc.release();
 		}
 		Mat readDetectAndComputeDesc(int i){
-			clock_t begin = clock();
+			struct timeval begin;
+			gettimeofday(&begin, NULL);
 			FileStorage fs("Data/DetectCompute/descriptores.yml", FileStorage::READ);
 			Mat descriptor;
 			fs["descriptor"+ to_string(i)] >> descriptor;
@@ -120,7 +121,8 @@ class UAVAgroStateStitcher{
 			return descriptor;
 		}
 		vector<Point2f> readDetectAndComputeKp(int i){
-			clock_t begin = clock();
+			struct timeval begin;
+			gettimeofday(&begin, NULL);
 			FileStorage fs("Data/DetectCompute/descriptores.yml", FileStorage::READ);
 			FileNode features = fs["features"+ to_string(i)];
 			// iterate through a sequence using FileNodeIterator
@@ -212,7 +214,8 @@ class UAVAgroStateStitcher{
 			string process = "\033[1;32m";
 			vector<Mat> H(strImgs.size());
 			vector<Mat> homoNoMultiplicated(strImgs.size());
-			clock_t begin = clock();
+			struct timeval begin;
+			gettimeofday(&begin, NULL);
 			//AGREGO INDENTACION
 
 			//CALCULO HOMOGRAFIAS PARA CADA IMAGEN
@@ -221,7 +224,7 @@ class UAVAgroStateStitcher{
 			double xMin=0;double xMax=0;double yMin=0;double yMax=0;
 			//obtengo kp
 			vector<Mat> imgs = CommonFunctions::cargarImagenes(strImgs , this->tamano);
-			begin = CommonFunctions::tiempo(begin, "********************Tiempo en cargar las imagenes:");
+			begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
 			vector<Mat> vecDesc;
 			vector< vector<KeyPoint> > vecKp;
 			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Obteniendo keypoints y descriptores: " + normal<< endl;
@@ -306,7 +309,7 @@ class UAVAgroStateStitcher{
 				// H[i] = H[i] / H[i].at<double>(2,2);
 			}
 			
-			begin = CommonFunctions::tiempo(begin, "********************Tiempo en obtener las homografias: ");
+			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
 			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
 			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Generando orthomosaico: ... ("<< strImgs.size()-1<< ")" + normal<< endl;
 			for (int i = 1; i < strImgs.size(); i++){
@@ -316,7 +319,7 @@ class UAVAgroStateStitcher{
 				imwrite(res, boundBox);
 			}
 
-			begin = CommonFunctions::tiempo(begin, "********************Tiempo en pegar imagenes: ");
+			begin = CommonFunctions::tiempo(begin, " pegar imagenes: ");
 
 			Mat tmp,alpha;
 			

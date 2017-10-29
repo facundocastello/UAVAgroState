@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <iostream>
+#include <sys/time.h>
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
 #include "opencv2/highgui/highgui.hpp"
@@ -89,12 +90,23 @@ class CommonFunctions{
 			imshow(namewindow, img);
 			waitKey();
 		}
-		clock_t static tiempo(clock_t begin, string msg){
-			clock_t end = clock();
+		timeval static tiempo(timeval begin, string msg){
 
-			cout << "\033[1;33m" << msg << double(end - begin) / CLOCKS_PER_SEC << "\033[0m" << '\n';
+			struct timeval end;
+			
+			double mtime, seconds, useconds;    
+
+			gettimeofday(&end, NULL);
+		
+			seconds  = end.tv_sec  - begin.tv_sec;
+			useconds = end.tv_usec - begin.tv_usec;
+		
+			mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
+
+			cout << "\033[1;33m" << "********************Tiempo en " <<msg << mtime/1000 << "\033[0m" << '\n';
 			return end;
 		}
+
 		//OBTIENE EL RECT BOUNDINGBOX DE LA REGION DE INTERES PARA LUEGO CORTARLO
 		Rect static rectROI(Mat img){
 			vector<vector<Point> > contours;

@@ -67,6 +67,9 @@ int main(int argc, char** argv)
 				int tamano = 4;
 				bool undistort = false;
 				float kPoints = 3	;
+
+				struct timeval begin;
+				gettimeofday(&begin, NULL);
 				
 				if(argc > 2){
 					if( atoi(argv[2]) == 0 ){
@@ -94,6 +97,8 @@ int main(int argc, char** argv)
 					tamano,kPoints);
 				Mat img = uav->stitchImgs(strImgs);		
 				imwrite("Imagenes/resultados/Pegado/resultado.png",img);
+				
+				CommonFunctions::tiempo(begin, "realizar todo: ");
 
 				// for(int i = 0; i < strImgs.size(); i++){
 				// 	UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
