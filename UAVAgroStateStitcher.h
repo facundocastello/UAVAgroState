@@ -23,7 +23,8 @@ class UAVAgroStateStitcher{
 	public:
 		int tamano;
 		float kPoints;
-
+		int maxMatch = 40;
+		
 		UAVAgroStateStitcher(int tamano = 4,
 					float kPoints = 3
 					)
@@ -38,13 +39,34 @@ class UAVAgroStateStitcher{
 			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
 
 			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
-
+			
 			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
 
-			objWarped.copyTo(scene, imgMaskWarped);
+			if(obj.channels() == 4){
+				//en el caso de que haya transparencia, se hace un pegado especial
+				Mat objAux(scene.size(), scene.type());
+				objWarped.copyTo(objAux, imgMaskWarped);
+				scene = copyToTransparent(objAux, scene);
+			}else{
+				objWarped.copyTo(scene, imgMaskWarped);
+			}
 
 			return{ scene, imgMaskWarped };
+		}
+
+		Mat copyToTransparent(Mat obj, Mat scene){
+			Mat rgbaObj[4];
+			split(obj,rgbaObj);
+			for(int i=0;i < obj.rows;i++){
+				for(int j=0;j < obj.cols;j++){
+					if(rgbaObj[3].at<uchar>(i,j) == 255){
+						scene.at<Vec4b>(i,j) = obj.at<Vec4b>(i,j);
+					}
+				}
+			}
+			return scene;
+			
 		}
 
 		vector<Mat> stitchWarpTransp(Mat scene, Mat obj, Mat homoMatrix){
@@ -53,8 +75,8 @@ class UAVAgroStateStitcher{
 
 			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
 
-			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
-			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
+			// Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+			// erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
 
 			objWarped  = CommonFunctions::makeBackGroundTransparent(objWarped);
 
@@ -65,7 +87,6 @@ class UAVAgroStateStitcher{
 		}
 
 		void saveDetectAndCompute(Mat img, Mat mask, Mat &descriptors, vector<KeyPoint> &keypoints){
-		   	// clock_t begin = clock();
 		   	///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 		  	//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
 			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
@@ -80,35 +101,22 @@ class UAVAgroStateStitcher{
 		void saveDetectAndCompute(vector<Mat> imgs,
 			 vector<Mat> &vecDesc,
 			 vector< vector<KeyPoint> > &vecKp){
-			// clock_t begin = clock();
 			///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 			//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
 			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
-			// FileStorage fsDesc("Data/DetectCompute/descriptores.yml", FileStorage::WRITE);
 			vecDesc = vector<Mat>(imgs.size());
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
 			cout << vecKp.size() <<endl;
-
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					std::vector<KeyPoint> keypoints;
 					Mat descriptors;
 					orb->detectAndCompute(imgs[i] , Mat() , keypoints , descriptors);
-					// fsDesc << "descriptor"+ to_string(i) << descriptors;
-					// fsDesc << "features" + to_string(i)  << "[";
-					// for( int i = 0; i < keypoints.size(); i++ )
-					// {
-					// 	fsDesc << "{:" << "x" << keypoints[i].pt.x << "y" << keypoints[i].pt.y << "}";
-					// }
-					// fsDesc << "]";
 					vecDesc[i]=descriptors;
 					vecKp[i]=keypoints;
 					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size()<< endl;
-					// begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores" + to_string(i) + ": ");
 				}
 			});
-
-			// fsDesc.release();
 		}
 		Mat readDetectAndComputeDesc(int i){
 			struct timeval begin;
@@ -140,7 +148,6 @@ class UAVAgroStateStitcher{
 			BFMatcher matcher(NORM_HAMMING,true);
 			vector< DMatch > matches;
 			matcher.match(descriptors_1, descriptors_2, matches);
-			// cout << "Cantidad de matches: "<<matches.size()<<" \n";
 			return matches;
 		}
 
@@ -158,7 +165,7 @@ class UAVAgroStateStitcher{
 			}
 						
 			vector< DMatch > matchAux;
-			int maxMatch = 30;
+			int maxMatch = this->maxMatch;
 			for(int i = 1;i < matches.size() ; i++){
 				for(int j = 0; j < matches[0].size();j++){
 					for(int k = 0;k < matches[i].size();k++){
@@ -176,13 +183,12 @@ class UAVAgroStateStitcher{
 						}
 					}
 				}
-				// cout<< "matchaux size: " << matchAux.size() << endl;
 			}
 			sort(matchAux.begin(), matchAux.end(), sortByDist);
 			sort(matches[0].begin(),matches[0].end(),sortByDist);
 			if(matchAux.size() < maxMatch) maxMatch = matchAux.size();
 			vector< DMatch > good_matches(matchAux.begin(),matchAux.begin() + maxMatch);
-			for(int i = 0; i < 40; i++){
+			for(int i = 0; i < this->maxMatch + 10; i++){
 				bool agregar = true;
 				for(int j = 0 ; j < good_matches.size(); j++){
 					if(good_matches[j].queryIdx == matches[0][i].queryIdx){
@@ -193,7 +199,6 @@ class UAVAgroStateStitcher{
 					good_matches.push_back(matches[0][i]);
 				}
 			}
-			// cout<< "goodmatches" << good_matches.size() << endl;
 			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
@@ -205,7 +210,6 @@ class UAVAgroStateStitcher{
 			Mat maskH;
 			H = findHomography(scene, obj, CV_RANSAC);
 			/// DEVUELVO H
-			// cout << "--------------------------------------------------------" << endl;
 			return{ H };
 		}
 
@@ -234,7 +238,6 @@ class UAVAgroStateStitcher{
 			parallel_for_(Range(0, strImgs.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					cout << "Empezo Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] +":" <<endl;
-					// cout << "Empezo Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] + " :" <<endl;
 					vector<Mat> aux;
 					int nMin;
 					(i<3)?nMin=i:nMin=3;
@@ -272,26 +275,24 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 				if(H[i+1].at<double>(0,2) < xMin){
 					xMin = H[i+1].at<double>(0,2);
-					// cout << "xmin " << xMin << endl;
 				}
 				if(H[i+1].at<double>(0,2) > xMax){
 					xMax = H[i+1].at<double>(0,2);
-					// cout << "xmax " << xMax << endl;
 				}
 				if(H[i+1].at<double>(1,2) < yMin){
 					yMin = H[i+1].at<double>(1,2);
-					// cout << "ymin " << yMin << endl;
 				}
 				if(H[i+1].at<double>(1,2) > yMax){
 					yMax = H[i+1].at<double>(1,2);
-					// cout << "ymax " << yMax << endl;
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
-			// fsHomo.release();
+			fsHomo.release();
 
-			Mat boundBox = CommonFunctions::cargarImagen(strImgs[0], this->tamano);;
+			Mat boundBox = imgs[0];
 			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1) + boundBox.cols, yMax , (xMin * -1),xMax);
+			// CommonFunctions::showWindowNormal(boundBox);
+			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 			Mat boundBoxMask;
 			threshold( boundBox, boundBoxMask, 1, 255,THRESH_BINARY );
 			cvtColor(boundBoxMask, boundBoxMask, cv::COLOR_RGB2GRAY);
@@ -299,14 +300,12 @@ class UAVAgroStateStitcher{
 			Mat descriptors;
 			vector<KeyPoint> keypoints;
 			saveDetectAndCompute(boundBox , boundBoxMask, descriptors, keypoints);
-
-			Mat img1 = CommonFunctions::cargarImagen(strImgs[1] , this->tamano);
-
 			vector<Mat> aux = matchAndTransform({descriptors,vecDesc[1]},{keypoints,vecKp[1]});
+			
 			H[1] = aux[0];
 			for(int i = 2 ; i < H.size(); i++){
 				H[i]=H[i-1] * homoNoMultiplicated[i];
-				// H[i] = H[i] / H[i].at<double>(2,2);
+				H[i] = H[i] / H[i].at<double>(2,2);
 			}
 			
 			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
@@ -320,17 +319,9 @@ class UAVAgroStateStitcher{
 			}
 
 			begin = CommonFunctions::tiempo(begin, " pegar imagenes: ");
-
-			Mat tmp,alpha;
-			
-			cvtColor(boundBox,tmp,CV_BGR2GRAY);
-			threshold(tmp,alpha,1,255,THRESH_BINARY);
-			
-			Mat rgb[3];
-			split(boundBox,rgb);
-			
-			Mat rgba[4]={rgb[0],rgb[1],rgb[2],alpha};
-			merge(rgba,4,boundBox);
+			if(boundBox.channels() < 4){
+				boundBox = CommonFunctions::addTransparence(boundBox);
+			}
 
 			return boundBox;
 		}

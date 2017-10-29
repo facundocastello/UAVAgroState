@@ -43,7 +43,7 @@ class CommonFunctions{
 		}
 
 		Mat static cargarImagen(string strImg , int tamano = 4){
-			Mat img = imread(strImg);
+			Mat img = imread(strImg, IMREAD_UNCHANGED);
 			resize(img, img, Size(img.cols / tamano, img.rows / tamano));
 			return img;
 		}
@@ -134,8 +134,15 @@ class CommonFunctions{
 			img.copyTo(roibounding);
 			return boundingBox;
 		}
+
 		Mat static boundingBox(Mat img, int arIndent, int abIndent,int izIndent,int derIndent){
-			Mat boundingBox(Size(img.cols+ izIndent + derIndent, img.rows + arIndent + abIndent ), CV_8UC3, Scalar(0, 0, 0));
+			Scalar scal;
+			if(img.channels() == 4){
+				scal = Scalar(0, 0, 0, 0);
+			}else{
+				scal = Scalar(0, 0, 0);
+			}
+			Mat boundingBox(Size(img.cols+ izIndent + derIndent, img.rows + arIndent + abIndent ), img.type(), Scalar(0, 0, 0));
 			Mat roibounding(boundingBox, Rect(izIndent,arIndent, img.cols, img.rows));
 			img.copyTo(roibounding);
 			return boundingBox;
@@ -250,6 +257,22 @@ class CommonFunctions{
 
 			return M;
 		  }
+
+		  Mat static addTransparence(Mat img){
+			Mat tmp,alpha;
+			
+			cvtColor(img,tmp,CV_BGR2GRAY);
+			threshold(tmp,alpha,1,255,THRESH_BINARY);
+			
+			Mat rgb[3];
+			split(img,rgb);
+			
+			Mat rgba[4]={rgb[0],rgb[1],rgb[2],alpha};
+			merge(rgba,4,img);
+
+			return img;
+		  }
+		  
 		
 
 };
