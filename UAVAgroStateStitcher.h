@@ -37,7 +37,6 @@ class UAVAgroStateStitcher{
 		vector<Mat> stitchWarp(Mat scene, Mat obj, Mat homoMatrix){
 			Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(obj.size(), CV_8UC1, cv::Scalar(255));;
 			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
-
 			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
 			
 			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
@@ -156,9 +155,7 @@ class UAVAgroStateStitcher{
 		}
 
 
-		vector<Mat> matchAndTransform(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints)
-		{
-			Mat H;
+		vector< DMatch > match(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints){
 			vector< vector< DMatch > > matches;
 			for(int i = 1;i < descriptors.size() ; i++){
 				matches.push_back(this->matchKp(descriptors[0],descriptors[i]));
@@ -199,6 +196,49 @@ class UAVAgroStateStitcher{
 					good_matches.push_back(matches[0][i]);
 				}
 			}
+			vector< DMatch > gm;
+			for(int i = 0; i < good_matches.size(); i++){
+				Point2f pt0 = keypoints[0][good_matches[i].queryIdx].pt;
+				Point2f pt1 = keypoints[1][good_matches[i].trainIdx].pt;
+				
+				if( abs(pt1.y-pt0.y) > 100 && abs(pt1.y-pt0.y) < 200 ){
+					gm.push_back(good_matches[i]);
+				}
+			}
+			if(gm.size() == 0){
+				gm = good_matches;
+			}
+
+			return gm;
+		}
+
+		vector<Mat> matchAndTransform(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints)
+		{
+			Mat H;
+			vector< DMatch > good_matches = match(descriptors,keypoints);
+			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
+			std::vector<Point2f> obj;
+			std::vector<Point2f> scene;
+			for (int i = 0; i < good_matches.size(); i++) {
+				obj.push_back(keypoints[0][good_matches[i].queryIdx].pt);
+				scene.push_back(keypoints[1][good_matches[i].trainIdx].pt);
+			}
+			// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
+			Mat maskH;
+			H = findHomography(scene, obj, CV_RANSAC);
+			/// DEVUELVO H
+			return{ H };
+		}
+
+		vector<Mat> matchAndTransform(Mat img1, Mat img2, int i, vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints)
+		{
+			Mat H;
+			vector< DMatch > good_matches = match(descriptors,keypoints);
+			Mat aux;
+			drawMatches(img1, keypoints[0],img2,keypoints[1],good_matches,aux,
+				Scalar::all(-1),Scalar::all(-1),
+				std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+			imwrite("Imagenes/resultados/Pegado/matchs"+to_string(i)+".png",aux);
 			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
@@ -237,7 +277,7 @@ class UAVAgroStateStitcher{
 			//usado para documentar las homografias
 			parallel_for_(Range(0, strImgs.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-					cout << "Empezo Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] +":" <<endl;
+					cout << "Empezo Match y Homografia "+to_string(i)+ ": \n";
 					vector<Mat> aux;
 					int nMin;
 					(i<3)?nMin=i:nMin=3;
@@ -257,7 +297,7 @@ class UAVAgroStateStitcher{
 						newVecDesc.push_back(vecDesc[i+j]);
 						newVecKp.push_back(vecKp[i+j]);
 					}
-					aux = matchAndTransform(newVecDesc,newVecKp);
+					aux = matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
 					
 					//Una homografia es para calcular el boundbox (H) y la otra es para
 					//con ese boundbox calcular las otras homografias, multiplicandolas 
@@ -265,7 +305,7 @@ class UAVAgroStateStitcher{
 					homoNoMultiplicated[i+1] = (aux[0]);
 					//Encuentro el maximo y minimo tanto en x como en y de todas las 
 					//homografias para despues poder hacer el bounding box;
-					cout << "Termino Match y Homografia de "+strImgs[i]+" y " + strImgs[i+1] + " :" <<endl;
+					cout << "Termino Match y Homografia "+to_string(i)+ ": \n";
 					
 				}
 			});
@@ -290,8 +330,8 @@ class UAVAgroStateStitcher{
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
-			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1) + boundBox.cols, yMax , (xMin * -1),xMax);
-			// CommonFunctions::showWindowNormal(boundBox);
+			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1) + 2000 + boundBox.cols, yMax , (xMin * -1),xMax);
+
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 			Mat boundBoxMask;
 			threshold( boundBox, boundBoxMask, 1, 255,THRESH_BINARY );
@@ -300,7 +340,8 @@ class UAVAgroStateStitcher{
 			Mat descriptors;
 			vector<KeyPoint> keypoints;
 			saveDetectAndCompute(boundBox , boundBoxMask, descriptors, keypoints);
-			vector<Mat> aux = matchAndTransform({descriptors,vecDesc[1]},{keypoints,vecKp[1]});
+			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{descriptors,vecDesc[1]},{keypoints,vecKp[1]});
+			// matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
 			
 			H[1] = aux[0];
 			for(int i = 2 ; i < H.size(); i++){
