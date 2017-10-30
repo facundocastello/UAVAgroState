@@ -24,6 +24,11 @@ class UAVAgroStateStitcher{
 		int tamano;
 		float kPoints;
 		int maxMatch = 40;
+		bool bound = false;
+		double yMin=0;
+		double yMax=0;
+		double xMin=0;
+		double xMax=0;
 		
 		UAVAgroStateStitcher(int tamano = 4,
 					float kPoints = 3
@@ -196,18 +201,36 @@ class UAVAgroStateStitcher{
 					good_matches.push_back(matches[0][i]);
 				}
 			}
+			int min = 100;
+			int max = 200;
+			int valx = 75; //75 para las altas
 			vector< DMatch > gm;
-			for(int i = 0; i < good_matches.size(); i++){
-				Point2f pt0 = keypoints[0][good_matches[i].queryIdx].pt;
-				Point2f pt1 = keypoints[1][good_matches[i].trainIdx].pt;
-				
-				if( abs(pt1.y-pt0.y) > 100 && abs(pt1.y-pt0.y) < 200 ){
-					gm.push_back(good_matches[i]);
+			if(this->bound){
+				min+=abs(this->yMin);
+				max+=abs(this->yMax);
+			}
+			// if(!this->bound){
+				while(gm.size() < 4){
+					gm= vector< DMatch >();
+					for(int i = 0; i < good_matches.size(); i++){
+						Point2f pt0 = keypoints[0][good_matches[i].queryIdx].pt;
+						Point2f pt1 = keypoints[1][good_matches[i].trainIdx].pt;
+						
+						if( (pt1.y-pt0.y) > min && (pt1.y-pt0.y) < max 
+							&& abs(pt1.x-pt0.x) < valx
+							){
+							gm.push_back(good_matches[i]);
+						}
+					}
+					min+=100;
+					max+=100;
+					if(max>5000){
+						break;
+					}
 				}
-			}
-			if(gm.size() == 0){
-				gm = good_matches;
-			}
+				if(gm.size() < 4){
+					gm = good_matches;
+				}
 
 			return gm;
 		}
@@ -238,7 +261,7 @@ class UAVAgroStateStitcher{
 			drawMatches(img1, keypoints[0],img2,keypoints[1],good_matches,aux,
 				Scalar::all(-1),Scalar::all(-1),
 				std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-			imwrite("Imagenes/resultados/Pegado/matchs"+to_string(i)+".png",aux);
+			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(i)+".png",aux);
 			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
@@ -265,7 +288,6 @@ class UAVAgroStateStitcher{
 			//CALCULO HOMOGRAFIAS PARA CADA IMAGEN
 			H[0] = (Mat::eye(3, 3, CV_64F));
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
-			double xMin=0;double xMax=0;double yMin=0;double yMax=0;
 			//obtengo kp
 			vector<Mat> imgs = CommonFunctions::cargarImagenes(strImgs , this->tamano);
 			begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
@@ -297,7 +319,7 @@ class UAVAgroStateStitcher{
 						newVecDesc.push_back(vecDesc[i+j]);
 						newVecKp.push_back(vecKp[i+j]);
 					}
-					aux = matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
+					aux = matchAndTransform(imgs[i],imgs[i+1],i+1,newVecDesc,newVecKp);
 					
 					//Una homografia es para calcular el boundbox (H) y la otra es para
 					//con ese boundbox calcular las otras homografias, multiplicandolas 
@@ -313,26 +335,27 @@ class UAVAgroStateStitcher{
 			for(int i = 0; i < strImgs.size()-1;i++){
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-				if(H[i+1].at<double>(0,2) < xMin){
-					xMin = H[i+1].at<double>(0,2);
+				if(H[i+1].at<double>(0,2) < this->xMin){
+					this->xMin = H[i+1].at<double>(0,2);
 				}
-				if(H[i+1].at<double>(0,2) > xMax){
-					xMax = H[i+1].at<double>(0,2);
+				if(H[i+1].at<double>(0,2) > this->xMax){
+					this->xMax = H[i+1].at<double>(0,2);
 				}
-				if(H[i+1].at<double>(1,2) < yMin){
-					yMin = H[i+1].at<double>(1,2);
+				if(H[i+1].at<double>(1,2) < this->yMin){
+					this->yMin = H[i+1].at<double>(1,2);
 				}
-				if(H[i+1].at<double>(1,2) > yMax){
-					yMax = H[i+1].at<double>(1,2);
+				if(H[i+1].at<double>(1,2) > this->yMax){
+					this->yMax = H[i+1].at<double>(1,2);
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
-			boundBox = CommonFunctions::boundingBox(boundBox, (yMin * -1) + 2000 + boundBox.cols, yMax , (xMin * -1),xMax);
-
-			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
+			this->yMin-=1000;
+			boundBox = CommonFunctions::boundingBox(boundBox, abs(this->yMin) , this->yMax , abs(this->xMin),this->xMax);
+			
+			cout<< "ymin: "<< yMin << " ymax: "<< this->yMax<< "xmin: "<< this->xMin << " xmax: "<< this->xMax << endl;
 			Mat boundBoxMask;
 			threshold( boundBox, boundBoxMask, 1, 255,THRESH_BINARY );
 			cvtColor(boundBoxMask, boundBoxMask, cv::COLOR_RGB2GRAY);
@@ -340,6 +363,7 @@ class UAVAgroStateStitcher{
 			Mat descriptors;
 			vector<KeyPoint> keypoints;
 			saveDetectAndCompute(boundBox , boundBoxMask, descriptors, keypoints);
+			this->bound=true;
 			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{descriptors,vecDesc[1]},{keypoints,vecKp[1]});
 			// matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
 			
