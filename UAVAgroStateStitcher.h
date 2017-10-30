@@ -209,7 +209,6 @@ class UAVAgroStateStitcher{
 				min+=abs(this->yMin);
 				max+=abs(this->yMax);
 			}
-			// if(!this->bound){
 				while(gm.size() < 4){
 					gm= vector< DMatch >();
 					for(int i = 0; i < good_matches.size(); i++){
@@ -231,7 +230,7 @@ class UAVAgroStateStitcher{
 				if(gm.size() < 4){
 					gm = good_matches;
 				}
-
+			}
 			return gm;
 		}
 
@@ -332,9 +331,16 @@ class UAVAgroStateStitcher{
 				}
 			});
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
+			Mat hVal=H[0];
+			double hSum = 0;
 			for(int i = 0; i < strImgs.size()-1;i++){
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+				hVal += H[i+1];
+				hSum += abs(H[i+1].at<double>(0,0)) +
+				abs(H[i+1].at<double>(0,1)) +
+				abs(H[i+1].at<double>(1,0)) +
+				abs(H[i+1].at<double>(1,1));
 				if(H[i+1].at<double>(0,2) < this->xMin){
 					this->xMin = H[i+1].at<double>(0,2);
 				}
@@ -349,6 +355,9 @@ class UAVAgroStateStitcher{
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
+			cout<< "suma de valores de homografia: "  << hSum / (hVal.at<double>(2,2)-1) <<endl; 
+			hVal = hVal / hVal.at<double>(2,2);
+			fsHomo << "suma_homografia" << hVal;
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
