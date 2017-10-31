@@ -23,7 +23,7 @@ class UAVAgroStateStitcher{
 	public:
 		int tamano;
 		float kPoints;
-		int maxMatch = 40;
+		int maxMatch = 100;
 		bool bound = false;
 		double yMin=0;
 		double yMax=0;
@@ -73,52 +73,34 @@ class UAVAgroStateStitcher{
 			
 		}
 
-		vector<Mat> stitchWarpTransp(Mat scene, Mat obj, Mat homoMatrix){
-			Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(obj.size(), CV_8UC1, cv::Scalar(255));;
-			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
-
-			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
-
-			// Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
-			// erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
-
-			objWarped  = CommonFunctions::makeBackGroundTransparent(objWarped);
-
-
-			objWarped.copyTo(scene, imgMaskWarped);
-
-			return{ scene, imgMaskWarped };
-		}
-
-		void saveDetectAndCompute(Mat img, Mat mask, Mat &descriptors, vector<KeyPoint> &keypoints){
-		   	///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
-		  	//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
-			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
-			cout << "--------------------------------------------------------" << endl;
-			cout << "Calculando KeyPoints y descriptores de la imagen sola: ... ";
-
-			orb->detectAndCompute(img , mask , keypoints , descriptors);
-			cout << "\n KeyPoint imagen: " << keypoints.size()<< endl;
-			// begin = CommonFunctions::tiempo(begin, "Tiempo para kp y descriptores: ");
-		}
-		
+	
 		void saveDetectAndCompute(vector<Mat> imgs,
 			 vector<Mat> &vecDesc,
 			 vector< vector<KeyPoint> > &vecKp){
 			///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 			//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
-			Ptr<cv::BRISK> orb = cv::BRISK::create(this->kPoints);
 			vecDesc = vector<Mat>(imgs.size());
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
 			cout << vecKp.size() <<endl;
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
+					float kTres = this->kPoints;
 					std::vector<KeyPoint> keypoints;
 					Mat descriptors;
-					orb->detectAndCompute(imgs[i] , Mat() , keypoints , descriptors);
+					while(keypoints.size() < 5000 && kTres >= 0){
+						Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
+						// Ptr<cv::AKAZE> orb = cv::AKAZE::create(
+						// 	AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
+						orb->detectAndCompute(imgs[i] , Mat() , keypoints , descriptors);
+
+						cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size()<< endl;
+						if(keypoints.size() < 5000){
+							cout << "recalculando keypoints " + to_string(i) <<endl;
+						}
+						kTres--;
+					}
 					vecDesc[i]=descriptors;
 					vecKp[i]=keypoints;
-					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size()<< endl;
 				}
 			});
 		}
@@ -155,82 +137,44 @@ class UAVAgroStateStitcher{
 			return matches;
 		}
 
-		vector< DMatch > compareMatch(){
-
-		}
-
-
 		vector< DMatch > match(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints){
 			vector< vector< DMatch > > matches;
 			for(int i = 1;i < descriptors.size() ; i++){
 				matches.push_back(this->matchKp(descriptors[0],descriptors[i]));
 			}
 						
-			vector< DMatch > matchAux;
-			int maxMatch = this->maxMatch;
-			for(int i = 1;i < matches.size() ; i++){
-				for(int j = 0; j < matches[0].size();j++){
-					for(int k = 0;k < matches[i].size();k++){
-						if(matches[0][j].queryIdx ==  matches[i][k].queryIdx){
-							bool agregar = true;
-							for( int l = 0;l < matchAux.size(); l++){
-								if(matchAux[l].queryIdx == matches[0][j].queryIdx){
-									agregar = false;
-									break;
-								}
-							}
-							if(agregar){
-								matchAux.push_back(matches[0][j]);
-							}
-						}
-					}
-				}
-			}
-			sort(matchAux.begin(), matchAux.end(), sortByDist);
-			sort(matches[0].begin(),matches[0].end(),sortByDist);
-			if(matchAux.size() < maxMatch) maxMatch = matchAux.size();
-			vector< DMatch > good_matches(matchAux.begin(),matchAux.begin() + maxMatch);
-			for(int i = 0; i < this->maxMatch + 10; i++){
-				bool agregar = true;
-				for(int j = 0 ; j < good_matches.size(); j++){
-					if(good_matches[j].queryIdx == matches[0][i].queryIdx){
-						agregar = false;
-					}
-				}
-				if(agregar){
-					good_matches.push_back(matches[0][i]);
-				}
-			}
 			int min = 100;
 			int max = 200;
-			int valx = 75; //75 para las altas
+			int minvalx = 0;
+			int maxvalx =75; //75 para las altas
 			vector< DMatch > gm;
-			if(this->bound){
-				min+=abs(this->yMin);
-				max+=abs(this->yMax);
-			}
-				while(gm.size() < 4){
-					gm= vector< DMatch >();
-					for(int i = 0; i < good_matches.size(); i++){
-						Point2f pt0 = keypoints[0][good_matches[i].queryIdx].pt;
-						Point2f pt1 = keypoints[1][good_matches[i].trainIdx].pt;
-						
-						if( (pt1.y-pt0.y) > min && (pt1.y-pt0.y) < max 
-							&& abs(pt1.x-pt0.x) < valx
-							){
-							gm.push_back(good_matches[i]);
-						}
+			while(gm.size() < 4){
+				gm= vector< DMatch >();
+				for(int i = 0; i < matches[0].size(); i++){
+					Point2f pt0 = keypoints[0][matches[0][i].queryIdx].pt;
+					Point2f pt1 = keypoints[1][matches[0][i].trainIdx].pt;
+					// cout<< "y: "<<(pt1.y-pt0.y) << endl;
+					// cout<< "x: "<<abs(pt1.x-pt0.x) << endl;
+					if(this->bound){
+						pt0.y-=abs(this->yMin);
+						pt0.x-=abs(this->xMin);
 					}
-					min+=100;
-					max+=100;
-					if(max>5000){
-						break;
+					if( (pt1.y-pt0.y) > min && (pt1.y-pt0.y) < max 
+						&& abs(pt1.x-pt0.x) >= minvalx && abs(pt1.x-pt0.x) < maxvalx
+						){
+						gm.push_back(matches[0][i]);
 					}
 				}
-				if(gm.size() < 4){
-					gm = good_matches;
+				min+=100;
+				max+=100;
+				if(max>5000){
+					break;
 				}
 			}
+			if(gm.size() < 4){
+				gm = matches[0];
+			}
+			
 			return gm;
 		}
 
@@ -323,6 +267,9 @@ class UAVAgroStateStitcher{
 					//Una homografia es para calcular el boundbox (H) y la otra es para
 					//con ese boundbox calcular las otras homografias, multiplicandolas 
 					//esta es homonomultpilicates
+					// while(homoNoMultiplicated[i].empty()){
+
+					// }
 					homoNoMultiplicated[i+1] = (aux[0]);
 					//Encuentro el maximo y minimo tanto en x como en y de todas las 
 					//homografias para despues poder hacer el bounding box;
@@ -361,19 +308,31 @@ class UAVAgroStateStitcher{
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
-			this->yMin-=1000;
-			boundBox = CommonFunctions::boundingBox(boundBox, abs(this->yMin) , this->yMax , abs(this->xMin),this->xMax);
 			
-			cout<< "ymin: "<< yMin << " ymax: "<< this->yMax<< "xmin: "<< this->xMin << " xmax: "<< this->xMax << endl;
-			Mat boundBoxMask;
-			threshold( boundBox, boundBoxMask, 1, 255,THRESH_BINARY );
-			cvtColor(boundBoxMask, boundBoxMask, cv::COLOR_RGB2GRAY);
+			this->yMin-=1000;
 
-			Mat descriptors;
-			vector<KeyPoint> keypoints;
-			saveDetectAndCompute(boundBox , boundBoxMask, descriptors, keypoints);
+			cout<< "ymin: "<< yMin << " ymax: "<< this->yMax<< "xmin: "<< this->xMin << " xmax: "<< this->xMax << endl;
+
+			if(abs(this->yMin) > (imgs[0].rows * imgs.size()/2)
+				|| 	abs(this->yMax) > (imgs[0].rows * imgs.size()/2)
+				|| 	abs(this->xMin) > (imgs[0].cols * imgs.size()/2)
+				|| 	abs(this->xMax) > (imgs[0].cols * imgs.size()/2)){
+			cout<< "mal pegado"<<(abs(this->yMin) > (imgs[0].rows * imgs.size()/2) )
+			<< 	(abs(this->yMax) > (imgs[0].rows * imgs.size()/2))
+			<< 	(abs(this->xMin) > (imgs[0].cols * imgs.size()/2))
+			<< 	(abs(this->xMax) > (imgs[0].cols * imgs.size()/2))<<endl;
+			cout<< imgs[0].rows * imgs.size()/2;
+			return Mat();
+			}
+			
+			boundBox = CommonFunctions::boundingBox(boundBox, abs(this->yMin) , this->yMax , abs(this->xMin),this->xMax);	
+			Point2f ptAux(abs(xMin),abs(yMin));
+			for(int i=0;i<vecKp[0].size();i++){
+				vecKp[0][i].pt+=ptAux;
+			}
+
 			this->bound=true;
-			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{descriptors,vecDesc[1]},{keypoints,vecKp[1]});
+			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{vecDesc[0],vecDesc[1]},{vecKp[0],vecKp[1]});
 			// matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
 			
 			H[1] = aux[0];
