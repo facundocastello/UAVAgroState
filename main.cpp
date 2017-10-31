@@ -9,7 +9,6 @@ using namespace cv;
 
 void readme();
 
-
 int main(int argc, char** argv)
 {
 	int option = 0;
@@ -78,12 +77,21 @@ int main(int argc, char** argv)
 						return 0;
 					}
 					tamano = stoi(argv[2]);
+				}else{
+					cout<< "Resize de las imagenes 1/n, ingrese n: ";
+					cin>>tamano;
 				}
 				if(argc > 3){
 					undistort = stoi(argv[3]);
+				}else{
+					cout<< "Quiere cargar las imagenes desde undistort? (1): ";
+					cin>>undistort;
 				}
 				if(argc > 4){
 					kPoints = stof(argv[4]);
+				}else{
+					cout<< "Que threshold ingresara? (1): ";
+					cin>>kPoints;
 				}
 
 				vector<string> strImgs;

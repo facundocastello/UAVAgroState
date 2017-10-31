@@ -36,7 +36,6 @@ class UAVAgroStateStitcher{
 		{
 			this->tamano = tamano;
 			this->kPoints = kPoints;
-			//position: -abDer = 0 -abIzq = 1 -arDer = 2 -arIzq = 3
 		}
 
 		vector<Mat> stitchWarp(Mat scene, Mat obj, Mat homoMatrix){
@@ -49,11 +48,13 @@ class UAVAgroStateStitcher{
 
 			if(obj.channels() == 4){
 				//en el caso de que haya transparencia, se hace un pegado especial
-				Mat objAux(scene.size(), scene.type());
+				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0,0));
 				objWarped.copyTo(objAux, imgMaskWarped);
 				scene = copyToTransparent(objAux, scene);
 			}else{
-				objWarped.copyTo(scene, imgMaskWarped);
+				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
+				objWarped.copyTo(objAux, imgMaskWarped);
+				scene = specialBlending(objAux, scene);
 			}
 
 			return{ scene, imgMaskWarped };
@@ -70,7 +71,24 @@ class UAVAgroStateStitcher{
 				}
 			}
 			return scene;
-			
+		}
+
+		Mat specialBlending(Mat obj, Mat scene){
+
+			for(int i=0;i < obj.rows;i++){
+				for(int j=0;j < obj.cols;j++){
+					if(obj.at<Vec3b>(i,j) != Vec3b(0,0,0)){
+						if(scene.at<Vec3b>(i,j) != Vec3b(0,0,0)){
+							scene.at<Vec3b>(i,j)[0] = scene.at<Vec3b>(i,j)[0] * 0.5 + obj.at<Vec3b>(i,j)[0] * 0.5;
+							scene.at<Vec3b>(i,j)[1] = scene.at<Vec3b>(i,j)[1] * 0.5 + obj.at<Vec3b>(i,j)[1] * 0.5;
+							scene.at<Vec3b>(i,j)[2] = scene.at<Vec3b>(i,j)[2] * 0.5 + obj.at<Vec3b>(i,j)[2] * 0.5;
+						}else{
+							scene.at<Vec3b>(i,j) = obj.at<Vec3b>(i,j);
+						}
+					}
+				}
+			}
+			return scene;
 		}
 
 	
@@ -308,8 +326,6 @@ class UAVAgroStateStitcher{
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
-			
-			this->yMin-=1000;
 
 			cout<< "ymin: "<< yMin << " ymax: "<< this->yMax<< "xmin: "<< this->xMin << " xmax: "<< this->xMax << endl;
 
