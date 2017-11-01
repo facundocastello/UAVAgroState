@@ -8,6 +8,7 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "funcionesutiles.h"
+#include <unistd.h>
 #include "CommonFunctions.h"
 
 using namespace cv;
@@ -29,6 +30,8 @@ class UAVAgroStateStitcher{
 		double yMax=0;
 		double xMin=0;
 		double xMax=0;
+		int imgHeight;
+		int imgWidth;
 		
 		UAVAgroStateStitcher(int tamano = 4,
 					float kPoints = 3
@@ -155,85 +158,80 @@ class UAVAgroStateStitcher{
 			return matches;
 		}
 
-		vector< DMatch > match(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints){
-			vector< vector< DMatch > > matches;
-			for(int i = 1;i < descriptors.size() ; i++){
-				matches.push_back(this->matchKp(descriptors[0],descriptors[i]));
-			}
-						
-			int min = 100;
-			int max = 200;
-			int minvalx = 0;
-			int maxvalx =75; //75 para las altas
+		vector< DMatch > goodMatches(vector< DMatch > match,vector< vector<KeyPoint> > keypoints,	int minvaly,int maxvaly,int minvalx, int maxvalx){
 			vector< DMatch > gm;
 			while(gm.size() < 4){
 				gm= vector< DMatch >();
-				for(int i = 0; i < matches[0].size(); i++){
-					Point2f pt0 = keypoints[0][matches[0][i].queryIdx].pt;
-					Point2f pt1 = keypoints[1][matches[0][i].trainIdx].pt;
+				for(int i = 0; i < match.size(); i++){
+					Point2f pt0 = keypoints[0][match[i].queryIdx].pt;
+					Point2f pt1 = keypoints[1][match[i].trainIdx].pt;
 					// cout<< "y: "<<(pt1.y-pt0.y) << endl;
 					// cout<< "x: "<<abs(pt1.x-pt0.x) << endl;
 					if(this->bound){
 						pt0.y-=abs(this->yMin);
 						pt0.x-=abs(this->xMin);
 					}
-					if( (pt1.y-pt0.y) > min && (pt1.y-pt0.y) < max 
+					if( abs(pt1.y-pt0.y) > minvaly && abs(pt1.y-pt0.y) < maxvaly 
 						&& abs(pt1.x-pt0.x) >= minvalx && abs(pt1.x-pt0.x) < maxvalx
 						){
-						gm.push_back(matches[0][i]);
+						gm.push_back(match[i]);
 					}
 				}
-				min+=100;
-				max+=100;
-				if(max>5000){
+				minvaly+=this->imgHeight*0.15;
+				maxvaly+=this->imgHeight*0.15;
+				if(maxvaly>5000){
 					break;
 				}
 			}
 			if(gm.size() < 4){
-				gm = matches[0];
+				gm = match;
 			}
 			
 			return gm;
 		}
 
-		vector<Mat> matchAndTransform(vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints)
+		vector<Mat> getHomography(Mat img1, Mat img2, int i,vector< vector<KeyPoint> > keypoints, Mat lastH, vector< DMatch > match )
 		{
-			Mat H;
-			vector< DMatch > good_matches = match(descriptors,keypoints);
-			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
-			std::vector<Point2f> obj;
-			std::vector<Point2f> scene;
-			for (int i = 0; i < good_matches.size(); i++) {
-				obj.push_back(keypoints[0][good_matches[i].queryIdx].pt);
-				scene.push_back(keypoints[1][good_matches[i].trainIdx].pt);
-			}
-			// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
-			Mat maskH;
-			H = findHomography(scene, obj, CV_RANSAC);
-			/// DEVUELVO H
-			return{ H };
-		}
+			Mat H;double minHomoX = 9999;double minHomoY=9999;
+			int minvaly = this->imgHeight*0.15;
+			int maxvaly = this->imgHeight*0.35;
+			int minvalx = 0;
+			int maxvalx =50;
 
-		vector<Mat> matchAndTransform(Mat img1, Mat img2, int i, vector<Mat> descriptors,vector< vector<KeyPoint> > keypoints)
-		{
-			Mat H;
-			vector< DMatch > good_matches = match(descriptors,keypoints);
-			Mat aux;
-			drawMatches(img1, keypoints[0],img2,keypoints[1],good_matches,aux,
-				Scalar::all(-1),Scalar::all(-1),
-				std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(i)+".png",aux);
-			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
-			std::vector<Point2f> obj;
-			std::vector<Point2f> scene;
-			for (int i = 0; i < good_matches.size(); i++) {
-				obj.push_back(keypoints[0][good_matches[i].queryIdx].pt);
-				scene.push_back(keypoints[1][good_matches[i].trainIdx].pt);
+			for(int j=0;j<20;j++){
+				vector< DMatch > good_matches = goodMatches(match,keypoints,minvaly,maxvaly,minvalx,maxvalx);
+				Mat aux;
+				drawMatches(img1, keypoints[0],img2,keypoints[1],good_matches,aux,
+					Scalar::all(-1),Scalar::all(-1),
+					std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+				imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(i)+".png",aux);
+				///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
+				std::vector<Point2f> obj;
+				std::vector<Point2f> scene;
+				for (int i = 0; i < good_matches.size(); i++) {
+					obj.push_back(keypoints[0][good_matches[i].queryIdx].pt);
+					scene.push_back(keypoints[1][good_matches[i].trainIdx].pt);
+				}
+				// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
+				Mat maskH;
+				if(good_matches.size() > 4){
+					Mat auxH = findHomography(scene, obj, CV_RANSAC);
+					/// DEVUELVO H
+					if(!auxH.empty()){
+						Mat prodH=lastH*auxH;
+						double auxHomoX = abs( abs(prodH.at<double>(0,0)) + abs(prodH.at<double>(0,1)) - 1 );
+						double auxHomoY = abs( abs(prodH.at<double>(1,0)) + abs(prodH.at<double>(1,1)) - 1 );
+						if(auxHomoX < minHomoX && auxHomoY < minHomoY){
+							H = auxH;
+							minHomoX = auxHomoX;
+							minHomoY = auxHomoY;
+						}
+					}
+				}else{
+					break;
+				}
+				maxvalx --;
 			}
-			// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
-			Mat maskH;
-			H = findHomography(scene, obj, CV_RANSAC);
-			/// DEVUELVO H
 			return{ H };
 		}
 
@@ -251,61 +249,36 @@ class UAVAgroStateStitcher{
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
 			//obtengo kp
 			vector<Mat> imgs = CommonFunctions::cargarImagenes(strImgs , this->tamano);
+			imgHeight =imgs[0].rows;
+			imgWidth =imgs[0].cols;
 			begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
 			vector<Mat> vecDesc;
 			vector< vector<KeyPoint> > vecKp;
+			vector< vector< DMatch > > vecMatch(strImgs.size()-1);
 			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Obteniendo keypoints y descriptores: " + normal<< endl;
 			saveDetectAndCompute(imgs, vecDesc, vecKp);
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Matcheando y obteniendo Homografias: " + normal << endl;
+			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Matcheando: " + normal << endl;
 			//usado para documentar las homografias
 			parallel_for_(Range(0, strImgs.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-					cout << "Empezo Match y Homografia "+to_string(i)+ ": \n";
-					vector<Mat> aux;
-					int nMin;
-					(i<3)?nMin=i:nMin=3;
-					int nMax;
-					int nMaxVal=3;
-					((vecDesc.size()-i-1) < nMaxVal )? nMax=(vecDesc.size()-i-1) : nMax=nMaxVal;
-
-					vector<Mat> newVecDesc;
-					vector< vector<KeyPoint> > newVecKp;
-					newVecDesc.push_back(vecDesc[i]);
-					newVecKp.push_back(vecKp[i]);
-					// for(int j=1;j <= nMin;j++){
-					// 	newVecDesc.push_back(vecDesc[i-j]);
-					// 	newVecKp.push_back(vecKp[i-j]);
-					// }
-					for(int j=1;j <= nMax;j++){
-						newVecDesc.push_back(vecDesc[i+j]);
-						newVecKp.push_back(vecKp[i+j]);
-					}
-					aux = matchAndTransform(imgs[i],imgs[i+1],i+1,newVecDesc,newVecKp);
+					cout << "Empezo Match "+to_string(i)+ ". \n";
 					
-					//Una homografia es para calcular el boundbox (H) y la otra es para
-					//con ese boundbox calcular las otras homografias, multiplicandolas 
-					//esta es homonomultpilicates
-					// while(homoNoMultiplicated[i].empty()){
-
-					// }
-					homoNoMultiplicated[i+1] = (aux[0]);
-					//Encuentro el maximo y minimo tanto en x como en y de todas las 
-					//homografias para despues poder hacer el bounding box;
-					cout << "Termino Match y Homografia "+to_string(i)+ ": \n";
-					
+					vecMatch[i] = this->matchKp(vecDesc[i],vecDesc[i+1]);
+					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[i].size()) + " matches.\n";	
 				}
 			});
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
-			Mat hVal=H[0];
-			double hSum = 0;
+			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Homografias: " + normal << endl;
 			for(int i = 0; i < strImgs.size()-1;i++){
+				//Una homografia es para calcular el boundbox (H) y la otra es para
+				//con ese boundbox calcular las otras homografias, multiplicandolas 
+				//esta es homonomultpilicates
+				vector<Mat> aux = getHomography(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
+				homoNoMultiplicated[i+1] = (aux[0]);
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-				hVal += H[i+1];
-				hSum += abs(H[i+1].at<double>(0,0)) +
-				abs(H[i+1].at<double>(0,1)) +
-				abs(H[i+1].at<double>(1,0)) +
-				abs(H[i+1].at<double>(1,1));
+				//Encuentro el maximo y minimo tanto en x como en y de todas las 
+				//homografias para despues poder hacer el bounding box;
 				if(H[i+1].at<double>(0,2) < this->xMin){
 					this->xMin = H[i+1].at<double>(0,2);
 				}
@@ -320,9 +293,6 @@ class UAVAgroStateStitcher{
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
-			cout<< "suma de valores de homografia: "  << hSum / (hVal.at<double>(2,2)-1) <<endl; 
-			hVal = hVal / hVal.at<double>(2,2);
-			fsHomo << "suma_homografia" << hVal;
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
@@ -338,7 +308,7 @@ class UAVAgroStateStitcher{
 			<< 	(abs(this->xMin) > (imgs[0].cols * imgs.size()/2))
 			<< 	(abs(this->xMax) > (imgs[0].cols * imgs.size()/2))<<endl;
 			cout<< imgs[0].rows * imgs.size()/2;
-			return Mat();
+			// return Mat();
 			}
 			
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(this->yMin) , this->yMax , abs(this->xMin),this->xMax);	
@@ -348,7 +318,8 @@ class UAVAgroStateStitcher{
 			}
 
 			this->bound=true;
-			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{vecDesc[0],vecDesc[1]},{vecKp[0],vecKp[1]});
+			vector< DMatch > match = this->matchKp(vecDesc[0],vecDesc[1]);
+			vector<Mat> aux = matchAndTransform(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
 			// matchAndTransform(imgs[i],imgs[i+1],i,newVecDesc,newVecKp);
 			
 			H[1] = aux[0];
