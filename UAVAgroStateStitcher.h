@@ -20,6 +20,7 @@ bool sortByDist(DMatch a, DMatch b){
 class UAVAgroStateStitcher{
 	public:
 		int tamano;
+		bool originalsize=false;
 		float kPoints;
 		int maxMatch = 100;
 		bool bound = false;
@@ -27,16 +28,19 @@ class UAVAgroStateStitcher{
 		double yMax=0;
 		double xMin=0;
 		double xMax=0;
+		int pondSize=7;
 		int imgHeight;
 		int imgWidth;
 		int minKeypoints = 5000;
 		
 		UAVAgroStateStitcher(int tamano = 4,
-					float kPoints = 3
+					float kPoints = 3,
+					bool originalsize=false
 					)
 		{
 			this->tamano = tamano;
 			this->kPoints = kPoints;
+			this->originalsize=originalsize;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -61,6 +65,7 @@ class UAVAgroStateStitcher{
 				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
 				objWarped.copyTo(objAux, imgMaskWarped);
 				scene = specialBlending(objAux, scene);
+				// objWarped.copyTo(scene, imgMaskWarped);
 			}
 
 			return{ scene, imgMaskWarped };
@@ -103,6 +108,42 @@ class UAVAgroStateStitcher{
 			}
 			return scene;
 		}
+
+
+		// Mat compareMats(Mat obj, Mat scene, Mat homoMatrix){
+		// 	Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(obj.size(), CV_8UC1, cv::Scalar(255));;
+		// 	warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
+		// 	warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
+			
+		// 	Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+		// 	erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
+
+		// 	if(obj.channels() == 4){
+		// 		//en el caso de que haya transparencia, se hace un pegado especial
+		// 		Mat objAux(scene.size(), scene.type(),Scalar(0,0,0,0));
+		// 		objWarped.copyTo(objAux, imgMaskWarped);
+		// 		scene = copyToTransparent(objAux, scene);
+		// 	}else{
+		// 		Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
+		// 		objWarped.copyTo(objAux, imgMaskWarped);
+		// 		scene = specialBlending(objAux, scene);
+		// 		// objWarped.copyTo(scene, imgMaskWarped);
+		// 	}
+		// 	for(int i=0;i < obj.rows;i++){
+		// 		for(int j=0;j < obj.cols;j++){
+		// 			if(obj.at<Vec3b>(i,j) != Vec3b(0,0,0)){
+		// 				if(scene.at<Vec3b>(i,j) != Vec3b(0,0,0)){
+		// 					scene.at<Vec3b>(i,j)[0] = abs(scene.at<Vec3b>(i,j)[0] - obj.at<Vec3b>(i,j)[0]);
+		// 					scene.at<Vec3b>(i,j)[1] = abs(scene.at<Vec3b>(i,j)[1] - obj.at<Vec3b>(i,j)[1]);
+		// 					scene.at<Vec3b>(i,j)[2] = abs(scene.at<Vec3b>(i,j)[2] - obj.at<Vec3b>(i,j)[2]);
+		// 				}else{
+		// 					scene.at<Vec3b>(i,j) = obj.at<Vec3b>(i,j);
+		// 				}
+		// 			}
+		// 		}
+		// 	}
+		// 	return scene;
+		// }
 		/*
 		usando paralelismo obtengo todos los keypoints y descriptores
 		*/
@@ -235,53 +276,54 @@ class UAVAgroStateStitcher{
 			int minvalx = 0;
 			int maxvalx = 50;
 			int bestvalx;double bestPorcMinY;double bestPorcMaxY;
+			int vueltasI=10;int vueltasJ=10;int vueltasK=20;
 			vector< DMatch > best_matches;
-			for(int i=0;i<10;i++){
+			for(int i=0;i<vueltasI;i++){
 				porcMinY = 0.00;
-				for(int j=0;j<10;j++){
+				for(int j=0;j<vueltasJ;j++){			
 					maxvalx = 50;
-					for(int k=0;k<20;k++){
-						vector< DMatch > good_matches = goodMatches(match,keypoints,porcMinY,porcMaxY,minvalx,maxvalx);
-						///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
-						std::vector<Point2f> obj;
-						std::vector<Point2f> scene;
-						for (int i = 0; i < good_matches.size(); i++) {
-							obj.push_back(keypoints[0][good_matches[i].queryIdx].pt);
-							scene.push_back(keypoints[1][good_matches[i].trainIdx].pt);
-						}
-						// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
-						Mat maskH;
-						if(good_matches.size() > 4){
-							Mat auxH = findHomography(scene, obj, CV_RANSAC);
-							/// DEVUELVO H
-							if(!auxH.empty()){
-								Mat prodH=lastH*auxH;
-								double auxHomoX = abs( abs(prodH.at<double>(0,0)) + abs(prodH.at<double>(0,1)) - 1 );
-								double auxHomoY = abs( abs(prodH.at<double>(1,0)) + abs(prodH.at<double>(1,1)) - 1 );
-								if(auxHomoX < minHomoX && auxHomoY < minHomoY){
-									H = auxH;
-									minHomoX = auxHomoX;
-									minHomoY = auxHomoY;
-									bestvalx = maxvalx;
-									bestPorcMinY = porcMinY;
-									bestPorcMaxY = porcMaxY;
-									best_matches=good_matches;
-								}
+					vector<Mat> auxH(20);
+					parallel_for_(Range(0, vueltasK), [&](const Range& range){
+						for(int k = range.start;k < range.end ; k++){
+							maxvalx = 50-k;
+							vector< DMatch > good_matches = goodMatches(match,keypoints,porcMinY,porcMaxY,minvalx,maxvalx);
+							///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
+							std::vector<Point2f> obj;
+							std::vector<Point2f> scene;
+							for (int l = 0; l < good_matches.size(); l++) {
+								obj.push_back(keypoints[0][good_matches[l].queryIdx].pt);
+								scene.push_back(keypoints[1][good_matches[l].trainIdx].pt);
 							}
-						}else{
-							break;
+							// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
+							Mat maskH;
+							if(good_matches.size() > 4){
+								auxH[k] = findHomography(scene, obj, CV_RANSAC);
+							}
+						}});
+					for(int k=0;k<vueltasK;k++){
+						if(!auxH[k].empty()){
+							Mat prodH=lastH*auxH[k];
+							double auxHomoX = abs( pondSize*abs(prodH.at<double>(0,0)) + abs(prodH.at<double>(0,1)) - pondSize );
+							double auxHomoY = abs( abs(prodH.at<double>(1,0)) + pondSize*abs(prodH.at<double>(1,1)) - pondSize );
+							if(auxHomoX < minHomoX && auxHomoY < minHomoY){
+								H = auxH[k];
+								minHomoX = auxHomoX;
+								minHomoY = auxHomoY;
+								bestvalx = maxvalx;
+								bestPorcMinY = porcMinY;
+								bestPorcMaxY = porcMaxY;
+							}
 						}
-						maxvalx --;
 					}
 					porcMinY += 0.01;
 				}
 				porcMaxY -= 0.01;
 			}
 			Mat aux;
-			drawMatches(img1, keypoints[0],img2,keypoints[1],best_matches,aux,
-			Scalar::all(-1),Scalar::all(-1),
-			std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numMatch)+".png",aux);
+			// drawMatches(img1, keypoints[0],img2,keypoints[1],best_matches,aux,
+			// Scalar::all(-1),Scalar::all(-1),
+			// std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+			// imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numMatch)+".png",aux);
 			return{ H };
 		}
 		/*
@@ -322,6 +364,7 @@ class UAVAgroStateStitcher{
 				//con ese boundbox calcular las otras homografias, multiplicandolas 
 				//esta es homonomultpilicates
 				vector<Mat> aux = getHomography(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
+
 				homoNoMultiplicated[i+1] = (aux[0]);
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
@@ -344,7 +387,7 @@ class UAVAgroStateStitcher{
 			fsHomo.release();
 
 			Mat boundBox = imgs[0];
-			yMin-=1000;
+			yMin-= 1000;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 
 			if(abs(yMin) > (imgHeight * imgs.size()/2)	|| 	abs(yMax) > (imgHeight * imgs.size()/2)
@@ -367,12 +410,39 @@ class UAVAgroStateStitcher{
 			vector<Mat> aux = getHomography(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
 			/*tengo que adaptar todas las homografias a las nuevas dimensiones
 			definidas por el boundbox*/
+			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
 			H[1] = aux[0];
 			for(int i = 2 ; i < H.size(); i++){
 				H[i] = H[i-1] * homoNoMultiplicated[i];
 				H[i] = H[i] / H[i].at<double>(2,2);
 			}
-			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
+			//adapto los parametros necesarios para que al pegar, se pegue la imagen grande
+			if(originalsize){	
+				FileStorage fsHomo("Data/Homografias/homografias2.yml", FileStorage::WRITE);
+
+				Mat project_down = (Mat::eye(3, 3, CV_64F));
+				project_down.at<double>(0,0)/=tamano;
+				project_down.at<double>(1,1)/=tamano;
+				project_down.at<double>(0,2)/=(tamano*2);
+				project_down.at<double>(1,2)/=(tamano*2);
+				Mat project_up = (Mat::eye(3, 3, CV_64F));
+				project_up.at<double>(0,0)*=tamano;
+				project_up.at<double>(1,1)*=tamano;
+				project_up.at<double>(0,2)/=(tamano);
+				project_up.at<double>(1,2)/=(tamano);
+				// fsHomo << "scaleHomo" << scaleHomo;
+				for(int i = 0 ; i < H.size(); i++){
+					H[i]= project_up * H[i] * project_down;
+					fsHomo << "homografia"+to_string(i) << H[i];
+				}
+				yMin*=tamano;yMax*=tamano;xMin*=tamano;xMax*=tamano;
+				imgs = CommonFunctions::cargarImagenes(strImgs , 1);
+				boundBox = imgs[0];
+				boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);	
+				fsHomo.release();
+			}
+		
+
 			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
 			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Generando orthomosaico: ... ("<< strImgs.size()-1<< ")" + normal<< endl;
 			for (int i = 1; i < strImgs.size(); i++){

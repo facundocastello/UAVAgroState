@@ -64,6 +64,7 @@ int main(int argc, char** argv)
 			int tamano = 4;
 			bool undistort = false;
 			float kPoints = 3	;
+			bool originalSize=false;
 
 			struct timeval begin;
 			gettimeofday(&begin, NULL);
@@ -91,6 +92,13 @@ int main(int argc, char** argv)
 				cout<< "Que threshold ingresara? (1): ";
 				cin>>kPoints;
 			}
+			if(argc > 5){
+				originalSize = stoi(argv[5]);
+			}
+			// else{
+			// 	cout<< "Desea que la imagen de salida tenga su tamaño original? (1): ";
+			// 	cin>>originalSize;
+			// }
 
 			vector<string> strImgs;
 			if(undistort){
@@ -100,7 +108,7 @@ int main(int argc, char** argv)
 			}
 
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				tamano,kPoints);
+				tamano,kPoints,originalSize);
 			Mat img = uav->stitchImgs(strImgs);		
 			imwrite("Imagenes/resultados/Pegado/resultado.png",img);
 			
