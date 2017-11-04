@@ -67,10 +67,11 @@ class CommonFunctions{
 		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4)
 		{
 			vector<Mat> imgs;
-			cout << "\033[1;32m-|-|-|-|-|-|-|-|-|-|-|-|-|Cargando Imagenes: (resize: 1/"
+			cout << "\033[1;32mCargando Imagenes: (resize: 1/"
 			+ to_string(tamano) +" Cantidad:"<< strImgs.size()<<")\033[0m" << endl;
 			for (int i = 0; i < strImgs.size(); i++){
-				cout << "-" << (i+1) * 100 / strImgs.size() << "%"<<endl;
+				cout << "-" << (i+1) * 100 / strImgs.size() << "%";
+				cout.flush();
 				imgs.push_back(cargarImagen(strImgs[i], tamano));
 			}
 			cout<<endl;
@@ -120,7 +121,7 @@ class CommonFunctions{
 		
 			mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
 
-			cout << "\033[1;33m" << "********************Tiempo en " <<msg << mtime/1000 << "\033[0m" << '\n';
+			cout << "\033[1;33m" << "Tiempo en " <<msg << mtime/1000 << "\033[0m" << '\n';
 			return end;
 		}
 

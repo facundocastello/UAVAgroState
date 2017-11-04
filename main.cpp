@@ -108,8 +108,8 @@ int main(int argc, char** argv)
 			}
 
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				tamano,kPoints,originalSize);
-			Mat img = uav->stitchImgs(strImgs);		
+				strImgs,tamano,kPoints,originalSize);
+			Mat img = uav->runAll();		
 			imwrite("Imagenes/resultados/Pegado/resultado.png",img);
 			
 			CommonFunctions::tiempo(begin, "realizar todo: ");

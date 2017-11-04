@@ -32,8 +32,17 @@ class UAVAgroStateStitcher{
 		int imgHeight;
 		int imgWidth;
 		int minKeypoints = 5000;
+		vector<Mat> imgs;
+		vector<string> strImgs;
+		vector<Mat> vecDesc;
+		vector< vector<KeyPoint> > vecKp;
+		vector< vector< DMatch > > vecMatch;
+		vector<Mat> H;
+		vector<Mat> homoNoMultiplicated;
+		Mat boundBox;
 		
-		UAVAgroStateStitcher(int tamano = 4,
+		UAVAgroStateStitcher(vector<string> strImgs,
+					int tamano = 4,
 					float kPoints = 3,
 					bool originalsize=false,
 					int pondSize=1
@@ -43,6 +52,7 @@ class UAVAgroStateStitcher{
 			this->kPoints = kPoints;
 			this->originalsize=originalsize;
 			this->pondSize = pondSize;
+			this->strImgs = strImgs;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -65,9 +75,9 @@ class UAVAgroStateStitcher{
 				scene = copyToTransparent(objAux, scene);
 			}else{
 				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
-				// objWarped.copyTo(objAux, imgMaskWarped);
-				// scene = specialBlending(objAux, scene);
-				objWarped.copyTo(scene, imgMaskWarped);
+				objWarped.copyTo(objAux, imgMaskWarped);
+				scene = specialBlending(objAux, scene);
+				// objWarped.copyTo(scene, imgMaskWarped);
 			}
 
 			return{ scene, imgMaskWarped };
@@ -124,16 +134,12 @@ class UAVAgroStateStitcher{
 		/*
 		usando paralelismo obtengo todos los keypoints y descriptores
 		*/
-		void detectAndDescript(vector<Mat> imgs,
-			 vector<Mat> &vecDesc,
-			 vector< vector<KeyPoint> > &vecKp){
+		void detectAndDescript(){
+			cout << "\033[1;32mObteniendo keypoints y descriptores: \033[0m"<< endl;
 			///CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 			//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors 
 			vecDesc = vector<Mat>(imgs.size());
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
-			cout << vecKp.size() <<endl;
-
-
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					float kTres = this->kPoints;
@@ -154,15 +160,10 @@ class UAVAgroStateStitcher{
 							Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 							erode(mask, mask, kernel, Point(1, 1), 4);
 						}
-							
 						orb->detectAndCompute(imgs[i] , mask , keypoints , descriptors);
-
-						cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size()<< endl;
-						if(keypoints.size() < minKeypoints){
-							cout << "recalculando keypoints " + to_string(i) <<endl;
-						}
 						kTres--;
 					}
+					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size();
 					vecDesc[i]=descriptors;
 					vecKp[i]=keypoints;
 				}
@@ -197,8 +198,9 @@ class UAVAgroStateStitcher{
 		}
 		/*Realiza matchs entre los keypoints de 2 imagenes, en base a sus
 		descriptores, y esto es acelerado usando paralelismo*/
-		vector< vector< DMatch > > matchKp(vector<Mat> vecDesc){
-			vector< vector< DMatch > > vecMatch(vecDesc.size());
+		void matchKp(){
+			cout << "\033[1;32m Matcheando: \033[0m" << endl;
+			vecMatch = vector< vector< DMatch > >(imgs.size()); 
 			BFMatcher matcher(NORM_HAMMING,true);
 			parallel_for_(Range(0, vecDesc.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
@@ -209,7 +211,6 @@ class UAVAgroStateStitcher{
 					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[i].size()) + " matches.\n";	
 				}
 			});
-			return vecMatch;
 		}
 		/*
 		elimino matches 'erroneos' usando como criterio para saber si son malos
@@ -257,7 +258,7 @@ class UAVAgroStateStitcher{
 		obtengo varias homografias modificando ciertos parametros, y elijo la que
 		sea mas adecuada
 		*/
-		vector<Mat> getHomography(Mat img1, Mat img2, int numMatch,vector< vector<KeyPoint> > keypoints, Mat lastH, vector< DMatch > match )
+		Mat getHomography(Mat img1, Mat img2, int numMatch,vector< vector<KeyPoint> > keypoints, Mat lastH, vector< DMatch > match )
 		{
 			Mat H;
 			double minHomoX = 9999;
@@ -265,9 +266,9 @@ class UAVAgroStateStitcher{
 			double porcMinY = 0.05;
 			double porcMaxY = 0.5;
 			int minvalx = 0;
-			int maxvalx = 50;
+			int maxvalx = 60;
 			int bestvalx;double bestPorcMinY;double bestPorcMaxY;
-			int vueltasI=10;int vueltasJ=10;int vueltasK=20;
+			int vueltasI=10;int vueltasJ=10;int vueltasK=10;
 			vector< DMatch > best_matches;
 			Mat MaskInliers;
 			
@@ -301,8 +302,10 @@ class UAVAgroStateStitcher{
 							Mat prodH=lastH*auxH[k];
 							// compareMats(img1,img2,prodH);
 							// por trigonometria aplico lo siguiente
-							double auxHomoX = abs( .9*pow(prodH.at<double>(0,0),2) + .1*pow(prodH.at<double>(0,1),2) - 1 );
-							double auxHomoY = abs( .1*pow(prodH.at<double>(1,0),2) + .9*pow(prodH.at<double>(1,1),2) - 1 );
+							double auxHomoZ = abs(prodH.at<double>(2,0) + prodH.at<double>(2,1) + prodH.at<double>(2,2));
+							double auxHomoX = abs( .9*pow(prodH.at<double>(0,0),2) + .1*pow(prodH.at<double>(0,1),2) + auxHomoZ - 2);
+							double auxHomoY = abs( .1*pow(prodH.at<double>(1,0),2) + .9*pow(prodH.at<double>(1,1),2) + auxHomoZ - 2);
+							
 							if(auxHomoX < minHomoX && auxHomoY < minHomoY){
 								H = auxH[k];
 								minHomoX = auxHomoX;
@@ -335,13 +338,24 @@ class UAVAgroStateStitcher{
 				std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numMatch)+"inliers.png",aux);
 
-			return{ H };
+			return H;
 		}
 		/*
 		obtengo varias homografias modificando ciertos parametros, y elijo la que
 		sea mas adecuada
 		*/
-		vector<Mat> getHomographyBigImages(Mat img1, Mat img2, int numMatch,vector< vector<KeyPoint> > keypoints, Mat lastH, vector< DMatch > match )
+
+		Mat removeAlpha(Mat img){
+			if(img.channels() == 4){
+				vector <Mat> bgra;
+				split(img,bgra);
+				Mat bgr[3] = {bgra[0],bgra[1],bgra[2]};
+				merge(bgr,3,img);
+			}
+			return img;
+		}
+
+		Mat getHomographyBigImages(Mat img1, Mat img2, int numMatch,vector< vector<KeyPoint> > keypoints, Mat lastH, vector< DMatch > match )
 		{
 			Mat H;
 			vector< DMatch > good_matches;
@@ -359,73 +373,39 @@ class UAVAgroStateStitcher{
 			// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
 			H = findHomography(scene, obj, CV_RANSAC);
 			Mat aux;
-			if(img1.channels() == 4){
-				vector <Mat> bgra;
-				split(img1,bgra);
-				Mat bgr[3] = {bgra[0],bgra[1],bgra[2]};
-				merge(bgr,3,img1);
-			}
-			if(img2.channels() == 4){
-				vector <Mat> bgra;
-				split(img2,bgra);
-				Mat bgr[3] = {bgra[0],bgra[1],bgra[2]};
-				merge(bgr,3,img2);
-			}
-			drawMatches(img1, keypoints[0],img2,keypoints[1],good_matches,aux,
+			drawMatches(removeAlpha(img1), keypoints[0],removeAlpha(img2),keypoints[1],good_matches,aux,
 			Scalar::all(-1),Scalar::all(-1),
 			std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numMatch)+".png",aux);
-			return{ H };
+			return H;
 		}
-		/*
-		Utilizo todas las funciones anteriores para realizar el stitching,
-		siguiento el siguiente proceso:
-		obtengo keypoints y descriptores - los matcheo - obtengo homografias
-		- genero boundbox - pego las imagenes
-		*/
-		Mat stitchImgs(vector<string> strImgs){
-			string normal = "\033[0m";
-			string process = "\033[1;32m";
-			vector<Mat> H(strImgs.size());
-			vector<Mat> homoNoMultiplicated(strImgs.size());
-			struct timeval begin;
-			gettimeofday(&begin, NULL);
+
+		void getHomographies(){
+			cout << "\033[1;32mGenerando homografias: \033[0m" << endl;
+			H = vector<Mat>(imgs.size());
+			homoNoMultiplicated = vector<Mat>(imgs.size());
 			H[0] = (Mat::eye(3, 3, CV_64F));
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
 
-			vector<Mat> imgs = CommonFunctions::cargarImagenes(strImgs , tamano);
-			imgHeight =imgs[0].rows;
-			imgWidth =imgs[0].cols;
-			begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
-			vector<Mat> vecDesc;
-			vector< vector<KeyPoint> > vecKp;
-			
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Obteniendo keypoints y descriptores: " + normal<< endl;
-			detectAndDescript(imgs, vecDesc, vecKp);
-			begin = CommonFunctions::tiempo(begin, "obtener keypoints:");
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Matcheando: " + normal << endl;
-			//usado para documentar las homografias
-			vector< vector< DMatch > > vecMatch = matchKp(vecDesc);
-			begin = CommonFunctions::tiempo(begin, "realizar matching:");
-			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Homografias: " + normal << endl;
-			for(int i = 0; i < strImgs.size()-1;i++){
+			for(int i = 0; i < imgs.size()-1;i++){
 				cout << "Realizando Homografia "+to_string(i)+ ". \n";
-				//Una homografia es para calcular el boundbox (H) y la otra es para
-				//con ese boundbox calcular las otras homografias, multiplicandolas 
-				//esta es homonomultpilicates
-				vector<Mat> aux;
 				if(imgs[i].channels()==4){
-					aux = getHomographyBigImages(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
+					homoNoMultiplicated[i+1] = getHomographyBigImages(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
 				}else{
-					aux = getHomography(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
+					homoNoMultiplicated[i+1] = getHomography(imgs[i],imgs[i+1],i+1,{vecKp[i],vecKp[i+1]},H[i],vecMatch[i]);
 				}
-
-				homoNoMultiplicated[i+1] = (aux[0]);
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-				//Encuentro el maximo y minimo tanto en x como en y de todas las 
-				//homografias para despues poder hacer el bounding box;
+			}
+		}
+		/*
+		En base a las homografias, se obtienen los valores que van a delimitar al bound box, 
+		y evalua que estos no sean de una homogragia mal calculada
+		*/
+		bool findBoundBoxLimits(){
+			cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
+			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
+			for(int i = 0; i < H.size()-1; i++){
 				if(H[i+1].at<double>(0,2) < xMin){
 					xMin = H[i+1].at<double>(0,2);
 				}
@@ -441,20 +421,23 @@ class UAVAgroStateStitcher{
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-
-			Mat boundBox = imgs[0];
 			yMin -= 500;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
-
 			if(abs(yMin) > (imgHeight * imgs.size()/2)	|| 	abs(yMax) > (imgHeight * imgs.size()/2)
-				|| 	abs(xMin) > (imgWidth * imgs.size()/2)	|| 	abs(xMax) > (imgWidth * imgs.size()/2)){
-			cout<< " mal pegado "<<(abs(yMin) > (imgHeight * imgs.size()/2) )
-			<<(abs(yMax) > (imgHeight* imgs.size()/2))<<(abs(xMin) > (imgWidth * imgs.size()/2))
-			<<(abs(xMax) > (imgWidth * imgs.size()/2))<<endl;
-			return Mat();
+			|| 	abs(xMin) > (imgWidth * imgs.size()/2)	|| 	abs(xMax) > (imgWidth * imgs.size()/2)){
+				cout<< " mal pegado "<<(abs(yMin) > (imgHeight * imgs.size()/2) )
+				<<(abs(yMax) > (imgHeight* imgs.size()/2))<<(abs(xMin) > (imgWidth * imgs.size()/2))
+				<<(abs(xMax) > (imgWidth * imgs.size()/2))<<endl;
+				return false;
 			}
-			/*genero una imagen en negro con el tamaño que va a tener el ortomosaico
-			y pego la imagen respetando los bordes calculados con las homografias */
+			return true;
+		}
+
+		void generateBoundBox(){
+			cout << "\033[1;32m Generando boundbox y calculando su homografia: \033[0m" << endl;
+			/* Le agrego a la imagen inicial los bordes con el suficiente espacio para
+			poder pegar todas las imagenes */
+			boundBox = imgs[0];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);	
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
@@ -463,61 +446,103 @@ class UAVAgroStateStitcher{
 			}
 			//vuelvo a calcular la homografia para la imagen con bordes
 			bound=true;
-			vector<Mat> aux;
 			if(imgs[1].channels()==4){
-				aux = getHomographyBigImages(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
+				H[1] = getHomographyBigImages(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
 			}else{
-				aux = getHomography(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
+				H[1] = getHomography(boundBox,imgs[1],40,{vecKp[0],vecKp[1]},H[0],vecMatch[0]);
 			}
+		}
+
+		Mat rescaleHomographies(){
+			cout << "\033[1;32m Resize al tamaño original: \033[0m" << endl;
+			FileStorage fsHomo("Data/Homografias/homografias2.yml", FileStorage::WRITE);
+			Mat project_down = (Mat::eye(3, 3, CV_64F));
+			project_down.at<double>(0,0)/=tamano;
+			project_down.at<double>(1,1)/=tamano;
+			project_down.at<double>(0,2)/=(tamano*(tamano/2));
+			project_down.at<double>(1,2)/=(tamano*(tamano/2));
+			Mat project_up = (Mat::eye(3, 3, CV_64F));
+			project_up.at<double>(0,0)*=tamano;
+			project_up.at<double>(1,1)*=tamano;
+			project_up.at<double>(0,2)/=(tamano);
+			project_up.at<double>(1,2)/=(tamano);
+			// fsHomo << "scaleHomo" << scaleHomo;
+			for(int i = 0 ; i < H.size(); i++){
+				H[i]= project_up * H[i] * project_down;
+				fsHomo << "homografia"+to_string(i) << H[i];
+			}
+			yMin*=tamano;yMax*=tamano;xMin*=tamano;xMax*=tamano;
+			imgs = CommonFunctions::cargarImagenes(strImgs , 1);	
+			fsHomo.release();
+		}
+
+		Mat stitchImgs(Mat boundBox){
+			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
+			for (int i = 1; i < imgs.size(); i++){
+				cout << "-" << (i+1) * 100 / imgs.size() << "%";
+				cout.flush();
+				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
+				string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
+				imwrite(res, boundBox);
+			}
+			cout<<endl;
+			if(boundBox.channels() < 4){
+				boundBox = CommonFunctions::addTransparence(boundBox);
+			}
+			return boundBox;
+		}
+
+		/*
+		Utilizo todas las funciones anteriores para realizar el stitching,
+		siguiento el siguiente proceso:
+		obtengo keypoints y descriptores - los matcheo - obtengo homografias
+		- genero boundbox - pego las imagenes
+		*/
+		Mat runAll(){
+			struct timeval begin;
+			gettimeofday(&begin, NULL);
+			
+			imgs = CommonFunctions::cargarImagenes(strImgs , tamano);
+			begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
+			
+			imgHeight =imgs[0].rows;
+			imgWidth =imgs[0].cols;
+
+			detectAndDescript();
+			begin = CommonFunctions::tiempo(begin, "obtener keypoints:");
+			
+			matchKp();
+			begin = CommonFunctions::tiempo(begin, "realizar matching:");
+			
+			getHomographies();
+			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
+
+			if(!findBoundBoxLimits()){
+				return Mat();
+			}
+
+			generateBoundBox();
+			begin = CommonFunctions::tiempo(begin, " obtener boundbox y su homografia: ");
 			
 			/*tengo que adaptar todas las homografias a las nuevas dimensiones
 			definidas por el boundbox*/
-			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
-			H[1] = aux[0];
+			
 			for(int i = 2 ; i < H.size(); i++){
 				H[i] = H[i-1] * homoNoMultiplicated[i];
 				H[i] = H[i] / H[i].at<double>(2,2);
 			}
 			//adapto los parametros necesarios para que al pegar, se pegue la imagen grande
 			if(originalsize){	
-				FileStorage fsHomo("Data/Homografias/homografias2.yml", FileStorage::WRITE);
-
-				Mat project_down = (Mat::eye(3, 3, CV_64F));
-				project_down.at<double>(0,0)/=tamano;
-				project_down.at<double>(1,1)/=tamano;
-				project_down.at<double>(0,2)/=(tamano*2);
-				project_down.at<double>(1,2)/=(tamano*2);
-				Mat project_up = (Mat::eye(3, 3, CV_64F));
-				project_up.at<double>(0,0)*=tamano;
-				project_up.at<double>(1,1)*=tamano;
-				project_up.at<double>(0,2)/=(tamano);
-				project_up.at<double>(1,2)/=(tamano);
-				// fsHomo << "scaleHomo" << scaleHomo;
-				for(int i = 0 ; i < H.size(); i++){
-					H[i]= project_up * H[i] * project_down;
-					fsHomo << "homografia"+to_string(i) << H[i];
-				}
-				yMin*=tamano;yMax*=tamano;xMin*=tamano;xMax*=tamano;
-				imgs = CommonFunctions::cargarImagenes(strImgs , 1);
+				
+				rescaleHomographies();
 				boundBox = imgs[0];
-				boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);	
-				fsHomo.release();
+				boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
 			}
 		
 
 			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
-			cout << process + "-|-|-|-|-|-|-|-|-|-|-|-|-|Generando orthomosaico: ... ("<< strImgs.size()-1<< ")" + normal<< endl;
-			for (int i = 1; i < strImgs.size(); i++){
-				cout << "-" << (i+1) * 100 / strImgs.size() << "%" << endl;
-				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
-				string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
-				imwrite(res, boundBox);
-			}
-
-			begin = CommonFunctions::tiempo(begin, " pegar imagenes: ");
-			if(boundBox.channels() < 4){
-				boundBox = CommonFunctions::addTransparence(boundBox);
-			}
+			stitchImgs(boundBox);			
+			begin = CommonFunctions::tiempo(begin, " generar el orthomosaico: ");
 
 			return boundBox;
 		}
