@@ -42,6 +42,23 @@ class CommonFunctions{
 			return  CommonFunctions::boundingBox(boundBox, indent[0], indent[1], indent[2], indent[3]);
 		}
 
+		void static info(const cv::Mat &image, std::ostream &out = std::cout) {
+			out << "Characteristics\n";
+			out << "\tSize " << image.rows << 'x' << image.cols << '\n';
+			out << "\tChannels " << image.channels() << '\n';
+			out << "\tDepth ";
+			out << '\t';
+			switch (image.depth()) {
+			case CV_8U: out << "8-bit unsigned integers ( 0..255 )\n"; break;
+			case CV_8S: out << "8-bit signed integers ( -128..127 )\n"; break;
+			case CV_16U: out << "16-bit unsigned integers ( 0..65535 )\n"; break;
+			case CV_16S: out << "16-bit signed integers ( -32768..32767 )\n"; break;
+			case CV_32S: out << "32-bit signed integers ( -2147483648..2147483647 )\n"; break;
+			case CV_32F: out << "32-bit floating-point numbers ( -FLT_MAX..FLT_MAX, INF, NAN )\n"; break;
+			case CV_64F: out << "64-bit floating-point numbers ( -DBL_MAX..DBL_MAX, INF, NAN )\n"; break;
+			}
+		}
+
 		Mat static cargarImagen(string strImg , int tamano = 4){
 			Mat img = imread(strImg, IMREAD_UNCHANGED);
 			resize(img, img, Size(img.cols / tamano, img.rows / tamano));
