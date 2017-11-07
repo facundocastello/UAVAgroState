@@ -1,19 +1,23 @@
 #ifndef UAVAGROSTATEINDEXCALCS_H
 #define UAVAGROSTATEINDEXCALCS_h
+
 #include "CommonFunctions.h"
 
 class UAVAgroStateIndexCalcs
 {
 public:
 
-
 	Mat static ndviCalcu(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
-		
-		size_t position = strImg.find_last_of("/");
-		strImg.erase(strImg.begin(),strImg.begin()+position);
+		return ndviCalcu(imgaux);;
+	}
 
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"original.png", imgaux);
+	Mat static ndviCalcu(Mat imgaux){
+		
+		// size_t position = strImg.find_last_of("/");
+		// strImg.erase(strImg.begin(),strImg.begin()+position);
+
+		imwrite("Imagenes/resultados/NDVI/original.png", imgaux);
 		
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);	
@@ -31,7 +35,11 @@ public:
 			Mat auxAlpha[4]={division,division,division,BGRA[3]};
 			merge(auxAlpha,4,resultadogris);
 		};
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadogris.png", resultadogris);
+		imwrite("Imagenes/resultados/NDVI/resultadogris.png", resultadogris);
+
+		Mat resultadosalida;
+		Mat auxSalida[3]={division,division,division};
+		merge(auxSalida,3,resultadosalida);
 
 		applyColorMap(division, division, COLORMAP_JET);
 		vector<Mat> BGR;
@@ -41,9 +49,9 @@ public:
 			Mat auxAlpha2[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
 			merge(auxAlpha2,4,resultadocolor);
 		}
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadocolor.png", resultadocolor);
+		imwrite("Imagenes/resultados/NDVI/resultadocolor.png", resultadocolor);
 	
-		return division;
+		return resultadosalida;
 	}
 
 private:

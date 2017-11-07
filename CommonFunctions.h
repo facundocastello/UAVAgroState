@@ -9,9 +9,9 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include <opencv2/gpu/gpu.hpp>
-#include "funcionesutiles.h"
 #include <ctime>
 #include <dirent.h>
+#include "UAVAgroStateIndexCalcs.h"
 
 
 class CommonFunctions{
@@ -73,6 +73,9 @@ class CommonFunctions{
 				cout << "-" << (i+1) * 100 / strImgs.size() << "%";
 				cout.flush();
 				imgs.push_back(cargarImagen(strImgs[i], tamano));
+				// imgs[i] = UAVAgroStateIndexCalcs::ndviCalcu(imgs[i]);
+				// Canny(imgs[i], auxImg, 0, 40);
+				// showWindowNormal(imgs[i]);
 			}
 			cout<<endl;
 			return imgs;

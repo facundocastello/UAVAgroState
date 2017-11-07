@@ -2,7 +2,6 @@
 #include "funcionesutiles.h"
 #include "opencv2/core/core.hpp"
 #include "CommonFunctions.h"
-#include "UAVAgroStateIndexCalcs.h"
 #include "UAVAgroStateCalibration.h"
 
 using namespace cv;
@@ -92,8 +91,9 @@ int main(int argc, char** argv)
 				cout<< "Que threshold ingresara? (1): ";
 				cin>>kPoints;
 			}
+			int tipoHomografia = 1;
 			if(argc > 5){
-				originalSize = stoi(argv[5]);
+				tipoHomografia = stoi(argv[5]);
 			}
 			// else{
 			// 	cout<< "Desea que la imagen de salida tenga su tamaño original? (1): ";
@@ -108,7 +108,7 @@ int main(int argc, char** argv)
 			}
 
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				strImgs,tamano,kPoints,originalSize);
+				strImgs,tamano,kPoints,originalSize,tipoHomografia);
 			Mat img = uav->runAll();		
 			imwrite("Imagenes/resultados/Pegado/resultado.png",img);
 			
