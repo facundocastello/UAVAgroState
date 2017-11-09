@@ -37,7 +37,7 @@ class UAVAgroStateStitcher{
 		vector<string> strImgs;
 		vector<Mat> vecDesc;
 		vector< vector<KeyPoint> > vecKp;
-		vector< vector< DMatch > > vecMatch;
+		vector< vector< DMatch > > vecMatch[3];
 		vector< vector< DMatch > > best_inliers;
 		vector<Mat> H;
 		vector<Mat> homoNoMultiplicated;
@@ -210,54 +210,26 @@ class UAVAgroStateStitcher{
 		descriptores, y esto es acelerado usando paralelismo*/
 		void matchKp(){
 			cout << "\033[1;32m Matcheando: \033[0m" << endl;
-			vecMatch = vector< vector< DMatch > >(imgs.size()-1);
+			vecMatch[0] = vector< vector< DMatch > >(imgs.size()-1);
+			vecMatch[1] = vector< vector< DMatch > >(imgs.size()-1);
+			vecMatch[2] = vector< vector< DMatch > >(imgs.size()-1);
 			best_inliers = vector< vector< DMatch > >(imgs.size()-1);
-			vector<double> x(imgs.size()-1);
-			vector<double> y(imgs.size()-1);
 			darVuelta = vector<bool> (imgs.size() -1 );
 			BFMatcher matcher(NORM_HAMMING,true);
-			double xx=0;
-			double yy=0;
 			parallel_for_(Range(0, vecDesc.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					// cout << "Empezo Match "+to_string(i)+ ". \n";
 					vector< DMatch > matches;
-					matcher.match(vecDesc[i],vecDesc[i+1], matches);
-					vecMatch[i] = matches;
-					x[i] = 0;
-					y[i] = 0;
-					for(int j=0; j < vecMatch[i].size(); j++){
-						Point2f pt0 = vecKp[i][vecMatch[i][j].queryIdx].pt;
-						Point2f pt1 = vecKp[i+1][vecMatch[i][j].trainIdx].pt;
-						x[i] += pt0.x-pt1.x;
-						y[i] += pt0.y-pt1.y;
-					}
-					x[i] /= vecMatch[i].size();
-					xx += abs(x[i]);
-					y[i] /= vecMatch[i].size();
-					yy += abs(y[i]);
-					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[i].size()) +
-					 " matches y su sma es x " + to_string(x[i]) + " y " + to_string(y[i]) +".\n" ;
+					matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[0][i]);
+					// if( i < (vecDesc.size()-2)  ){
+					// 	matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
+					// }
+					// if( i < (vecDesc.size()-3) ){
+					// 	matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
+					// }
+					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[0][i].size()) +".\n" ;
 				}
 			});
-			xx/=vecMatch.size();
-			yy/=vecMatch.size();
-			cout << "error total  x " + to_string(xx) + " y " + to_string(yy) << endl;
-			for(int i = 0 ; i < vecMatch.size() ; i ++){
-				darVuelta[i] = 0;
-				if( abs(x[i]/xx) > 2 ){
-					cout << to_string(i) + " esta dada vuelta " << abs(x[i]/xx);
-					if(x[i] > 0 ){
-						//esta a la derecha
-						cout << " a la derecha" << endl;
-						darVuelta[i] = 1;
-					}else{
-						//esta a la izquierda
-						cout << " a la izquierda" << endl;
-						darVuelta[i] = -1;
-					}
-				}
-			}
 		}
 		/*
 		elimino matches 'erroneos' usando como criterio para saber si son malos
@@ -274,13 +246,13 @@ class UAVAgroStateStitcher{
 			// int maxvalx = imgWidth*porcMaxX;
 			while(gm.size() < 4){
 				gm= vector< DMatch >();
-				for(int i = 0; i < vecMatch[numMatch].size(); i++){
-					Point2f pt0 = vecKp[numMatch][vecMatch[numMatch][i].queryIdx].pt;
-					Point2f pt1 = vecKp[numMatch+1][vecMatch[numMatch][i].trainIdx].pt;
+				for(int i = 0; i < vecMatch[0][numMatch].size(); i++){
+					Point2f pt0 = vecKp[numMatch][vecMatch[0][numMatch][i].queryIdx].pt;
+					Point2f pt1 = vecKp[numMatch+1][vecMatch[0][numMatch][i].trainIdx].pt;
 					if( (pt1.y-pt0.y) > minvaly && (pt1.y-pt0.y) < maxvaly
 						&& (pt1.x-pt0.x) >= minvalx && (pt1.x-pt0.x) < maxvalx
 						){
-						gm.push_back(vecMatch[numMatch][i]);
+						gm.push_back(vecMatch[0][numMatch][i]);
 					}
 				}
 				if(imgMismaAltura){
@@ -295,8 +267,8 @@ class UAVAgroStateStitcher{
 				maxvaly += imgHeight*porcMaxY;
 			}
 			if(gm.size() < 200){
-				sort(vecMatch[numMatch].begin(),vecMatch[numMatch].end(),sortByDist);
-				gm.insert(gm.end(),vecMatch[numMatch].begin(),vecMatch[numMatch].begin()+50);
+				sort(vecMatch[0][numMatch].begin(),vecMatch[0][numMatch].end(),sortByDist);
+				gm.insert(gm.end(),vecMatch[0][numMatch].begin(),vecMatch[0][numMatch].begin()+50);
 			}
 			// cout<<maxvalx<<endl;
 			return gm;
@@ -323,11 +295,53 @@ class UAVAgroStateStitcher{
 			return Homography;
 		}
 
+		vector< DMatch > removeOutliers(vector< DMatch > gm,  int numHomo){
+			double mediaX=0;
+			double mediaY=0;
+			vector< DMatch > aux = gm;
+			// for(int i = 0 ; i < vecMatch[0][numHomo].size();i++){
+			for(int i=0; i < gm.size(); i++){
+				Point2f pt0 = vecKp[numHomo][gm[i].queryIdx].pt;
+				Point2f pt1 = vecKp[numHomo+1][gm[i].trainIdx].pt;
+				mediaX += pt1.x - pt0.x;
+				mediaY += pt1.y - pt0.y;
+			}
+			mediaX /= gm.size();
+			mediaY /= gm.size();
+			// cout << "Mediax " << mediaX << " MediaY "<< mediaY;
+			// }
+			double varianzaX=0;
+			double varianzaY=0;
+			for(int i = 0 ; i < gm.size();i++){
+				Point2f pt0 = vecKp[numHomo][gm[i].queryIdx].pt;
+				Point2f pt1 = vecKp[numHomo+1][gm[i].trainIdx].pt;
+				varianzaX += abs(mediaX - (pt1.x - pt0.x));
+				varianzaY += abs(mediaY - (pt1.y - pt0.y));
+			}
+			varianzaX /= gm.size();
+			varianzaY /= gm.size();
+			// cout << " varianzaX " << varianzaX << " varianzaY "<< varianzaY;
+			for(int i = 0 ; i < gm.size();i++){
+				Point2f pt0 = vecKp[numHomo][gm[i].queryIdx].pt;
+				Point2f pt1 = vecKp[numHomo+1][gm[i].trainIdx].pt;
+				double x = (pt1.x - pt0.x);
+				double y = (pt1.y - pt0.y);
+				if( !(abs(x - mediaX) < varianzaX && abs(y - mediaY) < varianzaY) ){
+					gm.erase(gm.begin() + i);
+					i--;
+				}
+			}
+			if(gm.size() < 3){
+				return aux;
+			}
+			return gm;
+		}
+
 		/*
 		obtengo varias homografias modificando ciertos parametros, y elijo la que
 		sea mas adecuada
 		*/
-		void getHomography(int numHomo)
+		void getHomography(int numHomo, bool usarError)
 		{
 			double minHomoX = 9999;
 			double minError = 9999;
@@ -337,156 +351,74 @@ class UAVAgroStateStitcher{
 			double minvalx;
 			double maxvalx;
 			int bestvalx;double bestPorcMinY;double bestPorcMaxY;
-			int vueltasI=10;int vueltasJ=10;int vueltasK=10;
+			int vueltasI=400;int vueltasJ=10;int vueltasK=10;
 			vector< DMatch > best_matches;
+			vector<double> auxError(vueltasI);
+			vector<double> auxHomoX(vueltasI);
+			vector<double> auxHomoY(vueltasI);
 			Mat MaskInliers;
 
 
+			sort(vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].end(),sortByDist);
+
+			parallel_for_(Range(0, vueltasI), [&](const Range& range){
+				for(int i = range.start;i < range.end ; i++){
+					porcMinY = 0.00;
+					vector< DMatch > goodm;
+					goodm.insert(goodm.end(),vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].begin()+3+i);
+					goodm = removeOutliers(goodm, numHomo);
+										
+					std::vector<Point2f> obj;
+					std::vector<Point2f> scene;
+					for (int l = 0; l < goodm.size(); l++) {
+						obj.push_back(vecKp[numHomo][goodm[l].queryIdx].pt);
+						scene.push_back(vecKp[numHomo+1][goodm[l].trainIdx].pt);
+					}
+					
+					Mat auxH = rigidToHomography( estimateRigidTransform(scene,obj,false) );
+					if(!auxH.empty()){
+						Mat prodH=H[numHomo]*auxH;
+					// 	// por trigonometria aplico lo siguiente
+					if(usarError){
+						// auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
+						// auxError[i] += getAfterHomographyError(numHomo,auxH);
+						// auxError[i] += getBeforeHomographyError(numHomo,auxH);
+					}else{
+						auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
+					}
+						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
+						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+					}else{
+						auxHomoY[i] = 9999;	
+						auxHomoX[i] = 9999;	
+						auxError[i] = 9999;
+					}
+				}
+			});
 			for(int i=0;i<vueltasI;i++){
-				porcMinY = 0.00;
-				for(int j=0;j<vueltasJ;j++){
-					vector<Mat> auxH(vueltasK);
-					vector<double> errorHomo(vueltasK);
-					vector<Mat> mask_inliers(vueltasK);
-					vector< vector< DMatch > > good_matches(vueltasK);
-					parallel_for_(Range(0, vueltasK), [&](const Range& range){
-						for(int k = range.start;k < range.end ; k++){
-							maxvalx = 0.0434 - (k*0.000868);
-							minvalx = -maxvalx;
-							good_matches[k] = goodMatches(numHomo,porcMinY,porcMaxY,minvalx,maxvalx);
-							// sort(good_matches[k].begin(),good_matches[k].end(),sortByDist);
-							///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
-							std::vector<Point2f> obj;
-							std::vector<Point2f> scene;
-							for (int l = 0; l < good_matches[k].size(); l++) {
-								obj.push_back(vecKp[numHomo][good_matches[k][l].queryIdx].pt);
-								scene.push_back(vecKp[numHomo+1][good_matches[k][l].trainIdx].pt);
-							}
-							// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
-							Mat maskH;
-							if(good_matches[k].size() > 4){
-								auxH[k] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
-								// auxH[k] = findHomography(scene, obj, CV_RANSAC,3,mask_inliers[k]);
-							}
-							if(!auxH[k].empty()){
-								// errorHomo[k] = compareMats(imgs[numHomo],imgs[numHomo+1],auxH[k]);
-							}
-						}});
-					for(int k=0;k<vueltasK;k++){
-						if(!auxH[k].empty()){
-							Mat prodH=H[numHomo]*auxH[k];
-							// por trigonometria aplico lo siguiente
-							double auxHomoX = abs( .9*pow(prodH.at<double>(0,0),2) + .1*pow(prodH.at<double>(0,1),2) -1);
-							double auxHomoY = abs( .1*pow(prodH.at<double>(1,0),2) + .9*pow(prodH.at<double>(1,1),2) -1);
-							if(auxHomoX < minHomoX && auxHomoY < minHomoY ){
-								homoNoMultiplicated[numHomo+1] = auxH[k];
-								minHomoX = auxHomoX;
-								minHomoY = auxHomoY;
-								bestvalx = maxvalx;
-								bestPorcMinY = porcMinY;
-								bestPorcMaxY = porcMaxY;
-								best_matches = good_matches[k];
-							}
-						}
+					if( /*auxError[i] <= minError &&*/ auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY){
+						bestvalx = i;
+						minError = auxError[i];
+						minHomoX = auxHomoX[i];
+						minHomoY = auxHomoY[i];
 					}
-					porcMinY += 0.01;
-				}
-				porcMaxY -= 0.01;
 			}
-
-			// if(minHomoX == 9999){
-			// 	cout << "Homografia vacia: " << numHomo+1 << endl;
-			// 	homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
-			// }
-			Mat aux;
-			Mat img1 = imgs[numHomo];
-			Mat img2 = imgs[numHomo+1];
-			// if(img1.channels() == 4){
-			// 	img1 = removeAlpha(imgs[numHomo]);
-			// 	img2 = removeAlpha(imgs[numHomo+1]);
-			// }
-			drawMatches(img1, vecKp[numHomo],img2,vecKp[numHomo+1],best_matches,aux,
-			Scalar::all(-1),Scalar::all(-1),
-			std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numHomo)+".png",aux);
-			best_inliers[numHomo] =  best_matches;
-		}
-				/*
-		obtengo varias homografias modificando ciertos parametros, y elijo la que
-		sea mas adecuada
-		*/
-		void getHomographyUpsideDown(int numHomo)
-		{
-			double minHomoX = 9999;
-			double minHomoY=9999;
-			vector< DMatch > best_matches;
-
-			// if(!auxH[k].empty()){
-			// 	Mat prodH=H[numHomo]*auxH[k];
-			// 	// por trigonometria aplico lo siguiente
-			// 	double auxHomoX = abs( .9*pow(prodH.at<double>(0,0),2) + .1*pow(prodH.at<double>(0,1),2) -1);
-			// 	double auxHomoY = abs( .1*pow(prodH.at<double>(1,0),2) + .9*pow(prodH.at<double>(1,1),2) -1);
-			// 	if(auxHomoX < minHomoX && auxHomoY < minHomoY ){
-			// 		homoNoMultiplicated[numHomo+1] = auxH[k];
-			// 		minHomoX = auxHomoX;
-			// 		minHomoY = auxHomoY;
-			// 		bestvalx = maxvalx;
-			// 		bestPorcMinY = porcMinY;
-			// 		bestPorcMaxY = porcMaxY;
-			// 		best_matches = good_matches[k];
-			// 	}
-			// }
-			int minvaly = -1000;
-			int maxvaly = 1000;
-			int minvalx = 50;
-			int maxvalx = 60;
-			bool imgMismaAltura =false;
-			if(darVuelta[numHomo] == -1){
-				minvalx = - minvalx;
-				maxvalx = - maxvalx;
-			}
-
-			while(best_matches.size() < 4){
-				best_matches= vector< DMatch >();
-				for(int i = 0; i < vecMatch[numHomo].size(); i++){
-					Point2f pt0 = vecKp[numHomo][vecMatch[numHomo][i].queryIdx].pt;
-					Point2f pt1 = vecKp[numHomo+1][vecMatch[numHomo][i].trainIdx].pt;
-					if( (pt1.y-pt0.y) >= minvaly && (pt1.y-pt0.y) < maxvaly &&
-						((imgWidth-pt1.x)-pt0.x) >= minvalx && ((imgWidth-pt1.x)-pt0.x) < maxvalx){
-							best_matches.push_back(vecMatch[numHomo][i]);
-					}
-				}
-				if(imgMismaAltura){
-					break;
-				}
-				if(maxvalx>5000){
-					minvalx = 0;
-					maxvalx = 100;
-					imgMismaAltura = true;
-				}
-				if(darVuelta[numHomo] == -1){
-					minvalx -= 100;
-					maxvalx -= 100;
-				}else{
-					minvalx += 100;
-					maxvalx += 100;
-				}
-			}
-			if(best_matches.size() < 200){
-				sort(vecMatch[numHomo].begin(),vecMatch[numHomo].end(),sortByDist);
-				best_matches.insert(best_matches.end(),vecMatch[numHomo].begin(),vecMatch[numHomo].begin()+50);
-			}
-			
+			best_matches.insert(best_matches.end(),vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].begin()+3+bestvalx);
+			best_matches = removeOutliers(best_matches, numHomo);
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
 			for (int l = 0; l < best_matches.size(); l++) {
 				obj.push_back(vecKp[numHomo][best_matches[l].queryIdx].pt);
 				scene.push_back(vecKp[numHomo+1][best_matches[l].trainIdx].pt);
 			}
-
 			homoNoMultiplicated[numHomo+1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
-
+		
+			if(minHomoX == 9999){
+				cout << "Homografia vacia: " << numHomo+1 << endl;
+				homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
+			}
 			Mat aux;
+			cout << " " << bestvalx << endl;
 			Mat img1 = imgs[numHomo];
 			Mat img2 = imgs[numHomo+1];
 			// if(img1.channels() == 4){
@@ -516,61 +448,82 @@ class UAVAgroStateStitcher{
 
 		void getHomographyOrthomosaic(int numHomo, bool vertical)
 		{
-			vector< DMatch > good_matches;
-			sort(vecMatch[numHomo].begin(),vecMatch[numHomo].end(),sortByDist);
-			if(vertical){
-				for(int i = 0 ; i < vecMatch[numHomo].size(); i++){
-					int y1 = vecKp[numHomo][vecMatch[numHomo][i].queryIdx].pt.y;
-					int y2 = vecKp[numHomo+1][vecMatch[numHomo][i].trainIdx].pt.y;
-						if(y1 < (imgs[numHomo].rows/4) && y2 > (imgs[numHomo+1].rows-imgs[numHomo+1].rows/4)){
-							good_matches.push_back(vecMatch[numHomo][i]);
-						}
-				}
-			}else{
-				for(int i = 0 ; i < vecMatch[numHomo].size(); i++){
-					int x1 = vecKp[numHomo][vecMatch[numHomo][i].queryIdx].pt.x;
-					int x2 = vecKp[numHomo+1][vecMatch[numHomo][i].trainIdx].pt.x;
-					if(x1 > (imgs[numHomo].cols/2) && x2 < (imgs[numHomo+1].cols/2)){
-						good_matches.push_back(vecMatch[numHomo][i]);
+			double minHomoX = 9999;
+			double minError = 9999;
+			double minHomoY=9999;
+			double porcMinY = 0.05;
+			double porcMaxY = 0.5;
+			double minvalx;
+			double maxvalx;
+			int bestvalx;double bestPorcMinY;double bestPorcMaxY;
+			int vueltasI=1000;int vueltasJ=10;int vueltasK=10;
+			vector< DMatch > best_matches;
+			vector<double> auxError(vueltasI);
+			vector<double> auxHomoX(vueltasI);
+			vector<double> auxHomoY(vueltasI);
+			Mat MaskInliers;
+
+
+			sort(vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].end(),sortByDist);
+
+			parallel_for_(Range(0, vueltasI), [&](const Range& range){
+				for(int i = range.start;i < range.end ; i++){
+					porcMinY = 0.00;
+					vector< DMatch > goodm;
+					goodm.insert(goodm.end(),vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].begin()+4+i);
+					goodm = removeOutliers(goodm, numHomo);
+										
+					std::vector<Point2f> obj;
+					std::vector<Point2f> scene;
+					for (int l = 0; l < goodm.size(); l++) {
+						obj.push_back(vecKp[numHomo][goodm[l].queryIdx].pt);
+						scene.push_back(vecKp[numHomo+1][goodm[l].trainIdx].pt);
+					}
+					
+					Mat auxH = findHomography(scene,obj,CV_RANSAC);
+					if(!auxH.empty()){
+						Mat prodH=H[numHomo]*auxH;
+					// 	// por trigonometria aplico lo siguiente
+						auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
+						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
+						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+					}else{
+						auxHomoY[i] = 9999;	
+						auxHomoX[i] = 9999;	
+						auxError[i] = 9999;
 					}
 				}
+			});
+			for(int i=0;i<vueltasI;i++){
+					if( auxError[i] <= minError /*&& auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY */){
+						bestvalx = i;
+						minError = auxError[i];
+						minHomoX = auxHomoX[i];
+						minHomoY = auxHomoY[i];
+					}
 			}
-			// good_matches = goodMatches(match,keypoints,.0,.2,0,1000);
-			good_matches.erase(good_matches.begin()+50,good_matches.end());
-
-			///OBTENGO LOS PUNTOS EN LOS QUE SE ENCUENTRAN LOS GOOD MATCHES
+			best_matches.insert(best_matches.end(),vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].begin()+3+bestvalx);
+			best_matches = removeOutliers(best_matches, numHomo);
+			
 			std::vector<Point2f> obj;
 			std::vector<Point2f> scene;
-			for (int l = 0; l < good_matches.size(); l++) {
-				obj.push_back(vecKp[numHomo][good_matches[l].queryIdx].pt);
-				scene.push_back(vecKp[numHomo+1][good_matches[l].trainIdx].pt);
+			for (int l = 0; l < best_matches.size(); l++) {
+				obj.push_back(vecKp[numHomo][best_matches[l].queryIdx].pt);
+				scene.push_back(vecKp[numHomo+1][best_matches[l].trainIdx].pt);
 			}
-			// ARMO LA MATRIZ DE HOMOGRAFIA EN BASE A LOS PUNTOS ANTERIORES
-			Mat MaskInliers;
-			homoNoMultiplicated[numHomo+1] = findHomography(scene, obj, CV_RANSAC,3,MaskInliers);
-
-			compareMats(imgs[numHomo], imgs[numHomo+1],homoNoMultiplicated[numHomo+1]);
-
-			sort(good_matches.begin(),good_matches.end(),sortByDist);
-			DMatch lastMatch;
-			for(int i = 0 ; i < good_matches.size();i++){
-				if(MaskInliers.at<uchar>(0,i)){
-					if(lastMatch.queryIdx != good_matches[i].queryIdx){
-						best_inliers[numHomo].push_back(good_matches[i]);
-						lastMatch = good_matches[i];
-					}
-				}
+			homoNoMultiplicated[numHomo+1] = findHomography(scene,obj,CV_RANSAC);
+		
+			if(minHomoX == 9999){
+				cout << "Homografia vacia: " << numHomo+1 << endl;
+				homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
 			}
-
+			cout << " " << bestvalx << endl;
 			Mat aux;
-			drawMatches(removeAlpha(imgs[numHomo]), vecKp[numHomo],removeAlpha(imgs[numHomo+1]),vecKp[numHomo+1],good_matches,aux,
+			best_inliers[numHomo] = best_matches;
+			drawMatches(removeAlpha(imgs[numHomo]), vecKp[numHomo],removeAlpha(imgs[numHomo+1]),vecKp[numHomo+1],best_matches,aux,
 			Scalar::all(-1),Scalar::all(-1),
 			std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numHomo)+".png",aux);
-			drawMatches(removeAlpha(imgs[numHomo]), vecKp[numHomo],removeAlpha(imgs[numHomo+1]),vecKp[numHomo+1],best_inliers[numHomo],aux,
-			Scalar::all(-1),Scalar::all(-1),
-			std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-			imwrite("Imagenes/resultados/Pegado/matches/matchs"+to_string(numHomo)+"inliers.png",aux);
 		}
 
 		void getHomographies(){
@@ -583,13 +536,8 @@ class UAVAgroStateStitcher{
 				cout << "Realizando Homografia "+to_string(i)+ ". \n";
 				switch(tipoHomografia){
 					case 1:{
-						if(darVuelta[i] == 0){
-							//caso comun
-							getHomography(i);
-						}else{
-							// la imagen que sigue esta dada vuelta
-							getHomographyUpsideDown(i);
-						}
+						//caso comun
+						getHomography(i,false);
 					}
 					break;
 					case 2:{
@@ -606,6 +554,14 @@ class UAVAgroStateStitcher{
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
+
+			// for(int i = 0; i < imgs.size()-1;i++){
+			// 	cout << "Realizando Homografia "+to_string(i)+ ". \n";
+			// 	//caso comun
+			// 	getHomography(i,false);
+			// 	H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
+			// 	H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+			// }
 		}
 		/*
 		En base a las homografias, se obtienen los valores que van a delimitar al bound box,
@@ -617,8 +573,8 @@ class UAVAgroStateStitcher{
 			for(int i = 0; i < H.size()-1; i++){
 				double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgWidth * H[i+1].at<double>(1,0) : 0 );
 				double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgHeight * H[i+1].at<double>(0,1) : 0 );
-				double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
 				double newMaxY = imgWidth * H[i+1].at<double>(1,0) + imgHeight * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgHeight;
+				double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
 				if(newMinX < xMin){
 					xMin = newMinX;
 				}
@@ -634,8 +590,8 @@ class UAVAgroStateStitcher{
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-			// yMin -= 1000;
-			// xMax += 100;
+			yMax += 1000;
+			xMax += 1000;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -731,11 +687,11 @@ class UAVAgroStateStitcher{
 			double y = hAux.at<double>(1,0)*X2.at<double>(0,0)+
 			hAux.at<double>(1,1)*X2.at<double>(0,1)+
 			hAux.at<double>(1,2)*X2.at<double>(0,2);
-			double z = hAux.at<double>(2,0)*X2.at<double>(0,0)+
-			hAux.at<double>(2,1)*X2.at<double>(0,1)+
-			hAux.at<double>(2,2)*X2.at<double>(0,2);
-			x/=z;
-			y/=z;
+			// double z = hAux.at<double>(2,0)*X2.at<double>(0,0)+
+			// hAux.at<double>(2,1)*X2.at<double>(0,1)+
+			// hAux.at<double>(2,2)*X2.at<double>(0,2);
+			// x/=z;
+			// y/=z;
 			double r = abs(x - X1.at<double>(0,0)) + abs(y - X1.at<double>(0,1));
 			// int alfa = 100;
 			// if(r < alfa){
@@ -746,58 +702,86 @@ class UAVAgroStateStitcher{
 			return r;
 		}
 
-		void getHomographyError(){
-			cout << "\033[1;32m Obteniendo error total: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-			double errorTotal = 0;
-			for(int i = 0 ; i < imgs.size()-1;i++){
-				double errorInlier = 0;
-				int maxMatches = 2;
-				int beforeMatches = (i < maxMatches)? i : maxMatches;
-				int afterMatches = ((imgs.size()-1) - i > maxMatches)? maxMatches : (imgs.size()-1) - i ;
+		// void getHomographyError(){
+		// 	cout << "\033[1;32m Obteniendo error total: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
+		// 	for(int i = 0 ; i < imgs.size()-1;i++){
+		// 		cout << "el error total es: " << getHomographyError(i,imgs.size()-1,homoNoMultiplicated[i+1],best_inliers[i+1]) <<endl;
+		// 	}
+		// }
 
-				Mat hAux = homoNoMultiplicated[i+1].clone(); // eye matrix
-				// j == 0
-				for(int k = 0 ; k < best_inliers[i].size();k++){
-					Point2f pt1 = vecKp[i][best_inliers[i][k].queryIdx].pt;
-					Point2f pt2 = vecKp[i+1][best_inliers[i][k].trainIdx].pt;
-					errorInlier += 	projectPointError(pt1,pt2,hAux);
-				}
-				for(int j = 1; j < afterMatches; j++){
-					hAux *= homoNoMultiplicated[i+1+j];
-					vector< DMatch > auxMatches;
-					vector< DMatch > auxBestMatches;
-					BFMatcher matcher(NORM_HAMMING,true);
-					matcher.match(vecDesc[i],vecDesc[i+1+j], auxBestMatches);
-					sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
-					auxBestMatches.erase(auxBestMatches.begin()+30,auxBestMatches.end());
+		double getActualHomographyError(int i, Mat homo, vector< DMatch > gm){
+			double errorInlier = 0;
+			int numMatches=0;
 
-					for(int k = 0 ; k < auxBestMatches.size();k++){
-						Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
-						Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
-						errorInlier += 	projectPointError(pt1,pt2,hAux);
-					}
-				}
-
-				hAux = homoNoMultiplicated[i].clone();
-				for(int j = -1; j > -(beforeMatches+1) ; j--){
-					vector< DMatch > auxMatches;
-					vector< DMatch > auxBestMatches;
-					BFMatcher matcher(NORM_HAMMING,true);
-					matcher.match(vecDesc[i+j],vecDesc[i], auxBestMatches);
-					sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
-					auxBestMatches.erase(auxBestMatches.begin()+10,auxBestMatches.end());
-
-					for(int k = 0 ; k < auxBestMatches.size();k++){
-						Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
-						Point2f pt2 = vecKp[i][auxBestMatches[k].trainIdx].pt;
-						errorInlier += 	projectPointError(pt1,pt2,hAux);
-					}
-					hAux = homoNoMultiplicated[i+j] * hAux;
-				}
-
-				errorTotal += errorInlier;
-				cout << "el error total es: " << errorInlier <<endl;
+			Mat hAux = homo.clone(); // eye matrix
+			// j == 0
+			for(int k = 0 ; k < gm.size();k++){
+				Point2f pt1 = vecKp[i][gm[k].queryIdx].pt;
+				Point2f pt2 = vecKp[i+1][gm[k].trainIdx].pt;
+				errorInlier += 	projectPointError(pt1,pt2,hAux);
 			}
+			numMatches+= gm.size();
+
+			return (errorInlier/numMatches);
+		}
+		
+		double getAfterHomographyError(int i, Mat homo){
+			double errorInlier = 0;
+			int maxMatches = 2;
+			int afterMatches = ((imgs.size()-1 - i) > (maxMatches+1))? (maxMatches+1) : imgs.size()-1 - i ;
+			int numMatches=0;
+
+			Mat hAux = homo.clone(); // eye matrix
+
+			for(int j = 1; j < afterMatches; j++){
+				hAux *= homoNoMultiplicated[i+1+j];
+				vector< DMatch > auxMatches;
+				vector< DMatch > auxBestMatches;
+				auxBestMatches = vecMatch[j][i];
+				sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
+				auxBestMatches.erase(auxBestMatches.begin()+10,auxBestMatches.end());
+				for(int k = 0 ; k < auxBestMatches.size();k++){
+					Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
+					Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
+					double error = 	projectPointError(pt1,pt2,hAux);
+					errorInlier += 	error;
+				}
+					numMatches+=auxBestMatches.size();
+			}
+			if(numMatches == 0){
+				numMatches ++;
+			}
+
+			return (errorInlier/numMatches);
+		}
+
+		double getBeforeHomographyError(int i, Mat homo){
+			double errorInlier = 0;
+			int maxMatches = 2;
+			int beforeMatches = (i < maxMatches)? i : maxMatches;
+			int numMatches=0;
+
+			Mat hAux = homo.clone();
+			for(int j = -1; j > -(beforeMatches+1) ; j--){
+				vector< DMatch > auxMatches;
+				vector< DMatch > auxBestMatches;
+				hAux = homoNoMultiplicated[i+1+j] * hAux;
+				auxBestMatches = vecMatch[-j][i+j];
+				sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
+				auxBestMatches.erase(auxBestMatches.begin()+10,auxBestMatches.end());
+
+				for(int k = 0 ; k < auxBestMatches.size();k++){
+					Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
+					Point2f pt2 = vecKp[i+1][auxBestMatches[k].trainIdx].pt;
+					double error = 	projectPointError(pt1,pt2,hAux);
+					errorInlier += 	error;
+				}
+					numMatches+=auxBestMatches.size();
+			}
+			if(numMatches == 0){
+				numMatches ++;
+			}
+			return (errorInlier/numMatches);
 		}
 
 		/*
@@ -808,8 +792,8 @@ class UAVAgroStateStitcher{
 			for (int i = 1; i < imgs.size(); i++){
 				cout.flush();
 				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
-				// string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
-				// imwrite(res, boundBox);
+				string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
+				imwrite(res, boundBox);
 				cout << "-" << (i+1) * 100 / imgs.size() << "%";
 			}
 			cout<<endl;
