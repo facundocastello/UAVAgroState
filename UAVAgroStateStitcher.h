@@ -563,7 +563,7 @@ class UAVAgroStateStitcher{
 				for(int i = 0; i < imgs.size()-1;i++){
 					// cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
-					homoNoMultiplicated[i+1] = getActualHomographyError(i,homoNoMultiplicated[i+1],best_inliers[i]);
+					// homoNoMultiplicated[i+1] = getActualHomographyError(i,homoNoMultiplicated[i+1],best_inliers[i]);
 					// getHomography(i,true);
 					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
@@ -576,30 +576,30 @@ class UAVAgroStateStitcher{
 		y evalua que estos no sean de una homogragia mal calculada
 		*/
 		bool findBoundBoxLimits(){
-			// cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
-			// FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
-			// for(int i = 0; i < H.size()-1; i++){
-			// 	double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgWidth * H[i+1].at<double>(1,0) : 0 );
-			// 	double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgHeight * H[i+1].at<double>(0,1) : 0 );
-			// 	double newMaxY = imgWidth * H[i+1].at<double>(1,0) + imgHeight * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgHeight;
-			// 	double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
-			// 	if(newMinX < xMin){
-			// 		xMin = newMinX;
-			// 	}
-			// 	if(newMaxX > xMax){
-			// 		xMax = newMaxX;
-			// 	}
-			// 	if(newMinY < yMin){
-			// 		yMin = newMinY;
-			// 	}
-			// 	if(newMaxY > yMax){
-			// 		yMax = newMaxY;
-			// 	}
-			// 	fsHomo << "homografia"+to_string(i+1) << H[i+1];
-			// }
-			// fsHomo.release();
-			yMax += 1000;
-			xMax += 5000;
+			cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
+			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
+			for(int i = 0; i < H.size()-1; i++){
+				double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgWidth * H[i+1].at<double>(1,0) : 0 );
+				double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgHeight * H[i+1].at<double>(0,1) : 0 );
+				double newMaxY = imgWidth * H[i+1].at<double>(1,0) + imgHeight * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgHeight;
+				double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
+				if(newMinX < xMin){
+					xMin = newMinX;
+				}
+				if(newMaxX > xMax){
+					xMax = newMaxX;
+				}
+				if(newMinY < yMin){
+					yMin = newMinY;
+				}
+				if(newMaxY > yMax){
+					yMax = newMaxY;
+				}
+				fsHomo << "homografia"+to_string(i+1) << H[i+1];
+			}
+			fsHomo.release();
+			// yMax += 1000;
+			// xMax += 5000;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -609,7 +609,7 @@ class UAVAgroStateStitcher{
 				cout<< " mal pegado "<<(abs(yMin) > (imgHeight * imgs.size()/2) )
 				<<(abs(yMax) > (imgHeight* imgs.size()/2))<<(abs(xMin) > (imgWidth * imgs.size()/2))
 				<<(abs(xMax) > (imgWidth * imgs.size()/2))<<endl;
-				return true;
+				return false;
 			}
 			return true;
 		}
