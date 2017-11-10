@@ -8,8 +8,14 @@
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "funcionesutiles.h"
+#include "ceres/ceres.h"
+#include "glog/logging.h"
+using ceres::AutoDiffCostFunction;
+using ceres::CostFunction;
+using ceres::Problem;
+using ceres::Solver;
+using ceres::Solve;
 #include "CommonFunctions.h"
-
 using namespace cv;
 using namespace std;
 
@@ -223,12 +229,12 @@ class UAVAgroStateStitcher{
 					// cout << "Empezo Match "+to_string(i)+ ". \n";
 					vector< DMatch > matches;
 					matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[0][i]);
-					if( i < (vecDesc.size()-2)  ){
-						matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
-					}
-					if( i < (vecDesc.size()-3) ){
-						matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
-					}
+					// if( i < (vecDesc.size()-2)  ){
+					// 	matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
+					// }
+					// if( i < (vecDesc.size()-3) ){
+					// 	matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
+					// }
 					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[0][i].size()) +".\n" ;
 				}
 			});
@@ -381,15 +387,8 @@ class UAVAgroStateStitcher{
 					if(!auxH.empty()){
 						Mat prodH=H[numHomo]*auxH;
 					// 	// por trigonometria aplico lo siguiente
-					if(usarError){
-						auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
-						auxError[i] += getAfterHomographyError(numHomo,auxH);
-						auxError[i] += getBeforeHomographyError(numHomo,auxH);
-					}else{
-						auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
-					}
-						// auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
-						// auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
+						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
 					}else{
 						auxHomoY[i] = 9999;	
 						auxHomoX[i] = 9999;	
@@ -398,7 +397,7 @@ class UAVAgroStateStitcher{
 				}
 			});
 			for(int i=0;i<vueltasI;i++){
-					if( auxError[i] <= minError  /*auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY*/){
+					if( /*auxError[i] <= minError &&*/ auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY){
 						bestvalx = i;
 						minError = auxError[i];
 						minHomoX = auxHomoX[i];
@@ -487,7 +486,7 @@ class UAVAgroStateStitcher{
 					if(!auxH.empty()){
 						Mat prodH=H[numHomo]*auxH;
 					// 	// por trigonometria aplico lo siguiente
-						auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
+						// auxError[i] = getActualHomographyError(numHomo,auxH,goodm);
 						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
 						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
 					}else{
@@ -559,12 +558,13 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 10 ;j++){
+			for(int j = 0; j < 1 ;j++){
 				totalError = 0;
 				for(int i = 0; i < imgs.size()-1;i++){
 					// cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
-					getHomography(i,true);
+					homoNoMultiplicated[i+1] = getActualHomographyError(i,homoNoMultiplicated[i+1],best_inliers[i]);
+					// getHomography(i,true);
 					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 				}
@@ -576,30 +576,30 @@ class UAVAgroStateStitcher{
 		y evalua que estos no sean de una homogragia mal calculada
 		*/
 		bool findBoundBoxLimits(){
-			cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
-			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
-			for(int i = 0; i < H.size()-1; i++){
-				double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgWidth * H[i+1].at<double>(1,0) : 0 );
-				double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgHeight * H[i+1].at<double>(0,1) : 0 );
-				double newMaxY = imgWidth * H[i+1].at<double>(1,0) + imgHeight * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgHeight;
-				double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
-				if(newMinX < xMin){
-					xMin = newMinX;
-				}
-				if(newMaxX > xMax){
-					xMax = newMaxX;
-				}
-				if(newMinY < yMin){
-					yMin = newMinY;
-				}
-				if(newMaxY > yMax){
-					yMax = newMaxY;
-				}
-				fsHomo << "homografia"+to_string(i+1) << H[i+1];
-			}
-			fsHomo.release();
-			// yMax += 1000;
-			// xMax += 1000;
+			// cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
+			// FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
+			// for(int i = 0; i < H.size()-1; i++){
+			// 	double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgWidth * H[i+1].at<double>(1,0) : 0 );
+			// 	double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgHeight * H[i+1].at<double>(0,1) : 0 );
+			// 	double newMaxY = imgWidth * H[i+1].at<double>(1,0) + imgHeight * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgHeight;
+			// 	double newMaxX = imgWidth * H[i+1].at<double>(0,0) + imgHeight * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgWidth;
+			// 	if(newMinX < xMin){
+			// 		xMin = newMinX;
+			// 	}
+			// 	if(newMaxX > xMax){
+			// 		xMax = newMaxX;
+			// 	}
+			// 	if(newMinY < yMin){
+			// 		yMin = newMinY;
+			// 	}
+			// 	if(newMaxY > yMax){
+			// 		yMax = newMaxY;
+			// 	}
+			// 	fsHomo << "homografia"+to_string(i+1) << H[i+1];
+			// }
+			// fsHomo.release();
+			yMax += 1000;
+			xMax += 5000;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -686,6 +686,42 @@ class UAVAgroStateStitcher{
 			}
 		}
 
+		struct SnavelyReprojectionError {
+			SnavelyReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y)
+				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y) {}
+
+			template <typename T>
+			bool operator()(const T* const camera,
+							T* residuals) const {
+
+				// camera[0,1,2] are the angle-axis rotation.
+				T p[2];
+				// ceres::AngleAxisRotatePoint(camera, point, p);
+				p[0]=camera[0]*T(to_project_x) + camera[1]*T(to_project_y) + camera[2];
+				p[1]=camera[3]*T(to_project_x) + camera[4]*T(to_project_y) + camera[5];
+
+				// The error is the difference between the predicted and observed position.
+				residuals[0] = p[0] - T(observed_x);
+				residuals[1] = p[1] - T(observed_y);
+				return true;
+			}
+
+			// Factory to hide the construction of the CostFunction object from
+			// the client code.
+			static ceres::CostFunction* Create(const double observed_x,
+												const double observed_y,
+												const double to_project_x,
+												const double to_project_y) {
+				return (new ceres::AutoDiffCostFunction<SnavelyReprojectionError, 2,6>(
+							new SnavelyReprojectionError(observed_x, observed_y,to_project_x,to_project_y)));
+			}
+
+			double observed_x;
+			double observed_y;
+			double to_project_x;
+			double to_project_y;
+			};
+
 		double projectPointError(Point2f pt1 , Point2f pt2, Mat hAux){
 			Mat X1 = (Mat_<double>(3,1) << pt1.x, pt1.y, 1);
 			Mat X2 = (Mat_<double>(3,1) << pt2.x, pt2.y, 1);
@@ -709,27 +745,56 @@ class UAVAgroStateStitcher{
 			return r;
 		}
 
-		// void getHomographyError(){
-		// 	cout << "\033[1;32m Obteniendo error total: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-		// 	for(int i = 0 ; i < imgs.size()-1;i++){
-		// 		cout << "el error total es: " << getHomographyError(i,imgs.size()-1,homoNoMultiplicated[i+1],best_inliers[i+1]) <<endl;
-		// 	}
-		// }
 
-		double getActualHomographyError(int i, Mat homo, vector< DMatch > gm){
+		Mat getActualHomographyError(int i, Mat homo, vector< DMatch > gm){
 			double errorInlier = 0;
 			int numMatches=0;
 
 			Mat hAux = homo.clone(); // eye matrix
 			// j == 0
+			double hH[6];
+			hH[0]=hAux.at<double>(0,0);
+			hH[1]=hAux.at<double>(0,1);
+			hH[2]=hAux.at<double>(0,2);
+			hH[3]=hAux.at<double>(1,0);
+			hH[4]=hAux.at<double>(1,1);
+			hH[5]=hAux.at<double>(1,2);
+			Problem problem;
 			for(int k = 0 ; k < gm.size();k++){
 				Point2f pt1 = vecKp[i][gm[k].queryIdx].pt;
 				Point2f pt2 = vecKp[i+1][gm[k].trainIdx].pt;
+				ceres::CostFunction* cost_function =
+				SnavelyReprojectionError::Create(
+					pt1.x,
+					pt1.y,
+					pt2.x,
+					pt2.y);
+
+				problem.AddResidualBlock(cost_function,
+									 NULL /* squared loss */,
+									 hH);
 				errorInlier += 	projectPointError(pt1,pt2,hAux);
 			}
-			numMatches+= gm.size();
 
-			return (errorInlier/numMatches);
+
+			ceres::Solver::Options options;
+			options.linear_solver_type = ceres::DENSE_SCHUR;
+			options.minimizer_progress_to_stdout = true;
+			ceres::Solver::Summary summary;
+			ceres::Solve(options, &problem, &summary);
+			std::cout << summary.FullReport() << "\n";
+
+			hAux.at<double>(0,0)=hH[0];
+			hAux.at<double>(0,1)=hH[1];
+			hAux.at<double>(0,2)=hH[2];
+			hAux.at<double>(1,0)=hH[3];
+			hAux.at<double>(1,1)=hH[4];
+			hAux.at<double>(1,2)=hH[5];
+
+
+			numMatches+= gm.size();
+			// cout << errorInlier;
+			return hAux;
 		}
 		
 		double getAfterHomographyError(int i, Mat homo){
