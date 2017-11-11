@@ -521,18 +521,14 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 1 ;j++){
-				vector<Mat> auxHomoNoMult(homoNoMultiplicated.size());
-				// auxHomoNoMult = homoNoMultiplicated;
+			for(int j = 0; j < 0 ;j++){
 				for(int i = 0; i < imgs.size()-1;i++){
 					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
 					homoNoMultiplicated[i+1] = getAfterHomographyError( i,  homoNoMultiplicated[i+1]);
-					// getHomography(i,true);
 					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 				}
-				// homoNoMultiplicated = auxHomoNoMult;
 			}
 		}
 		/*
@@ -562,8 +558,8 @@ class UAVAgroStateStitcher{
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-			yMin = 4000;
-			xMax = 500;
+			// yMin = -4000;
+			// xMax = 4000;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -573,7 +569,7 @@ class UAVAgroStateStitcher{
 				cout<< " mal pegado "<<(abs(yMin) > (imgHeight * imgs.size()/2) )
 				<<(abs(yMax) > (imgHeight* imgs.size()/2))<<(abs(xMin) > (imgWidth * imgs.size()/2))
 				<<(abs(xMax) > (imgWidth * imgs.size()/2))<<endl;
-				return true;
+				return false;
 			}
 			return true;
 		}
@@ -786,10 +782,10 @@ class UAVAgroStateStitcher{
 				// The error is the difference between the predicted and observed position.
 				residuals[0]  = p[0] - T(observed_x);
 				residuals[1] = p[1] - T(observed_y);
-				// if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
-				// 	residuals[1] = T(0);
-				// 	residuals[0] = T(0);
-				// }
+				if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
+					residuals[1] = T(0);
+					residuals[0] = T(0);
+				}
 				
 				return true;
 			}
@@ -924,7 +920,7 @@ class UAVAgroStateStitcher{
 			ceres::Solver::Options options;
 			options.linear_solver_type = ceres::DENSE_QR;
 			// options.function_tolerance = 1e-500;
-			// options.function_tolerance = 1e-500;
+			// options.parameter_tolerance = 1e-500;
 			// options.minimizer_progress_to_stdout = true;
 			ceres::Solver::Summary summary;
 			ceres::Solve(options, &problem, &summary);
@@ -944,8 +940,8 @@ class UAVAgroStateStitcher{
 			for (int i = 1; i < imgs.size(); i++){
 				cout.flush();
 				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
-				string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
-				imwrite(res, boundBox);
+				// string res = "Imagenes/resultados/Pegado/resultados" + to_string(i) + ".png";
+				// imwrite(res, boundBox);
 				cout << "-" << (i+1) * 100 / imgs.size() << "%";
 			}
 			cout<<endl;
