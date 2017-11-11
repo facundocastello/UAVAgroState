@@ -229,12 +229,12 @@ class UAVAgroStateStitcher{
 					// cout << "Empezo Match "+to_string(i)+ ". \n";
 					vector< DMatch > matches;
 					matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[0][i]);
-					// if( i < (vecDesc.size()-2)  ){
-					// 	matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
-					// }
-					// if( i < (vecDesc.size()-3) ){
-					// 	matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
-					// }
+					if( i < (vecDesc.size()-2)  ){
+						matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
+					}
+					if( i < (vecDesc.size()-3) ){
+						matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
+					}
 					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[0][i].size()) +".\n" ;
 				}
 			});
@@ -383,7 +383,7 @@ class UAVAgroStateStitcher{
 				homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
 			}
 			Mat aux;
-			// cout << " " << bestvalx << endl;
+			cout << " " << bestvalx << endl;
 			Mat img1 = imgs[numHomo];
 			Mat img2 = imgs[numHomo+1];
 			// if(img1.channels() == 4){
@@ -521,17 +521,18 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 0 ;j++){
-				totalError = 0;
+			for(int j = 0; j < 1 ;j++){
+				vector<Mat> auxHomoNoMult(homoNoMultiplicated.size());
+				// auxHomoNoMult = homoNoMultiplicated;
 				for(int i = 0; i < imgs.size()-1;i++){
-					// cout << "Realizando Homografia "+to_string(i)+ ". \n";
+					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
-					// homoNoMultiplicated[i+1] = getActualHomographyError(i,homoNoMultiplicated[i+1],best_inliers[i]);
+					homoNoMultiplicated[i+1] = getAfterHomographyError( i,  homoNoMultiplicated[i+1]);
 					// getHomography(i,true);
 					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 				}
-				cout<< "error total: " << totalError << endl;
+				// homoNoMultiplicated = auxHomoNoMult;
 			}
 		}
 		/*
@@ -561,8 +562,8 @@ class UAVAgroStateStitcher{
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-			// yMax += 1000;
-			// xMax += 5000;
+			yMin = 4000;
+			xMax = 500;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -572,7 +573,7 @@ class UAVAgroStateStitcher{
 				cout<< " mal pegado "<<(abs(yMin) > (imgHeight * imgs.size()/2) )
 				<<(abs(yMax) > (imgHeight* imgs.size()/2))<<(abs(xMin) > (imgWidth * imgs.size()/2))
 				<<(abs(xMax) > (imgWidth * imgs.size()/2))<<endl;
-				return false;
+				return true;
 			}
 			return true;
 		}
@@ -649,49 +650,6 @@ class UAVAgroStateStitcher{
 			}
 		}
 
-		struct SnavelyReprojectionError {
-			SnavelyReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y)
-				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y) {}
-
-			template <typename T>
-			bool operator()(const T* const camera,
-							T* residuals) const {
-
-				// camera[0,1,2] are the angle-axis rotation.
-				T p[2];
-				// ceres::AngleAxisRotatePoint(camera, point, p);
-				p[0]=camera[0]*T(to_project_x) + camera[1]*T(to_project_y) + camera[2];
-				p[1]=camera[3]*T(to_project_x) + camera[4]*T(to_project_y) + camera[5];
-
-				// The error is the difference between the predicted and observed position.
-				residuals[0]  = p[0] - T(observed_x);
-				// if(residuals[0] > T(10)){
-				// 	residuals[0] = T(0);
-				// }
-				residuals[1] = p[1] - T(observed_y);
-				// if(residuals[1] > T(20)){
-				// 	residuals[1] = T(0);
-				// }
-				
-				return true;
-			}
-
-			// Factory to hide the construction of the CostFunction object from
-			// the client code.
-			static ceres::CostFunction* Create(const double observed_x,
-												const double observed_y,
-												const double to_project_x,
-												const double to_project_y) {
-				return (new ceres::AutoDiffCostFunction<SnavelyReprojectionError, 2,6>(
-							new SnavelyReprojectionError(observed_x, observed_y,to_project_x,to_project_y)));
-			}
-
-			double observed_x;
-			double observed_y;
-			double to_project_x;
-			double to_project_y;
-			};
-
 		double projectPointError(Point2f pt1 , Point2f pt2, Mat hAux){
 			Mat X1 = (Mat_<double>(3,1) << pt1.x, pt1.y, 1);
 			Mat X2 = (Mat_<double>(3,1) << pt2.x, pt2.y, 1);
@@ -715,6 +673,44 @@ class UAVAgroStateStitcher{
 			return r;
 		}
 
+		struct ActualReprojectionError {
+			ActualReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y)
+				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y) {}
+
+			template <typename T>
+			bool operator()(const T* const camera,
+							T* residuals) const {
+
+				// camera[0,1,2] are the angle-axis rotation.
+				T p[2];
+				// ceres::AngleAxisRotatePoint(camera, point, p);
+				p[0]=camera[0]*T(to_project_x) + camera[1]*T(to_project_y) + camera[2];
+				p[1]=camera[3]*T(to_project_x) + camera[4]*T(to_project_y) + camera[5];
+
+				// The error is the difference between the predicted and observed position.
+				residuals[0]  = p[0] - T(observed_x);
+				residuals[1] = p[1] - T(observed_y);
+				
+				return true;
+			}
+
+			// Factory to hide the construction of the CostFunction object from
+			// the client code.
+			static ceres::CostFunction* Create(const double observed_x,
+												const double observed_y,
+												const double to_project_x,
+												const double to_project_y) {
+				return (new ceres::AutoDiffCostFunction<ActualReprojectionError, 2,6>(
+							new ActualReprojectionError(observed_x, observed_y,to_project_x,to_project_y)));
+			}
+
+			double observed_x;
+			double observed_y;
+			double to_project_x;
+			double to_project_y;
+		};
+
+		
 		
 		double* matToCamera(Mat mat){
 			double* camera;
@@ -749,11 +745,11 @@ class UAVAgroStateStitcher{
 				Point2f pt1 = vecKp[i][gm[k].queryIdx].pt;
 				Point2f pt2 = vecKp[i+1][gm[k].trainIdx].pt;
 				ceres::CostFunction* cost_function =
-				SnavelyReprojectionError::Create(pt1.x,pt1.y,pt2.x,	pt2.y);
+				ActualReprojectionError::Create(pt1.x,pt1.y,pt2.x,	pt2.y);
 				problem.AddResidualBlock(cost_function, NULL,camera);
 			}
 			ceres::Solver::Options options;
-			options.linear_solver_type = ceres::DENSE_SCHUR;
+			// options.linear_solver_type = ceres::DENSE_SCHUR;
 			// options.minimizer_progress_to_stdout = true;
 			ceres::Solver::Summary summary;
 			ceres::Solve(options, &problem, &summary);
@@ -765,44 +761,178 @@ class UAVAgroStateStitcher{
 			return hAux;
 		}
 		
-		double getAfterHomographyError(int i, Mat homo){
+		struct AfterReprojectionError {
+			AfterReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y, Mat H)
+				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y),H(H) {}
+
+			template <typename T>
+			bool operator()(const T* const camera,
+							T* residuals) const {
+
+				// camera[0,1,2] are the angle-axis rotation.
+				T p[2];
+				// ceres::AngleAxisRotatePoint(camera, point, p);
+				T cameraAux[6];
+				cameraAux[0]= camera[0] * T(H.at<double>(0,0)) + camera [1] * T(H.at<double>(1,0)) + camera[2] * T(H.at<double>(2,0));
+				cameraAux[1]= camera[0] * T(H.at<double>(0,1)) + camera [1] * T(H.at<double>(1,1)) + camera[2] * T(H.at<double>(2,1));
+				cameraAux[2]= camera[0] * T(H.at<double>(0,2)) + camera [1] * T(H.at<double>(1,2)) + camera[2] * T(H.at<double>(2,2));
+				cameraAux[3]= camera[3] * T(H.at<double>(0,0)) + camera [4] * T(H.at<double>(1,0)) + camera[5] * T(H.at<double>(2,0));
+				cameraAux[4]= camera[3] * T(H.at<double>(0,1)) + camera [4] * T(H.at<double>(1,1)) + camera[5] * T(H.at<double>(2,1));
+				cameraAux[5]= camera[3] * T(H.at<double>(0,2)) + camera [4] * T(H.at<double>(1,2)) + camera[5] * T(H.at<double>(2,2));
+				
+				p[0]=cameraAux[0]*T(to_project_x) + cameraAux[1]*T(to_project_y) + cameraAux[2];
+				p[1]=cameraAux[3]*T(to_project_x) + cameraAux[4]*T(to_project_y) + cameraAux[5];
+
+				// The error is the difference between the predicted and observed position.
+				residuals[0]  = p[0] - T(observed_x);
+				residuals[1] = p[1] - T(observed_y);
+				// if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
+				// 	residuals[1] = T(0);
+				// 	residuals[0] = T(0);
+				// }
+				
+				return true;
+			}
+
+			// Factory to hide the construction of the CostFunction object from
+			// the client code.
+			static ceres::CostFunction* Create(const double observed_x,
+												const double observed_y,
+												const double to_project_x,
+												const double to_project_y,
+												const Mat H) {
+				return (new ceres::AutoDiffCostFunction<AfterReprojectionError, 2,6>(
+							new AfterReprojectionError(observed_x, observed_y,to_project_x,to_project_y,H)));
+			}
+
+			double observed_x;
+			double observed_y;
+			double to_project_x;
+			double to_project_y;
+			Mat H;
+		};
+
+		struct BeforeReprojectionError {
+			BeforeReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y, Mat H)
+				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y),H(H) {}
+
+			template <typename T>
+			bool operator()(const T* const camera,
+							T* residuals) const {
+
+				// camera[0,1,2] are the angle-axis rotation.
+				T p[2];
+				// ceres::AngleAxisRotatePoint(camera, point, p);
+				T cameraAux[6];
+				cameraAux[0]= camera[0] * T(H.at<double>(0,0)) + camera [3] * T(H.at<double>(0,1)) + T(0) * T(H.at<double>(0,2));
+				cameraAux[1]= camera[1] * T(H.at<double>(0,0)) + camera [4] * T(H.at<double>(0,1)) + T(0) * T(H.at<double>(0,2));
+				cameraAux[2]= camera[2] * T(H.at<double>(0,0)) + camera [5] * T(H.at<double>(0,1)) + T(1) * T(H.at<double>(0,2));
+				cameraAux[3]= camera[0] * T(H.at<double>(1,0)) + camera [3] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
+				cameraAux[4]= camera[1] * T(H.at<double>(1,0)) + camera [4] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
+				cameraAux[5]= camera[2] * T(H.at<double>(1,0)) + camera [5] * T(H.at<double>(1,1)) + T(1) * T(H.at<double>(1,2));
+				
+				
+				p[0]=cameraAux[0]*T(to_project_x) + cameraAux[1]*T(to_project_y) + cameraAux[2];
+				p[1]=cameraAux[3]*T(to_project_x) + cameraAux[4]*T(to_project_y) + cameraAux[5];
+
+				// The error is the difference between the predicted and observed position.
+				residuals[0]  = p[0] - T(observed_x);
+				residuals[1] = p[1] - T(observed_y);
+				if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
+					residuals[1] = T(0);
+					residuals[0] = T(0);
+				}
+				
+				return true;
+			}
+
+			// Factory to hide the construction of the CostFunction object from
+			// the client code.
+			static ceres::CostFunction* Create(const double observed_x,
+												const double observed_y,
+												const double to_project_x,
+												const double to_project_y,
+												const Mat H) {
+				return (new ceres::AutoDiffCostFunction<BeforeReprojectionError, 2,6>(
+							new BeforeReprojectionError(observed_x, observed_y,to_project_x,to_project_y,H)));
+			}
+
+			double observed_x;
+			double observed_y;
+			double to_project_x;
+			double to_project_y;
+			Mat H;
+		};
+		
+		Mat getAfterHomographyError(int i, Mat homo){
 			int maxMatches = 2;
 			int afterMatches = ((imgs.size()-1 - i) > (maxMatches+1))? (maxMatches+1) : imgs.size()-1 - i ;
 			int beforeMatches = (i < maxMatches)? i : maxMatches;
 
+			Problem problem;
+
 			Mat hAux = homo.clone(); // eye matrix
+			double* camera = matToCamera(hAux);
+			Mat hMult = (Mat::eye(3, 3, CV_64F));
 			for(int j = 1; j < afterMatches; j++){
-				hAux *= homoNoMultiplicated[i+1+j];
+				hMult *= homoNoMultiplicated[i+1+j];
 				vector< DMatch > auxMatches;
 				vector< DMatch > auxBestMatches;
 				auxBestMatches = vecMatch[j][i];
 				sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
 				auxBestMatches.erase(auxBestMatches.begin()+50,auxBestMatches.end());
 				auxBestMatches = removeOutliers(auxBestMatches,i,i+1+j);
+				// Mat aux;
+				// drawMatches(imgs[i], vecKp[i],imgs[i+1+j],vecKp[i+1+j],auxBestMatches,aux,
+				// Scalar::all(-1),Scalar::all(-1),
+				// std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+				// CommonFunctions::showWindowNormal(aux);
 				for(int k = 0 ; k < auxBestMatches.size();k++){
 					Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
 					Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
+					ceres::CostFunction* cost_function =
+						AfterReprojectionError::Create(pt1.x,pt1.y,pt2.x,pt2.y,hMult.clone());
+					problem.AddResidualBlock(cost_function, NULL,camera);
 				}
 			}
 
-			hAux = homo.clone();
+
+			hMult = (Mat::eye(3, 3, CV_64F));
 
 			for(int j = -1; j > -(beforeMatches+1) ; j--){
 				vector< DMatch > auxMatches;
 				vector< DMatch > auxBestMatches;
-				hAux = homoNoMultiplicated[i+1+j] * hAux;
+				hMult = homoNoMultiplicated[i+1+j] * hMult;
 				auxBestMatches = vecMatch[-j][i+j];
 				sort(auxBestMatches.begin(),auxBestMatches.end(),sortByDist);
-				auxBestMatches.erase(auxBestMatches.begin()+10,auxBestMatches.end());
+				auxBestMatches.erase(auxBestMatches.begin()+50,auxBestMatches.end());
 				auxBestMatches = removeOutliers(auxBestMatches,i+j,i+1);
-
+				// Mat aux;
+				// drawMatches(imgs[i+j], vecKp[i+j],imgs[i+1],vecKp[i+1],auxBestMatches,aux,
+				// Scalar::all(-1),Scalar::all(-1),
+				// std::vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
+				// CommonFunctions::showWindowNormal(aux);
 				for(int k = 0 ; k < auxBestMatches.size();k++){
 					Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
 					Point2f pt2 = vecKp[i+1][auxBestMatches[k].trainIdx].pt;
+					ceres::CostFunction* cost_function =
+						BeforeReprojectionError::Create(pt1.x,pt1.y,pt2.x,pt2.y,hMult.clone());
+					problem.AddResidualBlock(cost_function, NULL,camera);
 				}
 			}
 
-			return 0;
+			ceres::Solver::Options options;
+			options.linear_solver_type = ceres::DENSE_QR;
+			// options.function_tolerance = 1e-500;
+			// options.function_tolerance = 1e-500;
+			// options.minimizer_progress_to_stdout = true;
+			ceres::Solver::Summary summary;
+			ceres::Solve(options, &problem, &summary);
+			std::cout << summary.BriefReport() << "\n";
+
+			hAux = cameraToMat(camera,hAux);
+
+			return hAux;
 		}
 
 
