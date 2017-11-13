@@ -79,6 +79,10 @@ class UAVAgroStateStitcher{
 
 			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
+			Mat imgMaskWarpedAux = imgMaskWarped.clone();
+			erode(imgMaskWarpedAux, imgMaskWarpedAux, kernel, Point(1, 1), 20);
+			imgMaskWarpedAux= imgMaskWarped - imgMaskWarpedAux;
+			
 
 			if(obj.channels() == 4){
 				//en el caso de que haya transparencia, se hace un pegado especial
@@ -88,7 +92,7 @@ class UAVAgroStateStitcher{
 			}else{
 				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
 				objWarped.copyTo(objAux, imgMaskWarped);
-				scene = specialBlending(objAux, scene);
+				scene = specialBlending(objAux, scene,imgMaskWarpedAux);
 				// objWarped.copyTo(scene, imgMaskWarped);
 			}
 
@@ -124,11 +128,11 @@ class UAVAgroStateStitcher{
 		valores en la misma proporcion, y en caso de que la escena sea negra y
 		el objeto tenga otro valor,	se usa el valor del objeto.
 		*/
-		Mat specialBlending(Mat obj, Mat scene){
+		Mat specialBlending(Mat obj, Mat scene, Mat mask){
 			for(int i=0;i < obj.rows;i++){
 				for(int j=0;j < obj.cols;j++){
 					if(obj.at<Vec3b>(i,j) != Vec3b(0,0,0)){
-						if(scene.at<Vec3b>(i,j) != Vec3b(0,0,0)){
+						if(scene.at<Vec3b>(i,j) != Vec3b(0,0,0) && mask.at<uchar>(i,j) != 0){
 							scene.at<Vec3b>(i,j)[0] = scene.at<Vec3b>(i,j)[0] * 0.5 + obj.at<Vec3b>(i,j)[0] * 0.5;
 							scene.at<Vec3b>(i,j)[1] = scene.at<Vec3b>(i,j)[1] * 0.5 + obj.at<Vec3b>(i,j)[1] * 0.5;
 							scene.at<Vec3b>(i,j)[2] = scene.at<Vec3b>(i,j)[2] * 0.5 + obj.at<Vec3b>(i,j)[2] * 0.5;
@@ -324,7 +328,7 @@ class UAVAgroStateStitcher{
 			double minvalx;
 			double maxvalx;
 			int bestvalx;double bestPorcMinY;double bestPorcMaxY;
-			int vueltasI=400;int vueltasJ=10;int vueltasK=10;
+			int vueltasI=600;int vueltasJ=10;int vueltasK=10;
 			vector< DMatch > best_matches;
 			vector<double> auxError(vueltasI);
 			vector<double> auxHomoX(vueltasI);
@@ -440,7 +444,7 @@ class UAVAgroStateStitcher{
 				scene.push_back(vecKp[numHomo+1][best_matches[l].trainIdx].pt);
 			}
 					
-			homoNoMultiplicated[numHomo+1] = findHomography(scene,obj,CV_RANSAC);
+			homoNoMultiplicated[numHomo+1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 
 			Mat aux;
 			best_inliers[numHomo] = best_matches;
@@ -517,9 +521,10 @@ class UAVAgroStateStitcher{
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-			xMin -= 500;
-			// yMin = -4000;
-			// xMax = 4000;
+			xMin -= 20;
+			yMin -= 20;
+			yMax += 20;
+			xMax += 20;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
@@ -560,7 +565,7 @@ class UAVAgroStateStitcher{
 			if(tipoHomografia == 1){
 				homoNoMultiplicated[1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 			}else{
-				homoNoMultiplicated[1] = findHomography(scene,obj,CV_RANSAC);
+				homoNoMultiplicated[1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 			}
 
 			H[1] = homoNoMultiplicated[1];
@@ -910,6 +915,35 @@ class UAVAgroStateStitcher{
 			}
 			return boundBox;
 		}
+		
+
+		Mat multiBandStitch(){
+			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
+			detail::MultiBandBlender blender(false,0);
+			blender.prepare(Rect(0,0,boundBox.cols,boundBox.rows));
+
+			Mat bigImage, mask;
+			for (int i = 1; i < imgs.size(); i++){
+				Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(imgs[i].size(), CV_8UC1, cv::Scalar(255));;
+				warpPerspective(imgMask, imgMaskWarped, H[i], Size(boundBox.cols, boundBox.rows));
+				warpPerspective(imgs[i], objWarped, H[i], Size(boundBox.cols, boundBox.rows));
+
+				Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
+				erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 5);
+				
+
+				blender.feed(objWarped.clone(), imgMaskWarped, Point(0, 0));
+				cout << "-" << (i+1) * 100 / imgs.size() << "%";
+			}
+			blender.blend(bigImage, mask);
+			bigImage.convertTo(bigImage, (bigImage.type() / 8) * 8);
+			// CommonFunctions::showWindowNormal(bigImage);
+			cout<<endl;
+			if(boundBox.channels() < 4){
+				boundBox = CommonFunctions::addTransparence(bigImage);
+			}
+			return boundBox;
+		}
 
 		/*
 		Utilizo todas las funciones anteriores para realizar el stitching,
@@ -953,6 +987,7 @@ class UAVAgroStateStitcher{
 
 			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
 			stitchImgs();
+			// multiBandStitch();
 			begin = CommonFunctions::tiempo(begin, " generar el orthomosaico: ");
 
 			return boundBox;
