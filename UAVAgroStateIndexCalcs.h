@@ -7,18 +7,15 @@ class UAVAgroStateIndexCalcs
 {
 public:
 
+	
 	Mat static ndviCalcu(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
-		return ndviCalcu(imgaux);;
-	}
-
-	Mat static ndviCalcu(Mat imgaux){
 		
-		// size_t position = strImg.find_last_of("/");
-		// strImg.erase(strImg.begin(),strImg.begin()+position);
+		size_t position = strImg.find_last_of("/");
+		strImg.erase(strImg.begin(),strImg.begin()+position);
 
-		imwrite("Imagenes/resultados/NDVI/original.png", imgaux);
-		
+		imwrite("Imagenes/resultados/NDVI/"+ strImg +"original.png", imgaux);
+
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);	
 		Mat numerador,denominador,division;
@@ -35,7 +32,7 @@ public:
 			Mat auxAlpha[4]={division,division,division,BGRA[3]};
 			merge(auxAlpha,4,resultadogris);
 		};
-		imwrite("Imagenes/resultados/NDVI/resultadogris.png", resultadogris);
+		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadogris.png", resultadogris);
 
 		Mat resultadosalida;
 		Mat auxSalida[3]={division,division,division};
@@ -59,8 +56,8 @@ public:
 			Mat auxAlpha3[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
 			merge(auxAlpha3,4,resultadoNormalizado);
 		}
-		imwrite("Imagenes/resultados/NDVI/resultadocolornormalizado.png", resultadoNormalizado);
-		imwrite("Imagenes/resultados/NDVI/resultadocolor.png", resultadocolor);
+		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadocolor.png", resultadocolor);
+		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadocolornormalizado.png", resultadoNormalizado);
 	
 		return resultadosalida;
 	}
