@@ -59,12 +59,15 @@ class CommonFunctions{
 			}
 		}
 
-		Mat static cargarImagen(string strImg , int tamano = 4){
-			Mat img = imread(strImg, IMREAD_UNCHANGED);
+		Mat static cargarImagen(string strImg , int tamano = 4, int Tipo = int(IMREAD_UNCHANGED)){
+			Mat img = imread(strImg, Tipo);
 			resize(img, img, Size(img.cols / tamano, img.rows / tamano));
+			if(img.channels() == 3 ){
+				img = addTransparence(img);
+			}
 			return img;
 		}
-		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4)
+		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4, int Tipo = int(IMREAD_UNCHANGED))
 		{
 			vector<Mat> imgs;
 			cout << "\033[1;32mCargando Imagenes: (resize: 1/"
@@ -72,7 +75,7 @@ class CommonFunctions{
 			for (int i = 0; i < strImgs.size(); i++){
 				cout << "-" << (i+1) * 100 / strImgs.size() << "%";
 				cout.flush();
-				imgs.push_back(cargarImagen(strImgs[i], tamano));
+				imgs.push_back(cargarImagen(strImgs[i], tamano,Tipo));
 
 			}
 			cout<<endl;

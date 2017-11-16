@@ -6,7 +6,7 @@
         {
             "taskName": "main",
             "type": "shell",
-            "command": "cd build && cmake . .. && make && cp main .. && cd .. && ./main 2 4 0 8 1",
+            "command": "cd build && cmake . .. && make && cp main .. && cd .. && ./main 2 4 0 20 1",
             "group": {
                 "kind": "build",
                 "isDefault": true

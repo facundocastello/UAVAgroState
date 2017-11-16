@@ -90,7 +90,8 @@ public:
             undistort(frame, frameUndistorted, calibrationMat[0], calibrationMat[1]);
             size_t position = strImgs[i].find_last_of("/");
             strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
-            string res = "Imagenes/Undistort" + strImgs[i];
+            frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
+            string res = "Imagenes/Undistort" + strImgs[i] + ".png";
             imwrite(res, frameUndistorted);
         }
     }
