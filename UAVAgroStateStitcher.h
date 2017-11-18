@@ -79,19 +79,24 @@ class UAVAgroStateStitcher{
 
 			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
-			Mat imgMaskWarpedAux = imgMaskWarped.clone();
-			erode(imgMaskWarpedAux, imgMaskWarpedAux, kernel, Point(1, 1), 20);
-			imgMaskWarpedAux= imgMaskWarped - imgMaskWarpedAux;
+			
+			Mat imgMaskFrame;
+			Mat imgMaskFrameAux;
+			vector<Mat> bgra;
+			split(objWarped, bgra);
+			threshold(bgra[3], imgMaskFrame, 1, 255, THRESH_BINARY);
+			erode(imgMaskFrame, imgMaskFrameAux, kernel, Point(1, 1), 20);
+			imgMaskFrame= imgMaskFrame - imgMaskFrameAux;
 
 			if(obj.channels() == 4){
 				//en el caso de que haya transparencia, se hace un pegado especial
 				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0,0));
 				objWarped.copyTo(objAux, imgMaskWarped);
-				scene = copyToTransparent(objAux, scene,imgMaskWarpedAux);
+				scene = copyToTransparent(objAux, scene,imgMaskFrame);
 			}else{
 				Mat objAux(scene.size(), scene.type(),Scalar(0,0,0));
 				// objWarped.copyTo(objAux, imgMaskWarped);
-				// scene = specialBlending(objAux, scene,imgMaskWarpedAux);
+				// scene = specialBlending(objAux, scene,imgMaskFrame);
 				objWarped.copyTo(scene, imgMaskWarped);
 			}
 
@@ -102,6 +107,7 @@ class UAVAgroStateStitcher{
 		escena, solo en el caso de que el objeto no sea transparente en esa parte
 		*/
 		Mat copyToTransparent(Mat obj, Mat scene, Mat mask){
+			
 			Mat rgbaObj[4];
 			split(obj,rgbaObj);
 			for(int i=0;i < obj.rows;i++){
@@ -843,11 +849,10 @@ class UAVAgroStateStitcher{
 			int beforeMatches = (i < maxMatches)? i : maxMatches;
 			int error = 0;
 			Mat hAux;
-			for(int n=1;n<100;n++){
+			for(int n=30;n<200;n++){
 				Problem problem;
 
-				hAux = homo.clone(); // eye matrix
-				double* camera = matToCamera(hAux);
+				double* camera = matToCamera(homo.clone());
 				Mat hMult = (Mat::eye(3, 3, CV_64F));
 				for(int j = 1; j < afterMatches; j++){
 					hMult *= homoNoMultiplicated[i+1+j];
@@ -922,7 +927,7 @@ class UAVAgroStateStitcher{
 				if((summary.initial_cost/summary.final_cost)>error){
 					error =summary.initial_cost/summary.final_cost;
 					cout << summary.BriefReport() << "\n"<< n<<"\n";
-					hAux = cameraToMat(camera,hAux);
+					hAux = cameraToMat(camera,homo.clone());
 				}
 			}
 

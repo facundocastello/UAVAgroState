@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 			int tamano = 4;
 			bool undistort = false;
 			float kPoints = 3	;
-			bool originalSize=true;
+			bool originalSize=false;
 
 			struct timeval begin;
 			gettimeofday(&begin, NULL);
