@@ -863,18 +863,6 @@ class UAVAgroStateStitcher{
 					auxMatches.erase(auxMatches.begin()+n,auxMatches.end());
 					auxMatches = removeOutliers(auxMatches,i,i+1+j);
 					auxBestMatches = auxMatches;
-					// for(int k = 0; k < auxMatches.size(); k++){
-					// 	for(int l = 0 ; l < best_inliers[i].size(); l++){
-					// 		if( auxMatches[k].queryIdx == best_inliers[i][l].queryIdx){
-					// 			auxBestMatches.push_back(auxMatches[k]);
-					// 		}
-					// 	}
-					// }
-					// Mat aux;
-					// drawMatches(removeAlpha(imgs[i]), vecKp[i],removeAlpha(imgs[i+1+j]),vecKp[i+1+j],auxBestMatches,aux,
-					// Scalar::all(-1),Scalar::all(-1),
-					// vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-					// CommonFunctions::showWindowNormal(aux);
 					for(int k = 0 ; k < auxBestMatches.size();k++){
 						Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
 						Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
@@ -896,18 +884,6 @@ class UAVAgroStateStitcher{
 					auxMatches.erase(auxMatches.begin()+n,auxMatches.end());
 					auxMatches = removeOutliers(auxMatches,i+j,i+1);
 					auxBestMatches = auxMatches;
-					// for(int k = 0; k < auxMatches.size(); k++){
-					// 	for(int l = 0 ; l < best_inliers[i].size(); l++){
-					// 		if( auxMatches[k].trainIdx == best_inliers[i][l].trainIdx){
-					// 			auxBestMatches.push_back(auxMatches[k]);
-					// 		}
-					// 	}
-					// }
-					// Mat aux;
-					// drawMatches(removeAlpha(imgs[i+j]), vecKp[i+j],removeAlpha(imgs[i+1]),vecKp[i+1],auxBestMatches,aux,
-					// Scalar::all(-1),Scalar::all(-1),
-					// vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-					// CommonFunctions::showWindowNormal(aux);
 					for(int k = 0 ; k < auxBestMatches.size();k++){
 						Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
 						Point2f pt2 = vecKp[i+1][auxBestMatches[k].trainIdx].pt;
