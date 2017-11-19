@@ -91,43 +91,42 @@ int main(int argc, char** argv)
 				cout<< "Que threshold ingresara? (1): ";
 				cin>>kPoints;
 			}
-			int tipoHomografia = 1;
+			int usarHomografia = 0;
 			if(argc > 5){
-				tipoHomografia = stoi(argv[5]);
+				usarHomografia = stoi(argv[5]);
 			}
 			// else{
 			// 	cout<< "Desea que la imagen de salida tenga su tamaño original? (1): ";
 			// 	cin>>originalSize;
 			// }
 
-			vector<string> strImgs;
-			if(undistort){
-				strImgs = CommonFunctions::obtenerImagenes("Imagenes/Undistort/");
-			}else{
-				strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/");
+			int minKeypoints = 5000;
+
+			vector<string> strFolders;
+			strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
+			for(int i = 0; i < strFolders.size();i++){
+				strFolders[i] = (strFolders[i]+'/');
+				const char *chr = strFolders[i].c_str();
+				vector<string> strImgs = CommonFunctions::obtenerImagenes(chr);
+				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
+					strImgs,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
+				Mat img = uav->runAll();		
+				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
 			}
 
+			minKeypoints = 10000;
+			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				strImgs,tamano,kPoints,originalSize,tipoHomografia);
-			Mat img = uav->runAll();		
-			imwrite("Imagenes/resultados/Pegado/resultado.png",img);
+				strImgs,1,minKeypoints,kPoints,originalSize,usarHomografia);
+			Mat img = uav->runAll();
+			imwrite("Imagenes/Pegado/output/resultadofinal.png",img);
 			
 			CommonFunctions::tiempo(begin, "realizar todo: ");
 
-			// for(int i = 0; i < strImgs.size(); i++){
-			// 	UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-			// 		tamano,kPoints);
-			// 	vector<string> strImgsAux;
-				
-			// 	strImgsAux.insert(strImgsAux.end(),strImgs.begin(), strImgs.begin() + i);
-			// 	strImgsAux.insert(strImgsAux.end(),strImgs.begin() + i + 1, strImgs.end());
-			// 	Mat img = uav->stitchImgs(strImgsAux, i);
-			// 	imwrite("Imagenes/resultados/Pegado/resultado.png",img);
-			// }
 		}
 		break;
 		case 3:{
-			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/NDVI/");
+			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/NDVI/input/");
 			for(int i = 0 ; i<strNDVI.size();i++){
 				UAVAgroStateIndexCalcs::ndviCalcu(strNDVI[i]);
 			}

@@ -14,7 +14,7 @@ public:
 		size_t position = strImg.find_last_of("/");
 		strImg.erase(strImg.begin(),strImg.begin()+position);
 
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"original.png", imgaux);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"original.png", imgaux);
 
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);	
@@ -32,7 +32,7 @@ public:
 			Mat auxAlpha[4]={division,division,division,BGRA[3]};
 			merge(auxAlpha,4,resultadogris);
 		};
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadogris.png", resultadogris);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogris.png", resultadogris);
 
 		Mat resultadosalida;
 		Mat auxSalida[3]={division,division,division};
@@ -56,8 +56,8 @@ public:
 			Mat auxAlpha3[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
 			merge(auxAlpha3,4,resultadoNormalizado);
 		}
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadocolor.png", resultadocolor);
-		imwrite("Imagenes/resultados/NDVI/"+ strImg +"resultadocolornormalizado.png", resultadoNormalizado);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolor.png", resultadocolor);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolornormalizado.png", resultadoNormalizado);
 	
 		return resultadosalida;
 	}

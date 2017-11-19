@@ -22,7 +22,7 @@ public:
         int numSquares = numCornersHor * numCornersVer;
         Size patternsize = Size(numCornersHor, numCornersVer);
 
-        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Calibrar/");
+        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Calibrar/input/");
         vector<vector<Point3f>> object_points;		//physical position of the corners in 3d space. this has to be measured by us
         vector<vector<Point2f>> image_points;		//location of corners on in the image (2d) once the program has actual physical locations and locations			
         vector<Point2f> corners; //this will be filled by the detected corners
@@ -44,7 +44,7 @@ public:
             cout<<patternfound<<endl;
             cornerSubPix(frame,corners, Size(11,11), Size(-1,-1), criteria);
             drawChessboardCorners(frame, patternsize, Mat(corners), patternfound);
-            string res = "Imagenes/resultados/Calibrar/resultados" + to_string(i) + ".png";
+            string res = "Imagenes/Calibrar/output/resultados" + to_string(i) + ".png";
             imwrite(res,frame);
             if(patternfound){
                 image_points.push_back(corners);
@@ -91,7 +91,7 @@ public:
             size_t position = strImgs[i].find_last_of("/");
             strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
             frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
-            string res = "Imagenes/Undistort" + strImgs[i] + ".png";
+            string res = "Imagenes/Calibrar/Undistort" + strImgs[i] + ".png";
             imwrite(res, frameUndistorted);
         }
     }
