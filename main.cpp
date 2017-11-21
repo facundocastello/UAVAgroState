@@ -114,7 +114,7 @@ int main(int argc, char** argv)
 				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
 			}
 
-			minKeypoints = 10000;
+			minKeypoints = 15000;
 			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
 				strImgs,1,minKeypoints,kPoints,originalSize,usarHomografia);

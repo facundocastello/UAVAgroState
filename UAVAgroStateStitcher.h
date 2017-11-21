@@ -199,13 +199,13 @@ class UAVAgroStateStitcher{
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-					float kTres = this->kPoints;
+					float kTres = .00001;
 					vector<KeyPoint> keypoints;
 					Mat descriptors;
-					while(keypoints.size() < minKeypoints && kTres >= 0){
-						Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
-						// Ptr<cv::AKAZE> orb = cv::AKAZE::create(
-							// AKAZE::DESCRIPTOR_MLDB,0,3, .000001);
+					while(keypoints.size() < minKeypoints){
+						// Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
+						Ptr<cv::AKAZE> orb = cv::AKAZE::create(
+							AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
 						Mat mask = Mat();
 						Mat tmp;
 
@@ -216,7 +216,7 @@ class UAVAgroStateStitcher{
 							erode(mask, mask, kernel, Point(1, 1), 20);
 						}
 						orb->detectAndCompute(imgs[i] , mask , keypoints , descriptors);
-						kTres--;
+						kTres/=2;
 					}
 					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size();
 					vecDesc[i]=descriptors;
@@ -342,7 +342,7 @@ class UAVAgroStateStitcher{
 		{
 			double minHomoX = 9999;
 			double minHomoY=9999;
-			int vueltasI=600;
+			int vueltasI=1000;
 			int bestvalx;
 			vector< DMatch > best_matches;
 			int minMatches = 10;
@@ -370,9 +370,11 @@ class UAVAgroStateStitcher{
 					}
 					if(auxH.dims != 0){
 						Mat prodH=H[numHomo]*auxH;
-					// 	// por trigonometria aplico lo siguiente
+						// por trigonometria aplico lo siguiente
 						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
 						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+						// auxHomoX[i] = abs(prodH.at<double>(0,1) / prodH.at<double>(0,0));
+						// auxHomoY[i] = abs(prodH.at<double>(1,0) / prodH.at<double>(1,1));
 					}else{
 						auxHomoY[i] = 9999;	
 						auxHomoX[i] = 9999;	
@@ -447,7 +449,7 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 0 ;j++){
+			for(int j = 0; j < 1 ;j++){
 				for(int i = 0; i < imgs.size()-1;i++){
 					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
@@ -465,10 +467,22 @@ class UAVAgroStateStitcher{
 			cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
 			for(int i = 0; i < H.size()-1; i++){
-				double newMinY = H[i+1].at<double>(1,2) +( (H[i+1].at<double>(1,0) < 0)? imgs[i+1].cols  * H[i+1].at<double>(1,0) : 0 );
-				double newMinX = H[i+1].at<double>(0,2) +( (H[i+1].at<double>(0,1) < 0)? imgs[i+1].rows  * H[i+1].at<double>(0,1) : 0 );
-				double newMaxY = imgs[i+1].cols * H[i+1].at<double>(1,0) + imgs[i+1].rows  * H[i+1].at<double>(1,1) + H[i+1].at<double>(1,2) - imgs[i+1].rows ;
-				double newMaxX = imgs[i+1].cols  * H[i+1].at<double>(0,0) + imgs[i+1].rows  * H[i+1].at<double>(0,1) + H[i+1].at<double>(0,2) - imgs[i+1].cols ;
+				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN X
+				double newMinX = H[i+1].at<double>(0,2) +
+				( (H[i+1].at<double>(0,0) < 0)? imgs[i+1].cols  * H[i+1].at<double>(0,0) : 0 ) +
+				( (H[i+1].at<double>(0,1) < 0)? imgs[i+1].rows  * H[i+1].at<double>(0,1) : 0 );
+				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN Y
+				double newMinY = H[i+1].at<double>(1,2) +
+				( (H[i+1].at<double>(1,0) < 0)? imgs[i+1].cols  * H[i+1].at<double>(1,0) : 0 ) +
+				( (H[i+1].at<double>(1,1) < 0)? imgs[i+1].rows  * H[i+1].at<double>(1,1) : 0 );
+				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA DADA VUELTA EN X
+				double newMaxX = H[i+1].at<double>(0,2) - imgWidth +
+				( (imgWidth  * H[i+1].at<double>(0,0) > 0) ?imgs[i+1].cols  * H[i+1].at<double>(0,0) : 0) +
+				( (imgs[i+1].rows  * H[i+1].at<double>(0,1) > 0) ? imgs[i+1].rows  * H[i+1].at<double>(0,1) : 0);
+				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA DADA VUELTA EN Y
+				double newMaxY = H[i+1].at<double>(1,2) - imgHeight +
+				( (imgWidth * H[i+1].at<double>(1,0) > 0) ?imgs[i+1].cols * H[i+1].at<double>(1,0) : 0) +
+				( (imgs[i+1].rows  * H[i+1].at<double>(1,1) > 0) ? imgs[i+1].rows  * H[i+1].at<double>(1,1) : 0);
 				if(newMinX < xMin){
 					xMin = newMinX;
 				}
