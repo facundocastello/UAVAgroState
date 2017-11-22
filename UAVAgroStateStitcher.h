@@ -40,6 +40,7 @@ class UAVAgroStateStitcher{
 		bool usarHomografia;
 		vector<bool> darVuelta;
 		vector<Mat> imgs;
+		vector<Mat> borders;
 		vector<string> strImgs;
 		vector<Mat> vecDesc;
 		vector< vector<KeyPoint> > vecKp;
@@ -76,6 +77,9 @@ class UAVAgroStateStitcher{
 		*/
 		vector<Mat> stitchWarp(Mat scene, Mat obj, Mat homoMatrix){
 			Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(obj.size(), CV_8UC1, cv::Scalar(255));;
+			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
+			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
+
 			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
 			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
 
@@ -153,40 +157,25 @@ class UAVAgroStateStitcher{
 		}
 
 
-		double compareMats(Mat scene, Mat obj, Mat homoMatrix){
-			Mat objAux,tmp;
-			warpPerspective(obj, objAux, homoMatrix, Size(scene.cols, scene.rows));
-			threshold(objAux, tmp, 1, 255, THRESH_BINARY);
-			double error=0;
-			double cantError=0;
-			if(scene.channels() == 4){
-				for(int i=0;i < objAux.rows;i++){
-					for(int j=0;j < objAux.cols;j++){
-						if(objAux.at<Vec4b>(i,j) != Vec4b(0,0,0,0) && scene.at<Vec4b>(i,j) != Vec4b(0,0,0,0)){
-							error += abs( scene.at<Vec4b>(i,j)[0] - objAux.at<Vec4b>(i,j)[0] );
-							error += abs( scene.at<Vec4b>(i,j)[1] - objAux.at<Vec4b>(i,j)[1] );
-							error += abs( scene.at<Vec4b>(i,j)[2] - objAux.at<Vec4b>(i,j)[2] );
-							cantError++;
-						}
-					}
-				}
-			}else{
-				for(int i=0;i < objAux.rows;i++){
-					for(int j=0;j < objAux.cols;j++){
-						if(objAux.at<Vec3b>(i,j) != Vec3b(0,0,0) && scene.at<Vec3b>(i,j) != Vec3b(0,0,0)){
-							error += abs( scene.at<Vec3b>(i,j)[0] - objAux.at<Vec3b>(i,j)[0] );
-							error += abs( scene.at<Vec3b>(i,j)[1] - objAux.at<Vec3b>(i,j)[1] );
-							error += abs( scene.at<Vec3b>(i,j)[2] - objAux.at<Vec3b>(i,j)[2] );
-							cantError++;
-						}
+		double compareMats(int numHomo, Mat homoMatrix){
+			Mat objAux;
+			warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
+			// CommonFunctions::showWindowNormal(objAux);
+			Mat newBorder = objAux - borders[numHomo];
+			// CommonFunctions::showWindowNormal(newBorder);
+			
+			int white=0;
+			for(int i = 0;i < newBorder.rows;i++){
+				for(int j = 0 ; j < newBorder.cols;j++){
+					if(newBorder.at<uchar>(i,j)){
+						white++;
 					}
 				}
 			}
-			// objAux = abs(scene - objAux);
-			// CommonFunctions::showWindowNormal(objAux);
-			// cout<< "eerror: " << error / cantError << endl;
+			double asd = double(white)/(newBorder.rows*newBorder.cols);
+			// cout << asd <<endl;
 
-			return (error / cantError);
+			return asd;
 		}
 		/*
 		usando paralelismo obtengo todos los keypoints y descriptores
@@ -342,12 +331,14 @@ class UAVAgroStateStitcher{
 		{
 			double minHomoX = 9999;
 			double minHomoY=9999;
+			double minError=9999;
 			int vueltasI=1000;
 			int bestvalx;
 			vector< DMatch > best_matches;
 			int minMatches = 10;
 			vector<double> auxHomoX(vueltasI);
 			vector<double> auxHomoY(vueltasI);
+			vector<double> auxError(vueltasI);
 
 			sort(vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].end(),sortByDist);
 
@@ -369,12 +360,11 @@ class UAVAgroStateStitcher{
 						auxH = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 					}
 					if(auxH.dims != 0){
+						auxError[i] = compareMats(numHomo,auxH);
 						Mat prodH=H[numHomo]*auxH;
 						// por trigonometria aplico lo siguiente
 						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
 						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
-						// auxHomoX[i] = abs(prodH.at<double>(0,1) / prodH.at<double>(0,0));
-						// auxHomoY[i] = abs(prodH.at<double>(1,0) / prodH.at<double>(1,1));
 					}else{
 						auxHomoY[i] = 9999;	
 						auxHomoX[i] = 9999;	
@@ -382,10 +372,11 @@ class UAVAgroStateStitcher{
 				}
 			});
 			for(int i=minMatches;i<vueltasI;i++){
-				if( auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY){
+				if( auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY && auxError[i] < minError){
 					bestvalx = i;
 					minHomoX = auxHomoX[i];
 					minHomoY = auxHomoY[i];
+					minError = auxError[i];
 				}
 			}
 
@@ -404,6 +395,7 @@ class UAVAgroStateStitcher{
 				homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
 			}else{
 				if(usarHomografia){
+					best_inliers[numHomo] = vector< DMatch >();
 					homoNoMultiplicated[numHomo+1] = findHomoAndInliers(scene, obj, best_matches, best_inliers[numHomo]);
 				}else{
 					homoNoMultiplicated[numHomo+1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
@@ -449,7 +441,7 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 1 ;j++){
+			for(int j = 0; j < 0 ;j++){
 				for(int i = 0; i < imgs.size()-1;i++){
 					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
@@ -612,42 +604,6 @@ class UAVAgroStateStitcher{
 			return r;
 		}
 
-		struct ActualReprojectionError {
-			ActualReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y)
-				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y) {}
-
-			template <typename T>
-			bool operator()(const T* const camera,
-							T* residuals) const {
-
-				// camera[0,1,2] are the angle-axis rotation.
-				T p[2];
-				// ceres::AngleAxisRotatePoint(camera, point, p);
-				p[0]=camera[0]*T(to_project_x) + camera[1]*T(to_project_y) + camera[2];
-				p[1]=camera[3]*T(to_project_x) + camera[4]*T(to_project_y) + camera[5];
-
-				// The error is the difference between the predicted and observed position.
-				residuals[0]  = p[0] - T(observed_x);
-				residuals[1] = p[1] - T(observed_y);
-				
-				return true;
-			}
-
-			// Factory to hide the construction of the CostFunction object from
-			// the client code.
-			static ceres::CostFunction* Create(const double observed_x,
-												const double observed_y,
-												const double to_project_x,
-												const double to_project_y) {
-				return (new ceres::AutoDiffCostFunction<ActualReprojectionError, 2,6>(
-							new ActualReprojectionError(observed_x, observed_y,to_project_x,to_project_y)));
-			}
-
-			double observed_x;
-			double observed_y;
-			double to_project_x;
-			double to_project_y;
-		};
 
 		
 		
@@ -675,37 +631,47 @@ class UAVAgroStateStitcher{
 			return mat;
 		}
 
-		Mat getActualHomographyError(int i, Mat homo, vector< DMatch > gm, double *error){
-			Mat hAux = homo.clone(); // eye matrix
-			double* camera = matToCamera(hAux);
-
-			Problem problem;
-			for(int k = 0 ; k < gm.size();k++){
-				Point2f pt1 = vecKp[i][gm[k].queryIdx].pt;
-				Point2f pt2 = vecKp[i+1][gm[k].trainIdx].pt;
-				ceres::CostFunction* cost_function =
-				ActualReprojectionError::Create(pt1.x,pt1.y,pt2.x,	pt2.y);
-				problem.AddResidualBlock(cost_function, NULL,camera);
-			}
-			ceres::Solver::Options options;
-			// options.linear_solver_type = ceres::DENSE_SCHUR;
-			// options.minimizer_progress_to_stdout = true;
-			ceres::Solver::Summary summary;
-			ceres::Solve(options, &problem, &summary);
-			// cout << summary.BriefReport() << "\n";
-			*error = summary.final_cost / gm.size();
-
-			hAux = cameraToMat(camera,hAux);
-
-			return hAux;
-		}
-		
-		struct AfterReprojectionError {
-			AfterReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y, Mat H)
-				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y),H(H) {}
+		struct ActualReprojectionError {
+			ActualReprojectionError(double observed_x, double observed_y)
+				: observed_x(observed_x), observed_y(observed_y) {}
 
 			template <typename T>
 			bool operator()(const T* const camera,
+							const T* const point,
+							T* residuals) const {
+
+				// camera[0,1,2] are the angle-axis rotation.
+				T p[2];
+				// ceres::AngleAxisRotatePoint(camera, point, p);
+				p[0]=camera[0]* point[0] + camera[1]* point[1] + camera[2];
+				p[1]=camera[3]* point[0] + camera[4]* point[1] + camera[5];
+
+				// The error is the difference between the predicted and observed position.
+				residuals[0]  = p[0] - T(observed_x);
+				residuals[1] = p[1] - T(observed_y);
+				
+				return true;
+			}
+
+			// Factory to hide the construction of the CostFunction object from
+			// the client code.
+			static ceres::CostFunction* Create(const double observed_x,
+												const double observed_y) {
+				return (new ceres::AutoDiffCostFunction<ActualReprojectionError, 2,6,2>(
+							new ActualReprojectionError(observed_x, observed_y)));
+			}
+
+			double observed_x;
+			double observed_y;
+		};
+		
+		struct AfterReprojectionError {
+			AfterReprojectionError(double observed_x, double observed_y, Mat H)
+				: observed_x(observed_x), observed_y(observed_y),H(H) {}
+
+			template <typename T>
+			bool operator()(const T* const camera,
+							const T* const point,
 							T* residuals) const {
 
 				// camera[0,1,2] are the angle-axis rotation.
@@ -719,8 +685,8 @@ class UAVAgroStateStitcher{
 				cameraAux[4]= camera[3] * T(H.at<double>(0,1)) + camera [4] * T(H.at<double>(1,1)) + camera[5] * T(H.at<double>(2,1));
 				cameraAux[5]= camera[3] * T(H.at<double>(0,2)) + camera [4] * T(H.at<double>(1,2)) + camera[5] * T(H.at<double>(2,2));
 				
-				p[0]=cameraAux[0]*T(to_project_x) + cameraAux[1]*T(to_project_y) + cameraAux[2];
-				p[1]=cameraAux[3]*T(to_project_x) + cameraAux[4]*T(to_project_y) + cameraAux[5];
+				p[0]=cameraAux[0]* point[0] + cameraAux[1]* point[1] + cameraAux[2];
+				p[1]=cameraAux[3]* point[0] + cameraAux[4]* point[1] + cameraAux[5];
 
 				// The error is the difference between the predicted and observed position.
 				residuals[0]  = p[0] - T(observed_x);
@@ -737,26 +703,23 @@ class UAVAgroStateStitcher{
 			// the client code.
 			static ceres::CostFunction* Create(const double observed_x,
 												const double observed_y,
-												const double to_project_x,
-												const double to_project_y,
 												const Mat H) {
-				return (new ceres::AutoDiffCostFunction<AfterReprojectionError, 2,6>(
-							new AfterReprojectionError(observed_x, observed_y,to_project_x,to_project_y,H)));
+				return (new ceres::AutoDiffCostFunction<AfterReprojectionError, 2,6,2>(
+							new AfterReprojectionError(observed_x, observed_y,H)));
 			}
 
 			double observed_x;
 			double observed_y;
-			double to_project_x;
-			double to_project_y;
 			Mat H;
 		};
 
 		struct BeforeReprojectionError {
-			BeforeReprojectionError(double observed_x, double observed_y,double to_project_x,double to_project_y, Mat H)
-				: observed_x(observed_x), observed_y(observed_y),to_project_x(to_project_x),to_project_y(to_project_y),H(H) {}
+			BeforeReprojectionError(double observed_x, double observed_y, Mat H)
+				: observed_x(observed_x), observed_y(observed_y),H(H) {}
 
 			template <typename T>
 			bool operator()(const T* const camera,
+							const T* const point,
 							T* residuals) const {
 
 				// camera[0,1,2] are the angle-axis rotation.
@@ -771,8 +734,8 @@ class UAVAgroStateStitcher{
 				cameraAux[5]= camera[2] * T(H.at<double>(1,0)) + camera [5] * T(H.at<double>(1,1)) + T(1) * T(H.at<double>(1,2));
 				
 				
-				p[0]=cameraAux[0]*T(to_project_x) + cameraAux[1]*T(to_project_y) + cameraAux[2];
-				p[1]=cameraAux[3]*T(to_project_x) + cameraAux[4]*T(to_project_y) + cameraAux[5];
+				p[0]=cameraAux[0]* point[0] + cameraAux[1]* point[1] + cameraAux[2];
+				p[1]=cameraAux[3]* point[0] + cameraAux[4]* point[1] + cameraAux[5];
 
 				// The error is the difference between the predicted and observed position.
 				residuals[0]  = p[0] - T(observed_x);
@@ -789,17 +752,13 @@ class UAVAgroStateStitcher{
 			// the client code.
 			static ceres::CostFunction* Create(const double observed_x,
 												const double observed_y,
-												const double to_project_x,
-												const double to_project_y,
 												const Mat H) {
-				return (new ceres::AutoDiffCostFunction<BeforeReprojectionError, 2,6>(
-							new BeforeReprojectionError(observed_x, observed_y,to_project_x,to_project_y,H)));
+				return (new ceres::AutoDiffCostFunction<BeforeReprojectionError, 2,6,2>(
+							new BeforeReprojectionError(observed_x, observed_y,H)));
 			}
 
 			double observed_x;
 			double observed_y;
-			double to_project_x;
-			double to_project_y;
 			Mat H;
 		};
 		
@@ -817,8 +776,11 @@ class UAVAgroStateStitcher{
 				Point2f pt1 = vecKp[i][best_inliers[i][k].queryIdx].pt;
 				Point2f pt2 = vecKp[i+1][best_inliers[i][k].trainIdx].pt;
 				ceres::CostFunction* cost_function =
-				ActualReprojectionError::Create(pt1.x,pt1.y,pt2.x,	pt2.y);
-				problem.AddResidualBlock(cost_function, NULL,camera);
+				ActualReprojectionError::Create(pt1.x,pt1.y);
+				double* point = new double[2];
+				point[0] = pt2.x;
+				point[1] = pt2.y;
+				problem.AddResidualBlock(cost_function, NULL,camera,point);
 			}
 
 			for(int j = 1; j < afterMatches; j++){
@@ -833,9 +795,12 @@ class UAVAgroStateStitcher{
 				for(int k = 0 ; k < auxBestMatches.size();k++){
 					Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
 					Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
+					double* point = new double[2];
+					point[0] = pt2.x;
+					point[1] = pt2.y;
 					ceres::CostFunction* cost_function =
-						AfterReprojectionError::Create(pt1.x,pt1.y,pt2.x,pt2.y,hMult.clone());
-					problem.AddResidualBlock(cost_function, NULL,camera);
+						AfterReprojectionError::Create(pt1.x,pt1.y,hMult.clone());
+					problem.AddResidualBlock(cost_function, NULL,camera,point);
 				}
 			}
 
@@ -854,9 +819,12 @@ class UAVAgroStateStitcher{
 				for(int k = 0 ; k < auxBestMatches.size();k++){
 					Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
 					Point2f pt2 = vecKp[i+1][auxBestMatches[k].trainIdx].pt;
+					double* point = new double[2];
+					point[0] = pt2.x;
+					point[1] = pt2.y;
 					ceres::CostFunction* cost_function =
-						BeforeReprojectionError::Create(pt1.x,pt1.y,pt2.x,pt2.y,hMult.clone());
-					problem.AddResidualBlock(cost_function, NULL,camera);
+						BeforeReprojectionError::Create(pt1.x,pt1.y,hMult.clone());
+					problem.AddResidualBlock(cost_function, NULL,camera,point);
 				}
 			}
 
@@ -897,14 +865,18 @@ class UAVAgroStateStitcher{
 
 		Mat multiBandStitch(){
 			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-			detail::MultiBandBlender blender(false,0);
+			detail::MultiBandBlender blender(false,2);
+			cvtColor(boundBox, boundBox, cv::COLOR_BGRA2BGR);			
 			blender.prepare(Rect(0,0,boundBox.cols,boundBox.rows));
 
 			Mat bigImage, mask;
 			for (int i = 1; i < imgs.size(); i++){
-				Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(imgs[i].size(), CV_8UC1, cv::Scalar(255));;
+				Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(imgs[i].size(), CV_8UC1, cv::Scalar(255));
 				warpPerspective(imgMask, imgMaskWarped, H[i], Size(boundBox.cols, boundBox.rows));
-				warpPerspective(imgs[i], objWarped, H[i], Size(boundBox.cols, boundBox.rows));
+				Mat obj;
+				cvtColor(imgs[i], obj, cv::COLOR_BGRA2BGR);
+				warpPerspective(obj, objWarped, H[i], Size(boundBox.cols, boundBox.rows));
+				// CommonFunctions::showWindowNormal(objWarped);
 
 				Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 				erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 5);
@@ -964,6 +936,7 @@ class UAVAgroStateStitcher{
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
+			borders = CommonFunctions::getBorders(imgs);
 			
 			// for(int i = 0 ; i < imgs.size() ; i++){
 			// 	vector<Mat> RGB;

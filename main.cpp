@@ -100,8 +100,7 @@ int main(int argc, char** argv)
 			// 	cin>>originalSize;
 			// }
 
-			int minKeypoints = 5000;
-
+			int minKeypoints = 15000;
 			vector<string> strFolders;
 			strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
 			for(int i = 0; i < strFolders.size();i++){
