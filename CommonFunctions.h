@@ -70,47 +70,15 @@ class CommonFunctions{
 
 		Mat static getBorder(Mat img){
 			Mat dst;
-			int scale = 2;
-			int delta = 0;
-			int ddepth = CV_8U;
-			Mat grad;
-
-			int c;
 			cvtColor(img, dst, CV_BGR2GRAY);
-			GaussianBlur( dst, dst, Size( 3,3 ), 0, 0 );
-			/// Generate grad_x and grad_y
-			Mat grad_x, grad_y;
-			Mat abs_grad_x, abs_grad_y;
-
-			/// Gradient X
-			//Scharr( src_gray, grad_x, ddepth, 1, 0, scale, delta, BORDER_DEFAULT );
-			Sobel( dst, grad_x, ddepth, 1, 0, 3, scale, delta, BORDER_DEFAULT );
-			convertScaleAbs( grad_x, abs_grad_x );
-
-			/// Gradient Y
-			//Scharr( src_gray, grad_y, ddepth, 0, 1, scale, delta, BORDER_DEFAULT );
-			Sobel( dst, grad_y, ddepth, 0, 1, 3, scale, delta, BORDER_DEFAULT );
-			convertScaleAbs( grad_y, abs_grad_y );
-
-
-			GaussianBlur( abs_grad_y, abs_grad_y, Size( 5,5 ), 0, 0 );
-			threshold(abs_grad_y, abs_grad_y, 20, 255, THRESH_BINARY);
-			Mat_<float> kernel1(3,3);
-			kernel1 << 0, 0, 0, 1, 1, 1, 0, 0, 0;
-			erode(abs_grad_y, abs_grad_y, kernel1, Point(1, 1), 2);	
-			dilate(abs_grad_y, abs_grad_y, kernel1, Point(1, 1), 3);
-			
-			GaussianBlur( abs_grad_x, abs_grad_x, Size( 5,5 ), 0, 0 );
-			threshold(abs_grad_x, abs_grad_x, 20, 255, THRESH_BINARY);
-			Mat_<float> kernel(3,3);
-			kernel << 0, 1, 0, 0, 1, 0, 0, 1, 0;
-			erode(abs_grad_x, abs_grad_x, kernel, Point(1, 1), 3);		
-			dilate(abs_grad_x, abs_grad_x, kernel, Point(1, 1), 2);
-
-			/// Total Gradient (approximate)
-			addWeighted( abs_grad_x, 1, abs_grad_y, 1, 0, grad );
-			
-			return grad;
+			GaussianBlur( dst, dst, Size( 7,7 ), 0, 0 );
+			Canny(dst,dst,0,20,3);
+			// CommonFunctions::showWindowNormal(dst,"gauss");
+			Mat kernel = getStructuringElement(MORPH_CROSS, Size(3, 3));
+			dilate(dst, dst, kernel, Point(1, 1), 2);
+			// CommonFunctions::showWindowNormal(dst,"gauss");
+				
+			return dst;
 			
 		}
 
