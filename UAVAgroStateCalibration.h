@@ -83,15 +83,15 @@ public:
     void static undistortImgs(string cameraName){
         string folder = "Data/Calibrar/";
         vector<Mat> calibrationMat =  UAVAgroStateCalibration::readCalibrationMat(cameraName);
-        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/");
+        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Undistort/input/");
         for(int i = 0 ; i < strImgs.size() ; i++){
             Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
             Mat frameUndistorted;
             undistort(frame, frameUndistorted, calibrationMat[0], calibrationMat[1]);
             size_t position = strImgs[i].find_last_of("/");
             strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
-            frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
-            string res = "Imagenes/Calibrar/Undistort" + strImgs[i] + ".png";
+            // frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
+            string res = "Imagenes/Undistort/output" + strImgs[i] + ".png";
             imwrite(res, frameUndistorted);
         }
     }

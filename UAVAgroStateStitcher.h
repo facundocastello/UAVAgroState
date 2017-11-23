@@ -33,41 +33,41 @@ class UAVAgroStateStitcher{
 		double yMax=0;
 		double xMin=0;
 		double xMax=0;
-		int pondSize;
 		int imgHeight;
 		int imgWidth;
 		int minKeypoints;
 		bool usarHomografia;
+		vector<int> minMax;
 		vector<bool> darVuelta;
 		vector<Mat> imgs;
 		vector<Mat> borders;
-		vector<string> strImgs;
 		vector<Mat> vecDesc;
+		vector<Mat> H;
+		vector<Mat> homoNoMultiplicated;
+		vector<string> strImgs;
 		vector< vector<KeyPoint> > vecKp;
 		vector< vector< DMatch > > vecMatch[3];
 		vector< vector< DMatch > > best_inliers;
-		vector<Mat> H;
-		vector<Mat> homoNoMultiplicated;
 		Mat boundBox;
 		double totalError;
 		double alfaBA;
 
 		UAVAgroStateStitcher(vector<string> strImgs,
+					vector<int> minMax,
 					int tamano = 4,
 					int minKeypoints=5000,
 					float kPoints = 3,
 					bool originalsize=false,
-					bool usarHomografia =false,
-					int pondSize=1
+					bool usarHomografia =false
 					)
 		{
 			this->tamano = tamano;
 			this->kPoints = kPoints;
 			this->originalsize=originalsize;
 			this->usarHomografia = usarHomografia;
-			this->pondSize = pondSize;
 			this->strImgs = strImgs;
 			this->minKeypoints = minKeypoints;
+			this->minMax = minMax;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -366,13 +366,14 @@ class UAVAgroStateStitcher{
 						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
 						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
 					}else{
+						auxError[i] = 9999;
 						auxHomoY[i] = 9999;	
 						auxHomoX[i] = 9999;	
 					}
 				}
 			});
 			for(int i=minMatches;i<vueltasI;i++){
-				if( auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY && auxError[i] < minError){
+			if(/*auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY &&*/ auxError[i] < minError){
 					bestvalx = i;
 					minHomoX = auxHomoX[i];
 					minHomoY = auxHomoY[i];
@@ -936,7 +937,7 @@ class UAVAgroStateStitcher{
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
-			borders = CommonFunctions::getBorders(imgs);
+			borders = CommonFunctions::getBorders(imgs,minMax);
 			
 			// for(int i = 0 ; i < imgs.size() ; i++){
 			// 	vector<Mat> RGB;

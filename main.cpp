@@ -101,6 +101,8 @@ int main(int argc, char** argv)
 			// }
 
 			int minKeypoints = 15000;
+			vector<string> strBorders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/bordes/");
+			vector<int> minMax = CommonFunctions::setBorder(imread(strBorders[0]));
 			vector<string> strFolders;
 			strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
 			for(int i = 0; i < strFolders.size();i++){
@@ -108,15 +110,16 @@ int main(int argc, char** argv)
 				const char *chr = strFolders[i].c_str();
 				vector<string> strImgs = CommonFunctions::obtenerImagenes(chr);
 				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-					strImgs,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
+					strImgs,minMax,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
 				Mat img = uav->runAll();		
 				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
 			}
 
 			minKeypoints = 15000;
 			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
+			vector<int> minMax = CommonFunctions::setBorder(imread(strImgs[0]));
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				strImgs,1,minKeypoints,kPoints,originalSize,usarHomografia);
+				strImgs,minMax,1,minKeypoints,kPoints,originalSize,usarHomografia);
 			Mat img = uav->runAll();
 			imwrite("Imagenes/Pegado/output/resultadofinal.png",img);
 			

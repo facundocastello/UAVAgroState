@@ -68,11 +68,57 @@ class CommonFunctions{
 			return img;
 		}
 
-		Mat static getBorder(Mat img){
+		vector<int> static setBorder(Mat img){
+			Mat dst;
+			cvtColor(img, dst, CV_BGR2GRAY);
+			CommonFunctions::showWindowNormal(img,"img");
+			int min=0;
+			int max=10;
+			int gaussian=7;
+			int dilateSize=3;
+			int dilateCant=2;
+			namedWindow("gauss", WINDOW_NORMAL);
+			createTrackbar( "min", "gauss", &min, 255);
+			createTrackbar( "max", "gauss", &max, 255);
+			createTrackbar( "gaussian", "gauss", &gaussian, 31);
+			createTrackbar( "dilateSize", "gauss", &dilateSize, 31);
+			createTrackbar( "dilateCant", "gauss", &dilateCant, 31);
+			while(1){
+				imshow("gauss", dst);
+				int k = waitKey();
+				if(k == 27)
+        			break;
+				cvtColor(img, dst, CV_BGR2GRAY);
+				GaussianBlur( dst, dst, Size( gaussian,gaussian ), 0, 0 );
+				Canny(dst,dst,min,max,3);
+				Mat kernel = getStructuringElement(MORPH_CROSS, Size(dilateSize, dilateSize));
+				dilate(dst, dst, kernel, Point(1, 1), dilateCant);
+				min = getTrackbarPos("min","gauss");
+				max = getTrackbarPos("max","gauss");
+				gaussian = getTrackbarPos("gaussian","gauss");
+				dilateSize = getTrackbarPos("dilateSize","gauss");
+				dilateCant = getTrackbarPos("dilateCant","gauss");				
+				if((dilateSize%2) == 0){
+					dilateSize++;
+					cout<<dilateSize;
+				}
+				if((gaussian%2) == 0){
+					gaussian++;
+					cout<<endl<<gaussian<<endl;
+				}
+			}
+			destroyAllWindows();
+			vector<int> minMax;
+			minMax.push_back(min);
+			minMax.push_back(max);
+			return minMax;
+		}
+
+		Mat static getBorder(Mat img, vector<int> minMax){
 			Mat dst;
 			cvtColor(img, dst, CV_BGR2GRAY);
 			GaussianBlur( dst, dst, Size( 7,7 ), 0, 0 );
-			Canny(dst,dst,0,20,3);
+			Canny(dst,dst,minMax[0],minMax[1],3);
 			// CommonFunctions::showWindowNormal(dst,"gauss");
 			Mat kernel = getStructuringElement(MORPH_CROSS, Size(3, 3));
 			dilate(dst, dst, kernel, Point(1, 1), 2);
@@ -82,10 +128,11 @@ class CommonFunctions{
 			
 		}
 
-		vector<Mat> static getBorders(vector<Mat> imgs){
+
+		vector<Mat> static getBorders(vector<Mat> imgs, vector<int> minMax){
 			vector<Mat> borders;
 			for(int i = 0 ; i < imgs.size();i++){
-				borders.push_back( CommonFunctions::getBorder(imgs[i]) );
+				borders.push_back( CommonFunctions::getBorder(imgs[i],minMax) );
 			}
 			return borders;
 		}
