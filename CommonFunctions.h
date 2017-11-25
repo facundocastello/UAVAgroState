@@ -76,7 +76,7 @@ class CommonFunctions{
 			int max=10;
 			int gaussian=7;
 			int dilateSize=3;
-			int dilateCant=2;
+			int dilateCant=3;
 			namedWindow("gauss", WINDOW_NORMAL);
 			createTrackbar( "min", "gauss", &min, 255);
 			createTrackbar( "max", "gauss", &max, 255);
@@ -93,19 +93,12 @@ class CommonFunctions{
 				Canny(dst,dst,min,max,3);
 				Mat kernel = getStructuringElement(MORPH_CROSS, Size(dilateSize, dilateSize));
 				dilate(dst, dst, kernel, Point(1, 1), dilateCant);
+				erode(dst, dst, kernel, Point(1, 1), dilateCant+1);
 				min = getTrackbarPos("min","gauss");
 				max = getTrackbarPos("max","gauss");
 				gaussian = getTrackbarPos("gaussian","gauss");
 				dilateSize = getTrackbarPos("dilateSize","gauss");
 				dilateCant = getTrackbarPos("dilateCant","gauss");				
-				if((dilateSize%2) == 0){
-					dilateSize++;
-					cout<<dilateSize;
-				}
-				if((gaussian%2) == 0){
-					gaussian++;
-					cout<<endl<<gaussian<<endl;
-				}
 			}
 			destroyAllWindows();
 			vector<int> minMax;
@@ -121,7 +114,8 @@ class CommonFunctions{
 			Canny(dst,dst,minMax[0],minMax[1],3);
 			// CommonFunctions::showWindowNormal(dst,"gauss");
 			Mat kernel = getStructuringElement(MORPH_CROSS, Size(3, 3));
-			dilate(dst, dst, kernel, Point(1, 1), 2);
+			dilate(dst, dst, kernel, Point(1, 1), 3);
+			erode(dst, dst, kernel, Point(1, 1), 4);
 			// CommonFunctions::showWindowNormal(dst,"gauss");
 				
 			return dst;

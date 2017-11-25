@@ -5,6 +5,8 @@
 #include <iostream>
 #include "opencv2/core/core.hpp"
 #include "opencv2/features2d/features2d.hpp"
+#include "opencv2/xfeatures2d.hpp"
+#include "opencv2/xfeatures2d/nonfree.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "funcionesutiles.h"
@@ -17,6 +19,7 @@ using ceres::Solver;
 using ceres::Solve;
 #include "CommonFunctions.h"
 using namespace cv;
+using namespace cv::xfeatures2d;
 using namespace std;
 
 bool sortByDist(DMatch a, DMatch b){
@@ -50,6 +53,7 @@ class UAVAgroStateStitcher{
 		vector< vector< DMatch > > best_inliers;
 		Mat boundBox;
 		double totalError;
+		bool sift;
 		double alfaBA;
 
 		UAVAgroStateStitcher(vector<string> strImgs,
@@ -58,7 +62,8 @@ class UAVAgroStateStitcher{
 					int minKeypoints=5000,
 					float kPoints = 3,
 					bool originalsize=false,
-					bool usarHomografia =false
+					bool usarHomografia =false,
+					bool sift=true
 					)
 		{
 			this->tamano = tamano;
@@ -68,6 +73,7 @@ class UAVAgroStateStitcher{
 			this->strImgs = strImgs;
 			this->minKeypoints = minKeypoints;
 			this->minMax = minMax;
+			this->sift = sift;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -161,9 +167,9 @@ class UAVAgroStateStitcher{
 			Mat objAux;
 			warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
 			// CommonFunctions::showWindowNormal(objAux);
-			Mat newBorder = objAux - borders[numHomo];
-			// CommonFunctions::showWindowNormal(newBorder);
-			
+			Mat newBorder = abs(objAux - borders[numHomo]);
+			// CommonFunctions::showWindowNormal(newBorder, "new");
+			// cout<<homoMatrix;
 			int white=0;
 			for(int i = 0;i < newBorder.rows;i++){
 				for(int j = 0 ; j < newBorder.cols;j++){
@@ -177,6 +183,7 @@ class UAVAgroStateStitcher{
 
 			return asd;
 		}
+
 		/*
 		usando paralelismo obtengo todos los keypoints y descriptores
 		*/
@@ -188,30 +195,53 @@ class UAVAgroStateStitcher{
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-					float kTres = .00001;
+					float kTres = .1;
 					vector<KeyPoint> keypoints;
 					Mat descriptors;
-					while(keypoints.size() < minKeypoints){
+					int contador=0;
+					while(keypoints.size() < minKeypoints && contador < 10 ){					
 						// Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
-						Ptr<cv::AKAZE> orb = cv::AKAZE::create(
-							AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
+						// Ptr<cv::xfeatures2d::AffineFeature2D> orb = 
+						// cv::xfeatures2d::AffineFeature2D::create(
+						// 	cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres),
+						// 	cv::xfeatures2d::LATCH::create());	
+						// Ptr<cv::AKAZE> detector = cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
+						// Ptr<HarrisLaplaceFeatureDetector> detector = HarrisLaplaceFeatureDetector::create();
+						// Ptr<BoostDesc> descriptor = BoostDesc::create();
+
+						Ptr<Feature2D> orb;
+						if(sift){
+							orb = SIFT::create(minKeypoints,3,kTres);					
+						}else{
+							orb = cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
+						}
+						
 						Mat mask = Mat();
 						Mat tmp;
 
-						if(imgs[i].channels() == 4){
 							cvtColor(imgs[i], tmp, CV_BGRA2GRAY);
+						if(imgs[i].channels() == 4){
 							threshold(tmp, mask, 1, 255, THRESH_BINARY);
 							Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 							erode(mask, mask, kernel, Point(1, 1), 20);
 						}
 						orb->detectAndCompute(imgs[i] , mask , keypoints , descriptors);
+						// detector->detect(tmp,keypoints,mask);
+						// descriptor->compute(tmp,keypoints,descriptors);
 						kTres/=2;
+						contador++;
 					}
 					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size();
 					vecDesc[i]=descriptors;
 					vecKp[i]=keypoints;
 				}
 			});
+			Mat imgKp;
+			cvtColor(imgs[0], imgKp, CV_BGRA2GRAY);
+						CommonFunctions::showWindowNormal(imgKp);
+
+			drawKeypoints(imgKp,vecKp[0],imgKp);
+			CommonFunctions::showWindowNormal(imgKp);
 			cout << endl;
 		}
 		/*Realiza matchs entre los keypoints de 2 imagenes, en base a sus
@@ -223,21 +253,26 @@ class UAVAgroStateStitcher{
 			vecMatch[2] = vector< vector< DMatch > >(imgs.size()-1);
 			best_inliers = vector< vector< DMatch > >(imgs.size()-1);
 			darVuelta = vector<bool> (imgs.size() -1 );
-			BFMatcher matcher(NORM_HAMMING,true);
+			BFMatcher matcher;
+			if(sift){
+				matcher = BFMatcher(NORM_L2,true);
+			}else{
+				matcher = BFMatcher(NORM_HAMMING,true);
+			}
 			int vecKpSize = vecKp.size();
 			parallel_for_(Range(0, vecDesc.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					// cout << "Empezo Match "+to_string(i)+ ". \n";
 					vector< DMatch > matches;
 					matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[0][i]);
-				
+					
 					if( i < (vecKpSize-2)  ){
 						matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
 					}
 					if( i < (vecKpSize-3) ){
 						matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
 					}
-				
+
 					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[0][i].size()) +".\n" ;
 				}
 			});
@@ -332,10 +367,10 @@ class UAVAgroStateStitcher{
 			double minHomoX = 9999;
 			double minHomoY=9999;
 			double minError=9999;
-			int vueltasI=1000;
+			int vueltasI= ((vecMatch[0][numHomo].size()>1000)? 1000 : vecMatch[0][numHomo].size());
 			int bestvalx;
 			vector< DMatch > best_matches;
-			int minMatches = 10;
+			int minMatches = 3;
 			vector<double> auxHomoX(vueltasI);
 			vector<double> auxHomoY(vueltasI);
 			vector<double> auxError(vueltasI);
@@ -347,17 +382,20 @@ class UAVAgroStateStitcher{
 					vector< DMatch > goodm;
 					goodm.insert(goodm.end(),vecMatch[0][numHomo].begin(),vecMatch[0][numHomo].begin()+i);
 					goodm = removeOutliers(goodm, numHomo,numHomo+1);				
-					vector<Point2f> obj;
-					vector<Point2f> scene;
-					for (int l = 0; l < goodm.size(); l++) {
-						obj.push_back(vecKp[numHomo][goodm[l].queryIdx].pt);
-						scene.push_back(vecKp[numHomo+1][goodm[l].trainIdx].pt);
-					}
 					Mat auxH;
-					if(usarHomografia){
-						auxH = findHomography(scene,obj,CV_RANSAC);
-					}else{
-						auxH = rigidToHomography( estimateRigidTransform(scene,obj,false) );
+					if(goodm.size() >= 3){
+						vector<Point2f> obj;
+						vector<Point2f> scene;
+						for (int l = 0; l < goodm.size(); l++) {
+							obj.push_back(vecKp[numHomo][goodm[l].queryIdx].pt);
+							scene.push_back(vecKp[numHomo+1][goodm[l].trainIdx].pt);
+						}
+
+						if(usarHomografia){
+							auxH = findHomography(scene,obj,CV_RANSAC);
+						}else{
+							auxH = rigidToHomography( estimateRigidTransform(scene,obj,false) );
+						}
 					}
 					if(auxH.dims != 0){
 						auxError[i] = compareMats(numHomo,auxH);
@@ -372,12 +410,57 @@ class UAVAgroStateStitcher{
 					}
 				}
 			});
+			double min=10;
+			double max=0;
+			for(int i = minMatches ; i < auxHomoX.size();i++){
+				if(auxHomoX[i] != 9999){
+					if(auxHomoX[i] > max){
+						max = auxHomoX[i];
+					}
+				}
+				if(auxHomoX[i] < min){
+						min = auxHomoX[i];
+				}
+			}
+			for(int i = minMatches ; i < auxHomoX.size();i++){
+				auxHomoX[i] = (auxHomoX[i]-min)  / (max-min);
+			}
+			min=10; max = 0;
+			for(int i = minMatches ; i < auxHomoY.size();i++){
+				if(auxHomoY[i] != 9999){
+					if(auxHomoY[i] > max){
+						max = auxHomoY[i];
+					}
+				}
+				if(auxHomoY[i] < min){
+						min = auxHomoY[i];
+				}
+			}
+			for(int i = minMatches ; i < auxHomoY.size();i++){
+				auxHomoY[i] = (auxHomoY[i]-min)  / (max-min);
+			}
+			min=10; max = 0;
+			for(int i = minMatches ; i < auxError.size();i++){
+				if(auxError[i] != 9999){
+					if(auxError[i] > max){
+						max = auxError[i];
+					}
+				}
+				if(auxError[i] < min){
+						min = auxError[i];
+				}
+			}
+			for(int i = minMatches ; i < auxError.size();i++){
+				auxError[i] = (auxError[i]-min)  / (max-min);
+			}
+
+
 			for(int i=minMatches;i<vueltasI;i++){
-			if(/*auxHomoX[i] < minHomoX && auxHomoY[i] < minHomoY &&*/ auxError[i] < minError){
+				if( (auxHomoX[i] + auxHomoY[i] + 1.5*auxError[i]) < minError){
 					bestvalx = i;
 					minHomoX = auxHomoX[i];
 					minHomoY = auxHomoY[i];
-					minError = auxError[i];
+					minError = (auxHomoX[i] + auxHomoY[i] + 1.5*auxError[i]);
 				}
 			}
 
@@ -391,7 +474,7 @@ class UAVAgroStateStitcher{
 			}
 
 			best_inliers[numHomo] = best_matches;
-			if(minHomoX == 9999){
+			if(minError == 9999){
 				cout << "Homografia vacia: " << numHomo+1 << endl;
 				homoNoMultiplicated[numHomo+1] = (Mat::eye(3, 3, CV_64F));
 			}else{
@@ -442,7 +525,7 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 0 ;j++){
+			for(int j = 0; j < 1 ;j++){
 				for(int i = 0; i < imgs.size()-1;i++){
 					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
@@ -632,6 +715,56 @@ class UAVAgroStateStitcher{
 			return mat;
 		}
 
+		// struct CompareMatsError {
+		// 	CompareMatsError(Mat img, Mat boundBox)
+		// 		: img(img), boundBox(boundBox) {}
+
+		// 	bool operator()(const double* const camera,
+		// 					double* residuals) const {
+
+		// 		Mat Homography = cv::Mat(3,3,CV_32F);
+
+		// 		Homography.at<double>(0,0) = camera[0];
+		// 		Homography.at<double>(0,1) = camera[1];
+		// 		Homography.at<double>(0,2) = camera[2];
+		// 		Homography.at<double>(1,0) = camera[3];
+		// 		Homography.at<double>(1,1) = camera[4];
+		// 		Homography.at<double>(1,2) = camera[5];
+		// 		Homography.at<double>(2,0) = 0;
+		// 		Homography.at<double>(2,1) = 0;
+		// 		Homography.at<double>(2,2) = 1;
+				
+		// 		// Mat objAux;
+		// 		// warpPerspective(img, objAux, Homography, Size(boundBox.cols, boundBox.rows));
+		// 		// Mat newBorder = abs(objAux - boundBox);
+				
+		// 		// int white=0;
+		// 		// for(int i = 0;i < newBorder.rows;i++){
+		// 		// 	for(int j = 0 ; j < newBorder.cols;j++){
+		// 		// 		if(newBorder.at<uchar>(i,j)){
+		// 		// 			white++;
+		// 		// 		}
+		// 		// 	}
+		// 		// }
+		// 		// residuals[0] = double(white)/(newBorder.rows*newBorder.cols);				
+
+				
+		// 		return true;
+		// 	}
+
+		// 	// Factory to hide the construction of the CostFunction object from
+		// 	// the client code.
+		// 	static ceres::CostFunction* Create(Mat img, Mat boundBox) {
+		// 		return (new ceres::AutoDiffCostFunction<CompareMatsError, 1,6>(
+		// 					new CompareMatsError(img, boundBox)));
+		// 	}
+
+		// 	Mat img;
+		// 	Mat boundBox;
+		// };
+
+		// Mat boundleAdjust()
+
 		struct ActualReprojectionError {
 			ActualReprojectionError(double observed_x, double observed_y)
 				: observed_x(observed_x), observed_y(observed_y) {}
@@ -733,8 +866,8 @@ class UAVAgroStateStitcher{
 				cameraAux[3]= camera[0] * T(H.at<double>(1,0)) + camera [3] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
 				cameraAux[4]= camera[1] * T(H.at<double>(1,0)) + camera [4] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
 				cameraAux[5]= camera[2] * T(H.at<double>(1,0)) + camera [5] * T(H.at<double>(1,1)) + T(1) * T(H.at<double>(1,2));
-				
-				
+
+
 				p[0]=cameraAux[0]* point[0] + cameraAux[1]* point[1] + cameraAux[2];
 				p[1]=cameraAux[3]* point[0] + cameraAux[4]* point[1] + cameraAux[5];
 
