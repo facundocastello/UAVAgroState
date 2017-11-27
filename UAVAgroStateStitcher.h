@@ -237,11 +237,6 @@ class UAVAgroStateStitcher{
 				}
 			});
 			Mat imgKp;
-			cvtColor(imgs[0], imgKp, CV_BGRA2GRAY);
-						CommonFunctions::showWindowNormal(imgKp);
-
-			drawKeypoints(imgKp,vecKp[0],imgKp);
-			CommonFunctions::showWindowNormal(imgKp);
 			cout << endl;
 		}
 		/*Realiza matchs entre los keypoints de 2 imagenes, en base a sus
@@ -525,7 +520,7 @@ class UAVAgroStateStitcher{
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 			alfaBA = 2;
-			for(int j = 0; j < 1 ;j++){
+			for(int j = 0; j < 0 ;j++){
 				for(int i = 0; i < imgs.size()-1;i++){
 					cout << "Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
