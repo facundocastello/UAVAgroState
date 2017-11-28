@@ -53,7 +53,6 @@ class UAVAgroStateStitcher{
 		vector< vector< DMatch > > best_inliers;
 		Mat boundBox;
 		double totalError;
-		bool sift;
 		double alfaBA;
 
 		UAVAgroStateStitcher(vector<string> strImgs,
@@ -62,8 +61,7 @@ class UAVAgroStateStitcher{
 					int minKeypoints=5000,
 					float kPoints = 3,
 					bool originalsize=false,
-					bool usarHomografia =false,
-					bool sift=true
+					bool usarHomografia =false
 					)
 		{
 			this->tamano = tamano;
@@ -73,7 +71,6 @@ class UAVAgroStateStitcher{
 			this->strImgs = strImgs;
 			this->minKeypoints = minKeypoints;
 			this->minMax = minMax;
-			this->sift = sift;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -195,48 +192,30 @@ class UAVAgroStateStitcher{
 			vecKp = vector< vector<KeyPoint> >(imgs.size());
 			parallel_for_(Range(0, imgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-					float kTres = .1;
+					float kTres = .00001;
 					vector<KeyPoint> keypoints;
 					Mat descriptors;
-					int contador=0;
-					while(keypoints.size() < minKeypoints && contador < 10 ){					
+					while(keypoints.size() < minKeypoints){					
 						// Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
-						// Ptr<cv::xfeatures2d::AffineFeature2D> orb = 
-						// cv::xfeatures2d::AffineFeature2D::create(
-						// 	cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres),
-						// 	cv::xfeatures2d::LATCH::create());	
-						// Ptr<cv::AKAZE> detector = cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
-						// Ptr<HarrisLaplaceFeatureDetector> detector = HarrisLaplaceFeatureDetector::create();
-						// Ptr<BoostDesc> descriptor = BoostDesc::create();
-
-						Ptr<Feature2D> orb;
-						if(sift){
-							orb = SIFT::create(minKeypoints,3,kTres);					
-						}else{
-							orb = cv::AKAZE::create(AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
-						}
-						
+						Ptr<AKAZE> orb = cv::AKAZE::create(
+							AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
 						Mat mask = Mat();
 						Mat tmp;
 
-							cvtColor(imgs[i], tmp, CV_BGRA2GRAY);
 						if(imgs[i].channels() == 4){
+							cvtColor(imgs[i], tmp, CV_BGRA2GRAY);
 							threshold(tmp, mask, 1, 255, THRESH_BINARY);
 							Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 							erode(mask, mask, kernel, Point(1, 1), 20);
 						}
 						orb->detectAndCompute(imgs[i] , mask , keypoints , descriptors);
-						// detector->detect(tmp,keypoints,mask);
-						// descriptor->compute(tmp,keypoints,descriptors);
 						kTres/=2;
-						contador++;
 					}
 					cout << "\n KeyPoint imagen" + to_string(i) + ": " << keypoints.size();
 					vecDesc[i]=descriptors;
 					vecKp[i]=keypoints;
 				}
 			});
-			Mat imgKp;
 			cout << endl;
 		}
 		/*Realiza matchs entre los keypoints de 2 imagenes, en base a sus
@@ -248,12 +227,7 @@ class UAVAgroStateStitcher{
 			vecMatch[2] = vector< vector< DMatch > >(imgs.size()-1);
 			best_inliers = vector< vector< DMatch > >(imgs.size()-1);
 			darVuelta = vector<bool> (imgs.size() -1 );
-			BFMatcher matcher;
-			if(sift){
-				matcher = BFMatcher(NORM_L2,true);
-			}else{
-				matcher = BFMatcher(NORM_HAMMING,true);
-			}
+			BFMatcher matcher(NORM_HAMMING,true);
 			int vecKpSize = vecKp.size();
 			parallel_for_(Range(0, vecDesc.size()-1), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
