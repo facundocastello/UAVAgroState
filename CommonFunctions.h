@@ -107,6 +107,122 @@ class CommonFunctions{
 			return minMax;
 		}
 
+		Mat static Aindane(Mat inputImage,int sigma){
+			Mat I;
+			inputImage.convertTo(I,CV_32F);
+			// I/=255;
+
+			Mat I_gray;
+			cvtColor(inputImage, I_gray, CV_BGR2GRAY);
+			vector<Mat> BGRNTSC;
+			split(inputImage,BGRNTSC);
+			// CommonFunctions::showWindowNormal(I_gray,"gray");
+			// for(int j = 0 ; j < I_gray.rows;j++){
+			// 	for(int k =  0; k <I_gray.cols;k++){
+			// 		cout << int(BGRNTSC[0].at<uchar>(j,k))<< " " << int(BGRNTSC[1].at<uchar>(j,k)) << " " << int(BGRNTSC[2].at<uchar>(j,k))<<endl;
+			// 		I_gray.at<uchar>(j,k) =
+			// 			(76.245*BGRNTSC[0].at<uchar>(j,k) +
+			// 			19.685*BGRNTSC[1].at<uchar>(j,k) +
+			// 			29.071*BGRNTSC[2].at<uchar>(j,k) ) / 255;
+			// 		cout<< int(I_gray.at<uchar>(j,k)) << endl;
+			// 	}
+			// }
+			// CommonFunctions::showWindowNormal(I_gray,"NTSC");
+			Mat I_gray_norm = I_gray.clone();
+
+			I_gray_norm.convertTo(I_gray_norm, CV_32F);
+			I_gray_norm = I_gray_norm / 255;
+		// 	% Get the threshold that splits the bottom 10% of the CDF
+			int histSize = 256;
+			float range[] = { 0, 1 } ;
+			const float* histRange = { range };
+			Mat hist;
+			calcHist( &I_gray_norm, 1, 0, Mat(), hist, 1,&histSize, &histRange, true, false );
+			// Draw the histograms for B, G and R
+			hist.at<float>(0,0) =0;
+			Mat cumHist = hist.clone();
+			float sumHist=hist.at<float>(0,0);
+			for(int i = 1 ;i < cumHist.rows;i++){
+				sumHist += hist.at<float>(i,0);
+				cumHist.at<float>(i,0) = sumHist;
+			}
+			Mat cdf = cumHist / sumHist;
+
+			double L;
+			for(int i = 1 ;i < cdf.rows;i++){
+				if( cdf.at<float>(i,0) >= 0.1 ){
+					L = i;
+					break;
+				}
+			}
+			// 	% Use the threshold point to compute the z constant
+			double z;
+			if(L<=50){
+				z=0;
+			}else if(50 < L || L<=150){
+				z=(L-50)/100;
+			}else{
+				z=1;
+			}
+			Mat I_nltf = I_gray_norm.clone();
+			for(int i=0;i<I_nltf.rows;i++){
+				for(int j=0;j<I_nltf.cols;j++){	
+					I_nltf.at<float>(i,j)=	(pow(I_nltf.at<float>(i,j),(0.75*z + 0.25))
+					+ (1 - I_nltf.at<float>(i,j))*0.4*(1-z)
+					+ pow(I_nltf.at<float>(i,j),(2-z))) / 2;
+				}
+			}
+			
+			
+			int fsize=2*(2*sigma)+1;
+			Mat I_gauss;
+			GaussianBlur(I_gray_norm,I_gauss,Size(fsize,fsize),sigma,sigma);
+
+			Mat std,mean;
+			vector<Mat> BGR;
+			split(I,BGR);
+			Mat concat;
+			hconcat(BGR[0], BGR[1], concat);
+			hconcat(concat, BGR[2], concat);
+			meanStdDev(concat, mean, std);
+			
+			cout<<std;
+			double p;
+			float global_std = std.at<double>(0,0);
+			if(global_std <= 3){
+				p = 3;
+			}else if(3 < global_std && global_std < 10){
+				p = (27 - 2*global_std) / 7;
+			}else{
+				p = 1;
+			}
+			
+			Mat I_ace = I_nltf.clone();
+			for(int i=0;i<I_ace.rows;i++){
+				for(int j=0;j<I_ace.cols;j++){	
+					float iexp = pow((I_gauss.at<float>(i,j) / I_gray_norm.at<float>(i,j)),p);
+					I_ace.at<float>(i,j) = 255 * pow( I_ace.at<float>(i,j) , iexp);
+				}
+			}
+			
+			for(int i = 0 ; i < 3; i++){
+				for(int j = 0 ; j < BGR[i].rows;j++){
+					for(int k = 0 ; k < BGR[i].cols;k++){
+						BGR[i].at<float>(j,k) =
+						(I_ace.at<float>(j,k)-80) * 
+						BGR[i].at<float>(j,k) /
+						I_gray.at<uchar>(j,k);
+					}
+				}
+			}
+			merge(BGR,I);
+			I.convertTo(I,CV_8U);
+			CommonFunctions::showWindowNormal(I,"res");
+			imwrite("Imagenes/Pegado/output/resultadofinalcomp.png",I);
+
+			return inputImage;
+		}
+
 		Mat static getBorder(Mat img, vector<int> minMax){
 			Mat dst;
 			cvtColor(img, dst, CV_BGR2GRAY);
@@ -275,8 +391,7 @@ class CommonFunctions{
 						Scalar( 255, 0, 0), 2, 8, 0  );
 			}
 			/// Display
-			namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE );
-			imshow("calcHist Demo", histImage );
+			CommonFunctions::showWindowNormal(histImage);
 		}
 
 		string static type2str(Mat img) {

@@ -83,9 +83,6 @@ class UAVAgroStateStitcher{
 			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
 			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
 
-			warpPerspective(imgMask, imgMaskWarped, homoMatrix, Size(scene.cols, scene.rows));
-			warpPerspective(obj, objWarped, homoMatrix, Size(scene.cols, scene.rows));
-
 			Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
 			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
 			
@@ -163,19 +160,27 @@ class UAVAgroStateStitcher{
 		double compareMats(int numHomo, Mat homoMatrix){
 			Mat objAux;
 			warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
-			// CommonFunctions::showWindowNormal(objAux);
 			Mat newBorder = abs(objAux - borders[numHomo]);
-			// CommonFunctions::showWindowNormal(newBorder, "new");
-			// cout<<homoMatrix;
+			// Mat grayObj,grayScene;
+			// warpPerspective(imgs[numHomo+1], objAux, homoMatrix, Size(imgs[numHomo].cols, imgs[numHomo].rows));
+			// cvtColor(objAux,grayObj,CV_BGR2GRAY);
+			// cvtColor(imgs[numHomo],grayScene,CV_BGR2GRAY);
+			// GaussianBlur( grayObj, grayObj, Size( 7,7 ), 0, 0 );
+			// GaussianBlur( grayScene, grayScene, Size( 7,7 ), 0, 0 );
+			// Mat newBorder = grayObj;
 			int white=0;
+			int cantPx = 0;
 			for(int i = 0;i < newBorder.rows;i++){
 				for(int j = 0 ; j < newBorder.cols;j++){
 					if(newBorder.at<uchar>(i,j)){
+						// diffPx += abs(grayObj.at<uchar>(i,j) - grayScene.at<uchar>(i,j));
+						// cantPx++;
 						white++;
 					}
 				}
 			}
 			double asd = double(white)/(newBorder.rows*newBorder.cols);
+			// double asd = white/cantPx/10;
 			// cout << asd <<endl;
 
 			return asd;
@@ -195,7 +200,9 @@ class UAVAgroStateStitcher{
 					float kTres = .00001;
 					vector<KeyPoint> keypoints;
 					Mat descriptors;
-					while(keypoints.size() < minKeypoints){					
+					int cantKp = -1;
+					while(keypoints.size() < minKeypoints && cantKp!=keypoints.size()){	
+						cantKp = keypoints.size();				
 						// Ptr<cv::BRISK> orb = cv::BRISK::create(kTres);
 						Ptr<AKAZE> orb = cv::AKAZE::create(
 							AKAZE::DESCRIPTOR_MLDB,0,3, kTres);
@@ -684,56 +691,6 @@ class UAVAgroStateStitcher{
 			return mat;
 		}
 
-		// struct CompareMatsError {
-		// 	CompareMatsError(Mat img, Mat boundBox)
-		// 		: img(img), boundBox(boundBox) {}
-
-		// 	bool operator()(const double* const camera,
-		// 					double* residuals) const {
-
-		// 		Mat Homography = cv::Mat(3,3,CV_32F);
-
-		// 		Homography.at<double>(0,0) = camera[0];
-		// 		Homography.at<double>(0,1) = camera[1];
-		// 		Homography.at<double>(0,2) = camera[2];
-		// 		Homography.at<double>(1,0) = camera[3];
-		// 		Homography.at<double>(1,1) = camera[4];
-		// 		Homography.at<double>(1,2) = camera[5];
-		// 		Homography.at<double>(2,0) = 0;
-		// 		Homography.at<double>(2,1) = 0;
-		// 		Homography.at<double>(2,2) = 1;
-				
-		// 		// Mat objAux;
-		// 		// warpPerspective(img, objAux, Homography, Size(boundBox.cols, boundBox.rows));
-		// 		// Mat newBorder = abs(objAux - boundBox);
-				
-		// 		// int white=0;
-		// 		// for(int i = 0;i < newBorder.rows;i++){
-		// 		// 	for(int j = 0 ; j < newBorder.cols;j++){
-		// 		// 		if(newBorder.at<uchar>(i,j)){
-		// 		// 			white++;
-		// 		// 		}
-		// 		// 	}
-		// 		// }
-		// 		// residuals[0] = double(white)/(newBorder.rows*newBorder.cols);				
-
-				
-		// 		return true;
-		// 	}
-
-		// 	// Factory to hide the construction of the CostFunction object from
-		// 	// the client code.
-		// 	static ceres::CostFunction* Create(Mat img, Mat boundBox) {
-		// 		return (new ceres::AutoDiffCostFunction<CompareMatsError, 1,6>(
-		// 					new CompareMatsError(img, boundBox)));
-		// 	}
-
-		// 	Mat img;
-		// 	Mat boundBox;
-		// };
-
-		// Mat boundleAdjust()
-
 		struct ActualReprojectionError {
 			ActualReprojectionError(double observed_x, double observed_y)
 				: observed_x(observed_x), observed_y(observed_y) {}
@@ -1028,17 +985,82 @@ class UAVAgroStateStitcher{
 				}
 			}
 		}
+
+
+		void compensateBright(){
+						float mediaDeMediasB=0;
+			float mediaDeMediasG=0;
+			float mediaDeMediasR=0;
+			vector<float> vecMediaB(imgs.size());
+			vector<float> vecMediaG(imgs.size());
+			vector<float> vecMediaR(imgs.size());
+			for(int i = 0; i < imgs.size(); i++){
+				vecMediaB[i]=0;
+				vecMediaG[i]=0;
+				vecMediaR[i]=0;
+				int cantPix=0;
+				for(int j = 0; j < imgs[i].rows ;j++){
+					for(int k = 0; k < imgs[i].cols; k++){
+						if(imgs[i].at<Vec4b>(j,k)[3] != 0){
+							vecMediaB[i] += imgs[i].at<Vec4b>(j,k)[0];
+							vecMediaG[i] += imgs[i].at<Vec4b>(j,k)[1];
+							vecMediaR[i] += imgs[i].at<Vec4b>(j,k)[2];
+							cantPix++;
+						}
+					}
+				}
+				vecMediaB[i]/=cantPix;
+				vecMediaG[i]/=cantPix;
+				vecMediaR[i]/=cantPix;
+				mediaDeMediasB+=vecMediaB[i];
+				mediaDeMediasG+=vecMediaG[i];
+				mediaDeMediasR+=vecMediaR[i];
+				cout << "Media B: "<< vecMediaB[i] <<" G "<< vecMediaG[i]  <<" R "<< vecMediaR[i] << endl;
+			}
+			mediaDeMediasB/=imgs.size();
+			mediaDeMediasG/=imgs.size();
+			mediaDeMediasR/=imgs.size();
+			cout << mediaDeMediasB << " g " << mediaDeMediasG << "r" << mediaDeMediasR << endl; 
+			for(int i = 0; i < imgs.size(); i++){
+				float difB = vecMediaB[i] - mediaDeMediasB;
+				float difG = vecMediaG[i] - mediaDeMediasG;
+				float difR = vecMediaR[i] - mediaDeMediasR;
+				cout << difB << " g " << difG << "r" << difR << endl; 
+				vecMediaB[i]=0;
+				vecMediaG[i]=0;
+				vecMediaR[i]=0;
+				int cantPix=0;
+				for(int j = 0; j < imgs[i].rows ;j++){
+					for(int k = 0; k < imgs[i].cols; k++){
+						if(imgs[i].at<Vec4b>(j,k)[0] != 0){
+							imgs[i].at<Vec4b>(j,k)[0] -= difB;
+							imgs[i].at<Vec4b>(j,k)[1] -= difG;
+							imgs[i].at<Vec4b>(j,k)[2] -= difR;
+							vecMediaB[i] += imgs[i].at<Vec4b>(j,k)[0];
+							vecMediaG[i] += imgs[i].at<Vec4b>(j,k)[1];
+							vecMediaR[i] += imgs[i].at<Vec4b>(j,k)[2];
+							cantPix++;
+						}
+					}
+				}
+				vecMediaB[i]/=cantPix;
+				vecMediaG[i]/=cantPix;
+				vecMediaR[i]/=cantPix;
+				cout << "Media B: "<< vecMediaB[i] <<" G "<< vecMediaG[i]  <<" R "<< vecMediaR[i] << endl;
+			}
+		}
 		/*
 		Utilizo todas las funciones anteriores para realizar el stitching,
 		siguiento el siguiente proceso:
 		obtengo keypoints y descriptores - los matcheo - obtengo homografias
 		- genero boundbox - adapto homografias al tamaño original - pego las imagenes
 		*/
-		Mat runAll(){
+		Mat runAll(){			
 			struct timeval begin;
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
+			// compensateBright();
 			borders = CommonFunctions::getBorders(imgs,minMax);
 			
 			// for(int i = 0 ; i < imgs.size() ; i++){
