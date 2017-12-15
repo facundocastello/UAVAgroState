@@ -87,12 +87,17 @@ class UAVAgroStateStitcher{
 			erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 1);
 			
 			Mat imgMaskFrame;
-			Mat imgMaskFrameAux;
 			vector<Mat> bgra;
 			split(objWarped, bgra);
-			threshold(bgra[3], imgMaskFrame, 1, 255, THRESH_BINARY);
-			erode(imgMaskFrame, imgMaskFrameAux, kernel, Point(1, 1), 20);
-			imgMaskFrame= imgMaskFrame - imgMaskFrameAux;
+			imgMaskFrame = bgra[3].clone();
+			for(int i = 0 ; i < 7; i ++){
+				blur(imgMaskFrame,imgMaskFrame,Size(100,100));
+				Mat newImg;
+				imgMaskFrame.copyTo(newImg,bgra[3]);	
+				imgMaskFrame = newImg;
+			}
+			
+
 
 			if(obj.channels() == 4){
 				//en el caso de que haya transparencia, se hace un pegado especial
@@ -113,17 +118,18 @@ class UAVAgroStateStitcher{
 		escena, solo en el caso de que el objeto no sea transparente en esa parte
 		*/
 		Mat copyToTransparent(Mat obj, Mat scene, Mat mask){
+			mask.convertTo(mask,CV_32F);
+			mask = mask / 255;
 			
 			Mat rgbaObj[4];
 			split(obj,rgbaObj);
 			for(int i=0;i < obj.rows;i++){
 				for(int j=0;j < obj.cols;j++){
 					if(rgbaObj[3].at<uchar>(i,j) == 255 ){
-
-						if(scene.at<Vec4b>(i,j) != Vec4b(0,0,0,0) && mask.at<uchar>(i,j) != 0){
-							scene.at<Vec4b>(i,j)[0] = scene.at<Vec4b>(i,j)[0] * 0.5 + obj.at<Vec4b>(i,j)[0] * 0.5;
-							scene.at<Vec4b>(i,j)[1] = scene.at<Vec4b>(i,j)[1] * 0.5 + obj.at<Vec4b>(i,j)[1] * 0.5;
-							scene.at<Vec4b>(i,j)[2] = scene.at<Vec4b>(i,j)[2] * 0.5 + obj.at<Vec4b>(i,j)[2] * 0.5;
+						if(scene.at<Vec4b>(i,j) != Vec4b(0,0,0,0)){
+							scene.at<Vec4b>(i,j)[0] = obj.at<Vec4b>(i,j)[0] * mask.at<float>(i,j) + scene.at<Vec4b>(i,j)[0] * (1 - mask.at<float>(i,j));
+							scene.at<Vec4b>(i,j)[1] = obj.at<Vec4b>(i,j)[1] * mask.at<float>(i,j) + scene.at<Vec4b>(i,j)[1] * (1 - mask.at<float>(i,j));
+							scene.at<Vec4b>(i,j)[2] = obj.at<Vec4b>(i,j)[2] * mask.at<float>(i,j) + scene.at<Vec4b>(i,j)[2] * (1 - mask.at<float>(i,j));
 							scene.at<Vec4b>(i,j)[3] = obj.at<Vec4b>(i,j)[3];					
 						}else{
 							scene.at<Vec4b>(i,j) = obj.at<Vec4b>(i,j);
@@ -159,28 +165,28 @@ class UAVAgroStateStitcher{
 
 		double compareMats(int numHomo, Mat homoMatrix){
 			Mat objAux;
-			warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
-			Mat newBorder = abs(objAux - borders[numHomo]);
-			// Mat grayObj,grayScene;
-			// warpPerspective(imgs[numHomo+1], objAux, homoMatrix, Size(imgs[numHomo].cols, imgs[numHomo].rows));
-			// cvtColor(objAux,grayObj,CV_BGR2GRAY);
-			// cvtColor(imgs[numHomo],grayScene,CV_BGR2GRAY);
+			// warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
+			// Mat newBorder = abs(objAux - borders[numHomo]);
+			Mat grayObj,grayScene;
+			warpPerspective(imgs[numHomo+1], objAux, homoMatrix, Size(imgs[numHomo].cols, imgs[numHomo].rows));
+			cvtColor(objAux,grayObj,CV_BGR2GRAY);
+			cvtColor(imgs[numHomo],grayScene,CV_BGR2GRAY);
 			// GaussianBlur( grayObj, grayObj, Size( 7,7 ), 0, 0 );
 			// GaussianBlur( grayScene, grayScene, Size( 7,7 ), 0, 0 );
-			// Mat newBorder = grayObj;
-			int white=0;
-			int cantPx = 0;
+			Mat newBorder = grayObj;
+			double white=0;
+			double cantPx = 0;
 			for(int i = 0;i < newBorder.rows;i++){
 				for(int j = 0 ; j < newBorder.cols;j++){
 					if(newBorder.at<uchar>(i,j)){
-						// diffPx += abs(grayObj.at<uchar>(i,j) - grayScene.at<uchar>(i,j));
-						// cantPx++;
-						white++;
+						white += abs(grayObj.at<uchar>(i,j) - grayScene.at<uchar>(i,j));
+						cantPx++;
+						// white++;
 					}
 				}
 			}
-			double asd = double(white)/(newBorder.rows*newBorder.cols);
-			// double asd = white/cantPx/10;
+			// double asd = double(white)/(newBorder.rows*newBorder.cols);
+			double asd = white/cantPx/10;
 			// cout << asd <<endl;
 
 			return asd;
@@ -1056,12 +1062,13 @@ class UAVAgroStateStitcher{
 		- genero boundbox - adapto homografias al tamaño original - pego las imagenes
 		*/
 		Mat runAll(){			
+			// usarHomografia = true;
 			struct timeval begin;
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
-			// compensateBright();
-			borders = CommonFunctions::getBorders(imgs,minMax);
+			compensateBright();
+			// borders = CommonFunctions::getBorders(imgs,minMax);
 			
 			// for(int i = 0 ; i < imgs.size() ; i++){
 			// 	vector<Mat> RGB;
