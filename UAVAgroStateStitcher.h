@@ -90,12 +90,12 @@ class UAVAgroStateStitcher{
 			vector<Mat> bgra;
 			split(objWarped, bgra);
 			imgMaskFrame = bgra[3].clone();
-			for(int i = 0 ; i < 7; i ++){
-				blur(imgMaskFrame,imgMaskFrame,Size(100,100));
-				Mat newImg;
-				imgMaskFrame.copyTo(newImg,bgra[3]);	
-				imgMaskFrame = newImg;
-			}
+			// for(int i = 0 ; i < 7; i ++){
+			// 	blur(imgMaskFrame,imgMaskFrame,Size(100,100));
+			// 	Mat newImg;
+			// 	imgMaskFrame.copyTo(newImg,bgra[3]);	
+			// 	imgMaskFrame = newImg;
+			// }
 			
 
 
@@ -165,8 +165,6 @@ class UAVAgroStateStitcher{
 
 		double compareMats(int numHomo, Mat homoMatrix){
 			Mat objAux;
-			// warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
-			// Mat newBorder = abs(objAux - borders[numHomo]);
 			Mat grayObj,grayScene;
 			warpPerspective(imgs[numHomo+1], objAux, homoMatrix, Size(imgs[numHomo].cols, imgs[numHomo].rows));
 			cvtColor(objAux,grayObj,CV_BGR2GRAY);
@@ -181,13 +179,33 @@ class UAVAgroStateStitcher{
 					if(newBorder.at<uchar>(i,j)){
 						white += abs(grayObj.at<uchar>(i,j) - grayScene.at<uchar>(i,j));
 						cantPx++;
-						// white++;
 					}
 				}
 			}
-			// double asd = double(white)/(newBorder.rows*newBorder.cols);
 			double asd = white/cantPx/10;
-			// cout << asd <<endl;
+
+			return asd;
+		}
+
+		double compareMatsBorders(int numHomo, Mat homoMatrix){
+			Mat objAux;
+			warpPerspective(borders[numHomo+1], objAux, homoMatrix, Size(borders[numHomo].cols, borders[numHomo].rows));
+			Mat imgMask = cv::Mat(borders[numHomo+1].size(), CV_8UC1, cv::Scalar(255));
+			warpPerspective(imgMask, imgMask, homoMatrix, Size(objAux.cols, objAux.rows));
+			Mat newBorder = abs(objAux - borders[numHomo]);
+			double white=0;
+			double cantPx = 0;
+			for(int i = 0;i < newBorder.rows;i++){
+				for(int j = 0 ; j < newBorder.cols;j++){
+					if(imgMask.at<uchar>(i,j)){
+						if(newBorder.at<uchar>(i,j)){
+							white++;
+						}
+							cantPx++;
+					}
+				}
+			}
+			double asd = white/cantPx;
 
 			return asd;
 		}
@@ -583,6 +601,7 @@ class UAVAgroStateStitcher{
 			poder pegar todas las imagenes */
 			boundBox = imgs[0];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
+			imwrite("res.png", boundBox);
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
 			for(int i=0;i<vecKp[0].size();i++){
@@ -1067,7 +1086,7 @@ class UAVAgroStateStitcher{
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
-			compensateBright();
+			// compensateBright();
 			// borders = CommonFunctions::getBorders(imgs,minMax);
 			
 			// for(int i = 0 ; i < imgs.size() ; i++){
