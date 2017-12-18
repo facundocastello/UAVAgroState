@@ -53,7 +53,6 @@ class UAVAgroStateStitcher{
 		vector< vector< DMatch > > best_inliers;
 		Mat boundBox;
 		double totalError;
-		double alfaBA;
 
 		UAVAgroStateStitcher(vector<string> strImgs,
 					vector<int> minMax,
@@ -90,13 +89,12 @@ class UAVAgroStateStitcher{
 			vector<Mat> bgra;
 			split(objWarped, bgra);
 			imgMaskFrame = bgra[3].clone();
-			// for(int i = 0 ; i < 7; i ++){
-			// 	blur(imgMaskFrame,imgMaskFrame,Size(100,100));
-			// 	Mat newImg;
-			// 	imgMaskFrame.copyTo(newImg,bgra[3]);	
-			// 	imgMaskFrame = newImg;
-			// }
-			
+			for(int i = 0 ; i < 7; i ++){
+				blur(imgMaskFrame,imgMaskFrame,Size(100,100));
+				Mat newImg;
+				imgMaskFrame.copyTo(newImg,bgra[3]);	
+				imgMaskFrame = newImg;
+			}
 
 
 			if(obj.channels() == 4){
@@ -399,7 +397,7 @@ class UAVAgroStateStitcher{
 					}
 					if(auxH.dims != 0){
 						auxError[i] = compareMats(numHomo,auxH);
-						Mat prodH=H[numHomo]*auxH;
+						Mat prodH=auxH;
 						// por trigonometria aplico lo siguiente
 						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
 						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
@@ -515,24 +513,19 @@ class UAVAgroStateStitcher{
 			homoNoMultiplicated = vector<Mat>(imgs.size());
 			H[0] = (Mat::eye(3, 3, CV_64F));
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
-			alfaBA = 1000;
 			for(int i = 0; i < imgs.size()-1;i++){
 				cout << "Realizando Homografia "+to_string(i)+ ". \n";
-				//caso comun
 				getHomography(i);
-
+			}
+			H[imgs.size()/2] = homoNoMultiplicated[imgs.size()/2].inv();
+			H[imgs.size()/2 + 1] = homoNoMultiplicated[imgs.size()/2 + 1];
+			for(int i = imgs.size()/2; i > 0;i--){
+				H[i-1] = (H[i] * homoNoMultiplicated[i-1].inv());
+				H[i-1] = H[i-1] / H[i-1].at<double>(2,2);
+			}
+			for(int i = (imgs.size()/2 + 1) ; i < imgs.size()-1;i++){
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-			}
-			alfaBA = 2;
-			for(int j = 0; j < 0 ;j++){
-				for(int i = 0; i < imgs.size()-1;i++){
-					cout << "Realizando Homografia "+to_string(i)+ ". \n";
-					//caso comun
-					homoNoMultiplicated[i+1] = getAfterHomographyError( i,  homoNoMultiplicated[i+1]);
-					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
-					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-				}
 			}
 		}
 		/*
@@ -599,36 +592,48 @@ class UAVAgroStateStitcher{
 			cout << "\033[1;32m Generando boundbox y calculando su homografia: \033[0m" << endl;
 			/* Le agrego a la imagen inicial los bordes con el suficiente espacio para
 			poder pegar todas las imagenes */
-			boundBox = imgs[0];
+			boundBox = imgs[imgs.size()/2];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
 			imwrite("res.png", boundBox);
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
-			for(int i=0;i<vecKp[0].size();i++){
-				vecKp[0][i].pt+=ptAux;
+			for(int i=0;i<vecKp[imgs.size()/2].size();i++){
+				vecKp[imgs.size()/2][i].pt+=ptAux;
 			}
 			//vuelvo a calcular la homografia para la imagen con bordes
-			imgs[0] = boundBox;
+			imgs[imgs.size()/2] = boundBox;
+			
+			
 			vector<Point2f> obj;
 			vector<Point2f> scene;
-			for (int l = 0; l < best_inliers[0].size(); l++) {
-				obj.push_back(vecKp[0][best_inliers[0][l].queryIdx].pt);
-				scene.push_back(vecKp[1][best_inliers[0][l].trainIdx].pt);
+			for (int l = 0; l < best_inliers[imgs.size()/2].size(); l++) {
+				obj.push_back(vecKp[imgs.size()/2][best_inliers[imgs.size()/2][l].queryIdx].pt);
+				scene.push_back(vecKp[imgs.size()/2+1][best_inliers[imgs.size()/2][l].trainIdx].pt);
 			}
 
 			if(usarHomografia){
-				homoNoMultiplicated[1] = findHomography(scene,obj,CV_RANSAC);
+				homoNoMultiplicated[imgs.size()/2+1] = findHomography(scene,obj,CV_RANSAC);
 			}else{
-				homoNoMultiplicated[1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
+				homoNoMultiplicated[imgs.size()/2+1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 			}
 
-			H[1] = homoNoMultiplicated[1];
+			vector<Point2f> obj2;
+			vector<Point2f> scene2;
+			for (int l = 0; l < best_inliers[imgs.size()/2-1].size(); l++) {
+				obj2.push_back(vecKp[imgs.size()/2-1][best_inliers[imgs.size()/2-1][l].queryIdx].pt);
+				scene2.push_back(vecKp[imgs.size()/2][best_inliers[imgs.size()/2-1][l].trainIdx].pt);
+			}
+			homoNoMultiplicated[imgs.size()/2] = rigidToHomography( estimateRigidTransform(scene2,obj2,false) );
 
-			/*tengo que adaptar todas las homografias a las nuevas dimensiones
-			definidas por el boundbox*/
-			for(int i = 2 ; i < H.size(); i++){
-				H[i] = H[i-1] * homoNoMultiplicated[i];
-				H[i] = H[i] / H[i].at<double>(2,2);
+			H[imgs.size()/2] = homoNoMultiplicated[imgs.size()/2].inv();
+			H[imgs.size()/2 + 1] = homoNoMultiplicated[imgs.size()/2 + 1];
+			for(int i = imgs.size()/2; i > 0;i--){
+				H[i-1] = (H[i] * homoNoMultiplicated[i-1].inv());
+				H[i-1] = H[i-1] / H[i-1].at<double>(2,2);
+			}
+			for(int i = (imgs.size()/2 + 1) ; i < imgs.size()-1;i++){
+				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
+				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
 			}
 		}
 		/*
@@ -666,32 +671,7 @@ class UAVAgroStateStitcher{
 			}
 		}
 
-		double projectPointError(Point2f pt1 , Point2f pt2, Mat hAux){
-			Mat X1 = (Mat_<double>(3,1) << pt1.x, pt1.y, 1);
-			Mat X2 = (Mat_<double>(3,1) << pt2.x, pt2.y, 1);
-			double x = hAux.at<double>(0,0)*X2.at<double>(0,0)+
-			hAux.at<double>(0,1)*X2.at<double>(0,1)+
-			hAux.at<double>(0,2)*X2.at<double>(0,2);
-			double y = hAux.at<double>(1,0)*X2.at<double>(0,0)+
-			hAux.at<double>(1,1)*X2.at<double>(0,1)+
-			hAux.at<double>(1,2)*X2.at<double>(0,2);
-
-			double rX = pow(x - X1.at<double>(0,0),2);
-			double rY = pow(y - X1.at<double>(0,1),2);
-			double valAbs = sqrt(rX+rY);
-			double cuadValAbs = pow(valAbs,2);
-			double r;
-			if(valAbs < alfaBA){
-				r= cuadValAbs;
-			}else{
-				r = 2*alfaBA*valAbs - alfaBA*alfaBA;
-			}
-			return r;
-		}
-
-
-		
-		
+	
 		double* matToCamera(Mat mat){
 			double* camera;
 			camera = new double[6];
@@ -932,13 +912,20 @@ class UAVAgroStateStitcher{
 		*/
 		Mat stitchImgs(){
 			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-
-			for (int i = 1; i < imgs.size(); i++){
-				cout.flush();
-				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
-				// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
-				// imwrite(res, boundBox);
-				cout << "-" << (i+1) * 100 / imgs.size() << "%";
+			for (int i = 0; i < imgs.size()/2; i++){
+				// CommonFunctions::showWindowNormal(boundBox);
+					cout.flush();
+					boundBox = stitchWarp(boundBox, imgs[i], H[i+1])[0];
+					// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
+					// imwrite(res, boundBox);
+					cout << "-" << (i+1) * 100 / imgs.size() << "%";
+			}
+			for (int i = imgs.size()/2+1; i < imgs.size(); i++){
+					cout.flush();
+					boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
+					// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
+					// imwrite(res, boundBox);
+					cout << "-" << (i+1) * 100 / imgs.size() << "%";
 			}
 			cout<<endl;
 			if(boundBox.channels() < 4){
