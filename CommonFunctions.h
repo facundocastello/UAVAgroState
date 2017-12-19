@@ -333,8 +333,22 @@ class CommonFunctions{
 		Mat static boundingBox(Mat img, int colindent, int rowindent){
 			Mat boundingBox(Size(img.cols + colindent*2, img.rows + rowindent*2), CV_8UC3, Scalar(0, 0, 0));
 			Mat roibounding(boundingBox, Rect(colindent, rowindent, img.cols, img.rows));
-			img.copyTo(roibounding);
+			CommonFunctions::copyToTransparent(img , roibounding);
 			return boundingBox;
+		}
+
+		Mat static copyToTransparent(Mat obj, Mat scene){
+			for(int i=0;i < obj.rows;i++){
+				for(int j=0;j < obj.cols;j++){
+					if(obj.at<Vec4b>(i,j)[3] == 255 ){
+						scene.at<Vec4b>(i,j)[0] = obj.at<Vec4b>(i,j)[0];
+						scene.at<Vec4b>(i,j)[1] = obj.at<Vec4b>(i,j)[1];
+						scene.at<Vec4b>(i,j)[2] = obj.at<Vec4b>(i,j)[2];
+						scene.at<Vec4b>(i,j)[3] = obj.at<Vec4b>(i,j)[3];					
+					}
+				}
+			}
+			return scene;
 		}
 
 		Mat static boundingBox(Mat img, int arIndent, int abIndent,int izIndent,int derIndent){
@@ -346,7 +360,7 @@ class CommonFunctions{
 			}
 			Mat boundingBox(Size(img.cols+ izIndent + derIndent, img.rows + arIndent + abIndent ), img.type(), Scalar(0, 0, 0));
 			Mat roibounding(boundingBox, Rect(izIndent,arIndent, img.cols, img.rows));
-			img.copyTo(roibounding);
+			CommonFunctions::copyToTransparent(img , roibounding);
 			return boundingBox;
 		}
 

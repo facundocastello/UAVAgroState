@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 			// 	cin>>originalSize;
 			// }
 
-			int minKeypoints = 23000;
+			int minKeypoints = 1000;
 			vector<string> strBorders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/bordes/");
 			vector<int> minMax(2);
 			// // minMax[0] = 10;

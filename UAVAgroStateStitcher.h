@@ -95,7 +95,7 @@ class UAVAgroStateStitcher{
 				imgMaskFrame.copyTo(newImg,bgra[3]);	
 				imgMaskFrame = newImg;
 			}
-
+			
 
 			if(obj.channels() == 4){
 				//en el caso de que haya transparencia, se hace un pegado especial
@@ -623,7 +623,12 @@ class UAVAgroStateStitcher{
 				obj2.push_back(vecKp[imgs.size()/2-1][best_inliers[imgs.size()/2-1][l].queryIdx].pt);
 				scene2.push_back(vecKp[imgs.size()/2][best_inliers[imgs.size()/2-1][l].trainIdx].pt);
 			}
-			homoNoMultiplicated[imgs.size()/2] = rigidToHomography( estimateRigidTransform(scene2,obj2,false) );
+			if(usarHomografia){
+				homoNoMultiplicated[imgs.size()/2] = findHomography(scene2,obj2,CV_RANSAC);
+			}else{
+				homoNoMultiplicated[imgs.size()/2] = rigidToHomography( estimateRigidTransform(scene2,obj2,false) );
+			}
+			
 
 			H[imgs.size()/2] = homoNoMultiplicated[imgs.size()/2].inv();
 			H[imgs.size()/2 + 1] = homoNoMultiplicated[imgs.size()/2 + 1];
