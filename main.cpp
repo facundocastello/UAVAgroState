@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
 			}
 
-			minKeypoints = 30000;
+			minKeypoints = 10000;
 			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
 			// minMax = CommonFunctions::setBorder(imread(strImgs[0]));
 			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(

@@ -23,8 +23,10 @@ public:
         Size patternsize = Size(numCornersHor, numCornersVer);
 
         vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Calibrar/input/");
-        vector<vector<Point3f>> object_points;		//physical position of the corners in 3d space. this has to be measured by us
-        vector<vector<Point2f>> image_points;		//location of corners on in the image (2d) once the program has actual physical locations and locations			
+        vector<vector<Point3f>> object_points(strImgs.size());		//physical position of the corners in 3d space. this has to be measured by us
+        vector<vector<Point2f>> image_points(strImgs.size());		//location of corners on in the image (2d) once the program has actual physical locations and locations			
+        vector<vector<Point3f>> object_points2;		//physical position of the corners in 3d space. this has to be measured by us
+        vector<vector<Point2f>> image_points2;		//location of corners on in the image (2d) once the program has actual physical locations and locations			
         vector<Point2f> corners; //this will be filled by the detected corners
 
         TermCriteria criteria = TermCriteria( CV_TERMCRIT_EPS + CV_TERMCRIT_ITER, 40, 0.001 );
@@ -32,25 +34,31 @@ public:
         vector<Point3f> obj;
         for(int j=0; j<numSquares; j++)
             obj.push_back(Point3f(j/numCornersHor, j%numCornersHor, 0));
-
-        for(int i = 0; i < strImgs.size(); i++){
-            cout<<"imagen "<<i<<endl;
-            Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
-            vector<Mat> BGR;
-            split(frame, BGR);
-            frame=BGR[2];
-            
-            bool patternfound = findChessboardCorners(frame,patternsize,corners);
-            cout<<patternfound<<endl;
-            cornerSubPix(frame,corners, Size(11,11), Size(-1,-1), criteria);
-            drawChessboardCorners(frame, patternsize, Mat(corners), patternfound);
-            string res = "Imagenes/Calibrar/output/resultados" + to_string(i) + ".png";
-            imwrite(res,frame);
-            if(patternfound){
-                image_points.push_back(corners);
-                object_points.push_back(obj);
+		parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
+			for(int i = range.start;i < range.end ; i++){
+                Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
+                vector<Mat> BGR;
+                split(frame, BGR);
+                frame=BGR[2];
+                
+                bool patternfound = findChessboardCorners(frame,patternsize,corners);
+                cout<< strImgs[i] <<"      "<<patternfound<<endl;
+                cornerSubPix(frame,corners, Size(11,11), Size(-1,-1), criteria);
+                drawChessboardCorners(frame, patternsize, Mat(corners), patternfound);
+                if(patternfound){
+                    string res = "Imagenes/Calibrar/output/resultados" + to_string(i) + ".png";
+                    imwrite(res,frame);
+                    image_points[i] = corners;
+                    object_points[i] = obj;
+                }
             }
-
+        });
+        for(int i = 0; i < strImgs.size(); i++){
+            if( !image_points[i].empty()){
+                image_points2.push_back(image_points[i]);
+                object_points2.push_back(object_points[i]);                
+            }
+                
         }
         //next we get ready to do the calibration, we declare variables that will hold the unknowns:
 
@@ -67,7 +75,7 @@ public:
         //(0,0) and (1,1) are focal lengths along x and y axis
         //now finally the calibration
         Mat frame = CommonFunctions::cargarImagen(strImgs[0],1);
-        calibrateCamera(object_points, image_points, frame.size(),intrinsic, distCoeffs, rvecs, tvecs);
+        calibrateCamera(object_points2, image_points2, frame.size(),intrinsic, distCoeffs, rvecs, tvecs);
         //after this you will have the intrinsic matrix, distortion coefficients and the rotation + translation vectors.
         //intrinsic matrix and distortion coeffs are property of the camera and lens. so if you don't change it focal lengths zoom lenses you
         //can reuse it.
