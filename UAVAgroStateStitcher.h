@@ -454,11 +454,11 @@ class UAVAgroStateStitcher{
 
 
 			for(int i=minMatches;i<vueltasI;i++){
-				if( (auxHomoX[i] + auxHomoY[i] + 1.5*auxError[i]) < minError){
+				if( (auxHomoX[i] + auxHomoY[i] + auxError[i]) < minError){
 					bestvalx = i;
 					minHomoX = auxHomoX[i];
 					minHomoY = auxHomoY[i];
-					minError = (auxHomoX[i] + auxHomoY[i] + 1.5*auxError[i]);
+					minError = (auxHomoX[i] + auxHomoY[i] + auxError[i]);
 				}
 			}
 
@@ -537,40 +537,42 @@ class UAVAgroStateStitcher{
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
 			for(int i = 0; i < H.size()-1; i++){
 				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN X
-				double newMinX = H[i+1].at<double>(0,2) +
-				( (H[i+1].at<double>(0,0) < 0)? imgs[i+1].cols  * H[i+1].at<double>(0,0) : 0 ) +
-				( (H[i+1].at<double>(0,1) < 0)? imgs[i+1].rows  * H[i+1].at<double>(0,1) : 0 );
-				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN Y
-				double newMinY = H[i+1].at<double>(1,2) +
-				( (H[i+1].at<double>(1,0) < 0)? imgs[i+1].cols  * H[i+1].at<double>(1,0) : 0 ) +
-				( (H[i+1].at<double>(1,1) < 0)? imgs[i+1].rows  * H[i+1].at<double>(1,1) : 0 );
-				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA DADA VUELTA EN X
-				double newMaxX = H[i+1].at<double>(0,2) - imgWidth +
-				( (imgWidth  * H[i+1].at<double>(0,0) > 0) ?imgs[i+1].cols  * H[i+1].at<double>(0,0) : 0) +
-				( (imgs[i+1].rows  * H[i+1].at<double>(0,1) > 0) ? imgs[i+1].rows  * H[i+1].at<double>(0,1) : 0);
-				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA DADA VUELTA EN Y
-				double newMaxY = H[i+1].at<double>(1,2) - imgHeight +
-				( (imgWidth * H[i+1].at<double>(1,0) > 0) ?imgs[i+1].cols * H[i+1].at<double>(1,0) : 0) +
-				( (imgs[i+1].rows  * H[i+1].at<double>(1,1) > 0) ? imgs[i+1].rows  * H[i+1].at<double>(1,1) : 0);
-				if(newMinX < xMin){
-					xMin = newMinX;
+				Mat imgAux;
+				Mat imgResta = imgs[imgs.size()/2];
+				if(i < imgs.size()/2){
+					imgAux = imgs[i];
+				}else{
+					imgAux = imgs[i+1];
 				}
-				if(newMaxX > xMax){
-					xMax = newMaxX;
+				vector<double> newX(4);
+				vector<double> newY(4);
+				newX[0] = H[i+1].at<double>(0,2);
+				newY[0] = H[i+1].at<double>(1,2);
+
+				newX[1] = H[i+1].at<double>(0,2) + H[i+1].at<double>(0,0) * imgAux.cols;
+				newY[1] = H[i+1].at<double>(1,2) + H[i+1].at<double>(1,0) * imgAux.cols;
+
+				newX[2] = H[i+1].at<double>(0,2) + H[i+1].at<double>(0,0) * imgAux.cols + H[i+1].at<double>(0,1) * imgAux.rows;
+				newY[2] = H[i+1].at<double>(1,2) + H[i+1].at<double>(1,0) * imgAux.cols + H[i+1].at<double>(1,1) * imgAux.rows;
+
+				newX[3] = H[i+1].at<double>(0,2) + H[i+1].at<double>(0,1) * imgAux.rows;
+				newY[3] = H[i+1].at<double>(1,2) + H[i+1].at<double>(1,1) * imgAux.rows;
+
+				if( (*min_element(newX.begin(),newX.end()) ) < xMin){
+					xMin = (*min_element(newX.begin(),newX.end()) );
 				}
-				if(newMinY < yMin){
-					yMin = newMinY;
+				if( ((*max_element(newX.begin(),newX.end()) ) - imgResta.cols) > xMax){
+					xMax = ((*max_element(newX.begin(),newX.end()) ) - imgResta.cols);
 				}
-				if(newMaxY > yMax){
-					yMax = newMaxY;
+				if( (*min_element(newY.begin(),newY.end()) ) < yMin){
+					yMin = (*min_element(newY.begin(),newY.end()) );
+				}
+				if( ((*max_element(newY.begin(),newY.end()) ) - imgResta.rows) > yMax){
+					yMax = ((*max_element(newY.begin(),newY.end()) ) - imgResta.rows);
 				}
 				fsHomo << "homografia"+to_string(i+1) << H[i+1];
 			}
 			fsHomo.release();
-			xMin -= 20;
-			yMin -= 20;
-			yMax += 20;
-			xMax += 20;
 			cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
 		}
 
