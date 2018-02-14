@@ -399,8 +399,8 @@ class UAVAgroStateStitcher{
 						auxError[i] = compareMats(numHomo,auxH);
 						Mat prodH=auxH;
 						// por trigonometria aplico lo siguiente
-						auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
-						auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+							auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
+							auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
 					}else{
 						auxError[i] = 9999;
 						auxHomoY[i] = 9999;	
@@ -596,7 +596,6 @@ class UAVAgroStateStitcher{
 			poder pegar todas las imagenes */
 			boundBox = imgs[imgs.size()/2];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
-			imwrite("res.png", boundBox);
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
 			for(int i=0;i<vecKp[imgs.size()/2].size();i++){

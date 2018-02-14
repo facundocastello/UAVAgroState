@@ -19,6 +19,11 @@ public:
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);	
 		Mat numerador,denominador,division;
+		Mat newred;
+
+		subtract(BGRA[2],BGRA[0]*0.9,BGRA[2],cv::noArray(),CV_8U);
+		merge(BGRA,newred);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"newred.png", newred);
 		
 		subtract(BGRA[0],BGRA[2],numerador,cv::noArray(),CV_8S);
 		add(BGRA[0],BGRA[2],denominador,cv::noArray(),CV_8S);
@@ -44,8 +49,8 @@ public:
 		Mat resultadoNormalizado = (division - min) * 256 / (max-min);
 		applyColorMap(resultadoNormalizado, resultadoNormalizado, COLORMAP_JET);
 		
-		// division = createLut(division);
-		applyColorMap(division, division, COLORMAP_JET);
+		division = createLut(division);
+		// applyColorMap(division, division, COLORMAP_JET);
 		Mat resultadocolor = division;
 		if(!BGRA[3].empty()){
 			vector<Mat> BGR;
@@ -65,27 +70,14 @@ public:
 	Mat static createLut(Mat temp){
 		double min,max;
 		minMaxLoc(temp, &min, &max);
-		min = 0;
-		max = 256;
 		Mat M1(1,256,CV_8U);
 		Mat M2(1,256,CV_8U);
 		Mat M3(1,256,CV_8U);
 		for(int i=min;i<max;i++)
-			{
-			if(i<(min + (max-min)*2/5)){
-				M1.at<uchar>(i)=i;
-				M2.at<uchar>(i)=0;
-				M3.at<uchar>(i)=0;
-			}else if(i < (min + (max-min)*3/5)){
-				M1.at<uchar>(i)=0;
-				M2.at<uchar>(i)=i;
-				M3.at<uchar>(i)=i-min;
-			}else{
-				
-				M1.at<uchar>(i)=0;
-				M2.at<uchar>(i)= M2.at<uchar>(i-1)-2;
-				M3.at<uchar>(i)=i;
-			}
+		{
+			M1.at<uchar>(i)=0;
+			M2.at<uchar>(i)=(i-min)*256/(max-min);
+			M3.at<uchar>(i)=255 - (i-min)*256/(max-min);
 		}
 	
 		Mat r1,r2,r3;

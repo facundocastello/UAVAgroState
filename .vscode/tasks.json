@@ -4,9 +4,9 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "taskName": "main",
+            "label": "main",
             "type": "shell",
-            "command": "cd build && cmake . .. && make && cp main .. && cd .. && ./main 2 4 0 20 0",
+            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug . .. && make && cp main .. && cd .. && ./main 2 4 0 20 0",
             "group": {
                 "kind": "build",
                 "isDefault": true
