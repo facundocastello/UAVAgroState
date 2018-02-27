@@ -399,8 +399,8 @@ class UAVAgroStateStitcher{
 						auxError[i] = compareMats(numHomo,auxH);
 						Mat prodH=auxH;
 						// por trigonometria aplico lo siguiente
-							auxHomoX[i] = abs( pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1);
-							auxHomoY[i] = abs( pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1);
+							auxHomoX[i] = pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1;
+							auxHomoY[i] = pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1;
 					}else{
 						auxError[i] = 9999;
 						auxHomoY[i] = 9999;	
@@ -408,57 +408,14 @@ class UAVAgroStateStitcher{
 					}
 				}
 			});
-			double min=10;
-			double max=0;
-			for(int i = minMatches ; i < auxHomoX.size();i++){
-				if(auxHomoX[i] != 9999){
-					if(auxHomoX[i] > max){
-						max = auxHomoX[i];
-					}
-				}
-				if(auxHomoX[i] < min){
-						min = auxHomoX[i];
-				}
-			}
-			for(int i = minMatches ; i < auxHomoX.size();i++){
-				auxHomoX[i] = (auxHomoX[i]-min)  / (max-min);
-			}
-			min=10; max = 0;
-			for(int i = minMatches ; i < auxHomoY.size();i++){
-				if(auxHomoY[i] != 9999){
-					if(auxHomoY[i] > max){
-						max = auxHomoY[i];
-					}
-				}
-				if(auxHomoY[i] < min){
-						min = auxHomoY[i];
-				}
-			}
-			for(int i = minMatches ; i < auxHomoY.size();i++){
-				auxHomoY[i] = (auxHomoY[i]-min)  / (max-min);
-			}
-			min=10; max = 0;
-			for(int i = minMatches ; i < auxError.size();i++){
-				if(auxError[i] != 9999){
-					if(auxError[i] > max){
-						max = auxError[i];
-					}
-				}
-				if(auxError[i] < min){
-						min = auxError[i];
-				}
-			}
-			for(int i = minMatches ; i < auxError.size();i++){
-				auxError[i] = (auxError[i]-min)  / (max-min);
-			}
 
 
 			for(int i=minMatches;i<vueltasI;i++){
-				if( (auxHomoX[i] + auxHomoY[i] + auxError[i]) < minError){
+				if( abs(auxHomoX[i] + auxHomoY[i]) < minError){
 					bestvalx = i;
 					minHomoX = auxHomoX[i];
 					minHomoY = auxHomoY[i];
-					minError = (auxHomoX[i] + auxHomoY[i] + auxError[i]);
+					minError = abs(auxHomoX[i] + auxHomoY[i]);
 				}
 			}
 

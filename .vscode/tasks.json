@@ -6,7 +6,7 @@
         {
             "label": "main",
             "type": "shell",
-            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug . .. && make && cp main .. && cd .. && ./main 2 4 0 20 0",
+            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug . .. && make && cp main .. && cd .. && ./main 2 2 0 20 0",
             "group": {
                 "kind": "build",
                 "isDefault": true
