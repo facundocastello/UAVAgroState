@@ -397,7 +397,7 @@ class UAVAgroStateStitcher{
 					}
 					if(auxH.dims != 0){
 						auxError[i] = compareMats(numHomo,auxH);
-						Mat prodH=auxH;
+						Mat prodH=H[numHomo]*auxH;
 						// por trigonometria aplico lo siguiente
 							auxHomoX[i] = pow(prodH.at<double>(0,0),2) + pow(prodH.at<double>(0,1),2) -1;
 							auxHomoY[i] = pow(prodH.at<double>(1,0),2) + pow(prodH.at<double>(1,1),2) -1;
@@ -470,19 +470,24 @@ class UAVAgroStateStitcher{
 			homoNoMultiplicated = vector<Mat>(imgs.size());
 			H[0] = (Mat::eye(3, 3, CV_64F));
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
+			
 			for(int i = 0; i < imgs.size()-1;i++){
 				cout << "Realizando Homografia "+to_string(i)+ ". \n";
+				//caso comun
 				getHomography(i);
-			}
-			H[imgs.size()/2] = homoNoMultiplicated[imgs.size()/2].inv();
-			H[imgs.size()/2 + 1] = homoNoMultiplicated[imgs.size()/2 + 1];
-			for(int i = imgs.size()/2; i > 0;i--){
-				H[i-1] = (H[i] * homoNoMultiplicated[i-1].inv());
-				H[i-1] = H[i-1] / H[i-1].at<double>(2,2);
-			}
-			for(int i = (imgs.size()/2 + 1) ; i < imgs.size()-1;i++){
+
 				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+			}
+			
+			for(int j = 0; j < 0 ;j++){
+				for(int i = 0; i < imgs.size()-1;i++){
+					cout << "Realizando Homografia "+to_string(i)+ ". \n";
+					//caso comun
+					homoNoMultiplicated[i+1] = getAfterHomographyError( i,  homoNoMultiplicated[i+1]);
+					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
+					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+				}
 			}
 		}
 		/*
@@ -494,13 +499,8 @@ class UAVAgroStateStitcher{
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
 			for(int i = 0; i < H.size()-1; i++){
 				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN X
-				Mat imgAux;
-				Mat imgResta = imgs[imgs.size()/2];
-				if(i < imgs.size()/2){
-					imgAux = imgs[i];
-				}else{
-					imgAux = imgs[i+1];
-				}
+				Mat imgAux = imgs[i+1];
+				Mat imgResta = imgs[0];
 				vector<double> newX(4);
 				vector<double> newY(4);
 				newX[0] = H[i+1].at<double>(0,2);
@@ -551,52 +551,36 @@ class UAVAgroStateStitcher{
 			cout << "\033[1;32m Generando boundbox y calculando su homografia: \033[0m" << endl;
 			/* Le agrego a la imagen inicial los bordes con el suficiente espacio para
 			poder pegar todas las imagenes */
-			boundBox = imgs[imgs.size()/2];
+			boundBox = imgs[0];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
+			imwrite("res.png", boundBox);
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
-			for(int i=0;i<vecKp[imgs.size()/2].size();i++){
-				vecKp[imgs.size()/2][i].pt+=ptAux;
+			for(int i=0;i<vecKp[0].size();i++){
+				vecKp[0][i].pt+=ptAux;
 			}
 			//vuelvo a calcular la homografia para la imagen con bordes
-			imgs[imgs.size()/2] = boundBox;
-			
-			
+			imgs[0] = boundBox;
 			vector<Point2f> obj;
 			vector<Point2f> scene;
-			for (int l = 0; l < best_inliers[imgs.size()/2].size(); l++) {
-				obj.push_back(vecKp[imgs.size()/2][best_inliers[imgs.size()/2][l].queryIdx].pt);
-				scene.push_back(vecKp[imgs.size()/2+1][best_inliers[imgs.size()/2][l].trainIdx].pt);
+			for (int l = 0; l < best_inliers[0].size(); l++) {
+				obj.push_back(vecKp[0][best_inliers[0][l].queryIdx].pt);
+				scene.push_back(vecKp[1][best_inliers[0][l].trainIdx].pt);
 			}
 
 			if(usarHomografia){
-				homoNoMultiplicated[imgs.size()/2+1] = findHomography(scene,obj,CV_RANSAC);
+				homoNoMultiplicated[1] = findHomography(scene,obj,CV_RANSAC);
 			}else{
-				homoNoMultiplicated[imgs.size()/2+1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
+				homoNoMultiplicated[1] = rigidToHomography( estimateRigidTransform(scene,obj,false) );
 			}
 
-			vector<Point2f> obj2;
-			vector<Point2f> scene2;
-			for (int l = 0; l < best_inliers[imgs.size()/2-1].size(); l++) {
-				obj2.push_back(vecKp[imgs.size()/2-1][best_inliers[imgs.size()/2-1][l].queryIdx].pt);
-				scene2.push_back(vecKp[imgs.size()/2][best_inliers[imgs.size()/2-1][l].trainIdx].pt);
-			}
-			if(usarHomografia){
-				homoNoMultiplicated[imgs.size()/2] = findHomography(scene2,obj2,CV_RANSAC);
-			}else{
-				homoNoMultiplicated[imgs.size()/2] = rigidToHomography( estimateRigidTransform(scene2,obj2,false) );
-			}
-			
+			H[1] = homoNoMultiplicated[1];
 
-			H[imgs.size()/2] = homoNoMultiplicated[imgs.size()/2].inv();
-			H[imgs.size()/2 + 1] = homoNoMultiplicated[imgs.size()/2 + 1];
-			for(int i = imgs.size()/2; i > 0;i--){
-				H[i-1] = (H[i] * homoNoMultiplicated[i-1].inv());
-				H[i-1] = H[i-1] / H[i-1].at<double>(2,2);
-			}
-			for(int i = (imgs.size()/2 + 1) ; i < imgs.size()-1;i++){
-				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
-				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+			/*tengo que adaptar todas las homografias a las nuevas dimensiones
+			definidas por el boundbox*/
+			for(int i = 2 ; i < H.size(); i++){
+				H[i] = H[i-1] * homoNoMultiplicated[i];
+				H[i] = H[i] / H[i].at<double>(2,2);
 			}
 		}
 		/*
@@ -875,20 +859,13 @@ class UAVAgroStateStitcher{
 		*/
 		Mat stitchImgs(){
 			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-			for (int i = 0; i < imgs.size()/2; i++){
-				// CommonFunctions::showWindowNormal(boundBox);
-					cout.flush();
-					boundBox = stitchWarp(boundBox, imgs[i], H[i+1])[0];
-					// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
-					// imwrite(res, boundBox);
-					cout << "-" << (i+1) * 100 / imgs.size() << "%";
-			}
-			for (int i = imgs.size()/2+1; i < imgs.size(); i++){
-					cout.flush();
-					boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
-					// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
-					// imwrite(res, boundBox);
-					cout << "-" << (i+1) * 100 / imgs.size() << "%";
+
+			for (int i = 1; i < imgs.size(); i++){
+				cout.flush();
+				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
+				// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
+				// imwrite(res, boundBox);
+				cout << "-" << (i+1) * 100 / imgs.size() << "%";
 			}
 			cout<<endl;
 			if(boundBox.channels() < 4){
