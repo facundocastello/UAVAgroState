@@ -107,16 +107,16 @@ int main(int argc, char** argv)
 			// // minMax[1] = 28;
 			// minMax = CommonFunctions::setBorder(CommonFunctions::cargarImagen(strBorders[0], tamano,IMREAD_UNCHANGED));
 			vector<string> strFolders;
-			// strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
-			// for(int i = 0; i < strFolders.size();i++){
-			// 	strFolders[i] = (strFolders[i]+'/');
-			// 	const char *chr = strFolders[i].c_str();
-			// 	vector<string> strImgs = CommonFunctions::obtenerImagenes(chr);
-			// 	UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-			// 		strImgs,minMax,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
-			// 	Mat img = uav->runAll();		
-			// 	imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
-			// }
+			strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
+			for(int i = 0; i < strFolders.size();i++){
+				strFolders[i] = (strFolders[i]+'/');
+				const char *chr = strFolders[i].c_str();
+				vector<string> strImgs = CommonFunctions::obtenerImagenes(chr);
+				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
+					strImgs,minMax,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
+				Mat img = uav->runAll();		
+				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
+			}
 
 			minKeypoints = 10000;
 			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
