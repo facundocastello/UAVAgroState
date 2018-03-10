@@ -20,6 +20,7 @@ int main(int argc, char** argv)
 
 	switch(option)
 	{
+		//calibrar o undistort
 		case 1:{
 			int optionCalibration=0;
 			if(argc > 2){
@@ -57,6 +58,7 @@ int main(int argc, char** argv)
 				}	
 		}
 		break;
+		//pegar
 		case 2:{
 			//clock_t begin = clock();
 			////Cargo los string de imagenes
@@ -101,39 +103,31 @@ int main(int argc, char** argv)
 			// }
 
 			int minKeypoints = 1000;
-			vector<string> strBorders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/bordes/");
-			vector<int> minMax(2);
-			// // minMax[0] = 10;
-			// // minMax[1] = 28;
-			// minMax = CommonFunctions::setBorder(CommonFunctions::cargarImagen(strBorders[0], tamano,IMREAD_UNCHANGED));
-			vector<string> strFolders;
-			strFolders = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
-			for(int i = 0; i < strFolders.size();i++){
-				strFolders[i] = (strFolders[i]+'/');
-				const char *chr = strFolders[i].c_str();
-				vector<string> strImgs = CommonFunctions::obtenerImagenes(chr);
-				UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-					strImgs,minMax,tamano,minKeypoints,kPoints,originalSize,usarHomografia);
-				Mat img = uav->runAll();		
-				imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(i)+".png",img);
+			UAVAgroStateStitcher *uav;
+			vector<string> strImgs;
+			Mat img;
+			while(strImgs.size() == 0){
+				strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
+				if(strImgs.size() == 0){
+					cout << "Para comenzar debe ingresar las imagenes dentro de Imagenes/Pegado/input/ y presione entrer" << endl;
+					getchar();
+				}
 			}
+			uav = new UAVAgroStateStitcher(
+				strImgs,tamano,minKeypoints,kPoints,1,usarHomografia,false);
+			img = uav->runAll();
 
 			minKeypoints = 10000;
-			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
-			// minMax = CommonFunctions::setBorder(imread(strImgs[0]));
-			UAVAgroStateStitcher *uav = new UAVAgroStateStitcher(
-				strImgs,minMax,1,minKeypoints,kPoints,originalSize,usarHomografia);
-			Mat img = uav->runAll();
+			strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
+			uav = new UAVAgroStateStitcher(
+				strImgs,4,minKeypoints,kPoints,1,usarHomografia,true);
+			img = uav->runAll();
 			imwrite("Imagenes/Pegado/output/resultadofinal.png",img);
 
 			CommonFunctions::tiempo(begin, "realizar todo: ");
-			
-			// Mat I = imread("Imagenes/Pegado/output/resultadofinal3.png");
-    		// CommonFunctions::Aindane(I, 20);
-    		// imshowpair(I, outputImage, 'montage');
-
 		}
 		break;
+		//ndvi
 		case 3:{
 			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/NDVI/input/");
 			for(int i = 0 ; i<strNDVI.size();i++){

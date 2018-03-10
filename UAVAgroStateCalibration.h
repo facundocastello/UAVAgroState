@@ -99,7 +99,7 @@ public:
             size_t position = strImgs[i].find_last_of("/");
             strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
             // frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
-            string res = "Imagenes/Undistort/output" + strImgs[i] + ".png";
+            string res = "Imagenes/Undistort/output" + strImgs[i];
             imwrite(res, frameUndistorted);
         }
     }

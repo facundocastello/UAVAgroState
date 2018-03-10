@@ -14,63 +14,73 @@ public:
 		size_t position = strImg.find_last_of("/");
 		strImg.erase(strImg.begin(),strImg.begin()+position);
 
-
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);	
-		Mat numerador,denominador,division;
-		Mat newred;
-
+		Mat numerador,denominador,division, newred;
+		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
 		subtract(BGRA[2],BGRA[0]*0.9,BGRA[2],cv::noArray(),CV_8U);
 		merge(BGRA,newred);
-		
+		//OBTENGO EL NDVI
 		subtract(BGRA[0],BGRA[2],numerador,cv::noArray(),CV_8S);
 		add(BGRA[0],BGRA[2],denominador,cv::noArray(),CV_8S);
 		divide(numerador,denominador,division,1.,CV_32F);
-		
-		division = (division * 127) + 127;
+		//CONVIERTO DE SIGNED A UCHAR
+		division = (division * 256
+		) + 127;
 		division.convertTo(division,CV_8U);
+		//GUARDO EL VALOR EN TONO DE GRISES Y LE AGREGO LA TRANSPARENCIA EN EL CASO DE QUE HAYA
 		Mat resultadogris = division;
-		// cout<<BGRA[3].empty()<<endl;
 		if(!BGRA[3].empty()){
 			Mat auxAlpha[4]={division,division,division,BGRA[3]};
 			merge(auxAlpha,4,resultadogris);
 		};
-		
-		Mat divisionNorm = normalizateMat(division);
+
+		Mat resuladoCuantizado;
 		if(!BGRA[3].empty()){
-			Mat auxAlpha[4]={divisionNorm,divisionNorm,divisionNorm,BGRA[3]};
-			merge(auxAlpha,4,divisionNorm);
+			resuladoCuantizado = segmentationVariation(division,BGRA[3]);
+			Mat auxAlpha[4]={resuladoCuantizado,resuladoCuantizado,resuladoCuantizado,BGRA[3]};
+			merge(auxAlpha,4,resuladoCuantizado);
 		};
 
-		segmentationVariation(division);
 
-		Mat resultadosalida;
-		Mat auxSalida[3]={division,division,division};
-		merge(auxSalida,3,resultadosalida);
+		// //REALIZO UNA NORMALIZACION PARA QUE SE NOTE MAS LAS DIFERENCIAS
+		// Mat divisionNorm = normalizateMat(division);
+		// if(!BGRA[3].empty()){
+		// 	Mat auxAlpha[4]={divisionNorm,divisionNorm,divisionNorm,BGRA[3]};
+		// 	merge(auxAlpha,4,divisionNorm);
+		// };
 
+		//
 
-		double min,max;
-		minMaxLoc(division, &min, &max);
-		Mat resultadoNormalizado = (division - min) * 256 / (max-min);
-		applyColorMap(resultadoNormalizado, resultadoNormalizado, COLORMAP_JET);
+		// Mat resultadosalida;
+		// Mat auxSalida[3]={division,division,division};
+		// merge(auxSalida,3,resultadosalida);
+
+		// //OTRA NORMALIZACION A LA CUAL LE AGREGO EL LUT
+		// double min,max;
+		// minMaxLoc(division, &min, &max);
+		// Mat resultadoNormalizado = (division - min) * 256 / (max-min);
+		// applyColorMap(resultadoNormalizado, resultadoNormalizado, COLORMAP_JET);
 		
-		division = createLut(division);
-		// applyColorMap(division, division, COLORMAP_JET);
-		Mat resultadocolor = division;
-		if(!BGRA[3].empty()){
-			vector<Mat> BGR;
-			split(division,BGR);
-			Mat auxAlpha2[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
-			merge(auxAlpha2,4,resultadocolor);
-			split(resultadoNormalizado,BGR);
-			Mat auxAlpha3[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
-			merge(auxAlpha3,4,resultadoNormalizado);
-		}
+		// // LUT SIN NORMALIZACION
+		// division = createLut(division);
+		// // applyColorMap(division, division, COLORMAP_JET);
+		// Mat resultadocolor = division;
+		// if(!BGRA[3].empty()){
+		// 	vector<Mat> BGR;
+		// 	split(division,BGR);
+		// 	Mat auxAlpha2[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
+		// 	merge(auxAlpha2,4,resultadocolor);
+		// 	split(resultadoNormalizado,BGR);
+		// 	Mat auxAlpha3[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
+		// 	merge(auxAlpha3,4,resultadoNormalizado);
+		// }
 
 		// imwrite("Imagenes/NDVI/output/"+ strImg +"original.png", imgaux);
 		// imwrite("Imagenes/NDVI/output/"+ strImg +"newred.png", newred);
 		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogris.png", resultadogris);
-		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogrisnorm.png", divisionNorm);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"resuladoCuantizado.png", resuladoCuantizado);
+		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogrisnorm.png", divisionNorm);
 		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolor.png", resultadocolor);
 		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolornormalizado.png", resultadoNormalizado);
 
@@ -79,39 +89,17 @@ public:
 		return resultadogris;
 	}
 
-	vector<int> static segmentationVariation(Mat img){
-		Mat dst;
-		img.convertTo(dst,CV_32F);
-		int min=0;
-		int max=10;
-		int dilateSize=3;
-		int dilateCant=3;
-		namedWindow("segmentation", WINDOW_NORMAL);
-		createTrackbar( "min", "segmentation", &min, 255);
-		createTrackbar( "max", "segmentation", &max, 255);
-		// createTrackbar( "dilateSize", "segmentation", &dilateSize, 31);
-		// createTrackbar( "dilateCant", "segmentation", &dilateCant, 31);
-		while(1){
-			imshow("segmentation", dst);
-			int k = waitKey();
-			if(k == 27)
-				break;
-			img.convertTo(dst,CV_32F);
-			threshold(dst,dst,min,max,CV_THRESH_BINARY_INV);
-			// Mat kernel = getStructuringElement(MORPH_CROSS, Size(dilateSize, dilateSize));
-			// erode(dst, dst, kernel, Point(1, 1), dilateCant+1);
-			// dilate(dst, dst, kernel, Point(1, 1), dilateCant);
+	Mat static segmentationVariation(Mat img, Mat trans){
+		//recupero fondo blanco
+		trans.convertTo(trans,CV_32F);
+		img.convertTo(img,CV_32F);
+		trans/=256;
+		img/=256;
+		img = img.mul(trans);
+		img.convertTo(img,CV_8U,256/25,.5);
+		img*=25;
 
-			min = getTrackbarPos("min","segmentation");
-			max = getTrackbarPos("max","segmentation");			
-			// dilateSize = getTrackbarPos("dilateSize","segmentation");
-			// dilateCant = getTrackbarPos("dilateCant","segmentation");	
-		}
-		destroyAllWindows();
-		vector<int> minMax;
-		minMax.push_back(min);
-		minMax.push_back(max);
-		return minMax;
+		return img;
 	}
 
 	Mat static normalizateMat(Mat img){

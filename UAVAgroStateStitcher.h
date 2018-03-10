@@ -4,22 +4,14 @@
 #include <stdio.h>
 #include <iostream>
 #include "opencv2/core/core.hpp"
-#include "opencv2/features2d/features2d.hpp"
 #include "opencv2/xfeatures2d.hpp"
 #include "opencv2/xfeatures2d/nonfree.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "funcionesutiles.h"
-#include "ceres/ceres.h"
 #include "glog/logging.h"
-using ceres::AutoDiffCostFunction;
-using ceres::CostFunction;
-using ceres::Problem;
-using ceres::Solver;
-using ceres::Solve;
 #include "CommonFunctions.h"
 using namespace cv;
-using namespace cv::xfeatures2d;
 using namespace std;
 
 bool sortByDist(DMatch a, DMatch b){
@@ -40,8 +32,7 @@ class UAVAgroStateStitcher{
 		int imgWidth;
 		int minKeypoints;
 		bool usarHomografia;
-		vector<int> minMax;
-		vector<bool> darVuelta;
+		bool finalResult;
 		vector<Mat> imgs;
 		vector<Mat> borders;
 		vector<Mat> vecDesc;
@@ -52,15 +43,14 @@ class UAVAgroStateStitcher{
 		vector< vector< DMatch > > vecMatch[3];
 		vector< vector< DMatch > > best_inliers;
 		Mat boundBox;
-		double totalError;
 
 		UAVAgroStateStitcher(vector<string> strImgs,
-					vector<int> minMax,
 					int tamano = 4,
 					int minKeypoints=5000,
 					float kPoints = 3,
 					bool originalsize=false,
-					bool usarHomografia =false
+					bool usarHomografia =false,
+					bool finalResult = false
 					)
 		{
 			this->tamano = tamano;
@@ -69,7 +59,7 @@ class UAVAgroStateStitcher{
 			this->usarHomografia = usarHomografia;
 			this->strImgs = strImgs;
 			this->minKeypoints = minKeypoints;
-			this->minMax = minMax;
+			this->finalResult = finalResult;
 		}
 		/*funcion para pegar una imagen transformada por una homografia
 		en otra imagen, en el caso de q tenga 4 canales (o sea el cuarto sea
@@ -252,10 +242,7 @@ class UAVAgroStateStitcher{
 		void matchKp(){
 			cout << "\033[1;32m Matcheando: \033[0m" << endl;
 			vecMatch[0] = vector< vector< DMatch > >(imgs.size()-1);
-			vecMatch[1] = vector< vector< DMatch > >(imgs.size()-1);
-			vecMatch[2] = vector< vector< DMatch > >(imgs.size()-1);
 			best_inliers = vector< vector< DMatch > >(imgs.size()-1);
-			darVuelta = vector<bool> (imgs.size() -1 );
 			BFMatcher matcher(NORM_HAMMING,true);
 			int vecKpSize = vecKp.size();
 			parallel_for_(Range(0, vecDesc.size()-1), [&](const Range& range){
@@ -264,13 +251,6 @@ class UAVAgroStateStitcher{
 					vector< DMatch > matches;
 					matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[0][i]);
 					
-					if( i < (vecKpSize-2)  ){
-						matcher.match(vecDesc[i],vecDesc[i+2], vecMatch[1][i]);
-					}
-					if( i < (vecKpSize-3) ){
-						matcher.match(vecDesc[i],vecDesc[i+3], vecMatch[2][i]);
-					}
-
 					cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[0][i].size()) +".\n" ;
 				}
 			});
@@ -466,9 +446,10 @@ class UAVAgroStateStitcher{
 
 		void getHomographies(){
 			cout << "\033[1;32mGenerando homografias: \033[0m" << endl;
-			H = vector<Mat>(imgs.size());
+			H.clear();
+			H = vector<Mat>();
 			homoNoMultiplicated = vector<Mat>(imgs.size());
-			H[0] = (Mat::eye(3, 3, CV_64F));
+			H.push_back(Mat::eye(3, 3, CV_64F));
 			homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
 			
 			for(int i = 0; i < imgs.size()-1;i++){
@@ -476,19 +457,14 @@ class UAVAgroStateStitcher{
 				//caso comun
 				getHomography(i);
 
-				H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
+				H.push_back(H[i] * homoNoMultiplicated[i+1]);
 				H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
-			}
-			
-			for(int j = 0; j < 0 ;j++){
-				for(int i = 0; i < imgs.size()-1;i++){
-					cout << "Realizando Homografia "+to_string(i)+ ". \n";
-					//caso comun
-					homoNoMultiplicated[i+1] = getAfterHomographyError( i,  homoNoMultiplicated[i+1]);
-					H[i+1] = (H[i] * homoNoMultiplicated[i+1]);
-					H[i+1] = H[i+1] / H[i+1].at<double>(2,2);
+				if(H[i+1].at<double>(0,0) < 0 && !finalResult){
+					H.pop_back();
+					break;
 				}
 			}
+
 		}
 		/*
 		En base a las homografias, se obtienen los valores que van a delimitar al bound box,
@@ -497,6 +473,8 @@ class UAVAgroStateStitcher{
 		bool findBoundBoxLimits(){
 			cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
 			FileStorage fsHomo("Data/Homografias/homografias.yml", FileStorage::WRITE);
+
+			yMin=0;	yMax=0;	xMin=0;	xMax=0;
 			for(int i = 0; i < H.size()-1; i++){
 				// CUANDO ALGUNOS PARAMETROS SON MENOS QUE 0 ES PQ ESTA INCLINADA DE MANERA Q FAVORECE A MIN X
 				Mat imgAux = imgs[i+1];
@@ -553,7 +531,6 @@ class UAVAgroStateStitcher{
 			poder pegar todas las imagenes */
 			boundBox = imgs[0];
 			boundBox = CommonFunctions::boundingBox(boundBox, abs(yMin) , yMax , abs(xMin),xMax);
-			imwrite("res.png", boundBox);
 			//adapto los keypoints de la primer imagen, al boundbox generado con esta
 			Point2f ptAux(abs(xMin),abs(yMin));
 			for(int i=0;i<vecKp[0].size();i++){
@@ -609,7 +586,10 @@ class UAVAgroStateStitcher{
 					fsHomo << "homografia"+to_string(i) << H[i];
 				}
 				yMin*=tamano;yMax*=tamano;xMin*=tamano;xMax*=tamano;
-				imgs = CommonFunctions::cargarImagenes(strImgs , 1,IMREAD_UNCHANGED);
+				
+				for(int i = 0 ; i < H.size(); i++){
+					imgs[i] = CommonFunctions::cargarImagen(strImgs[i] , 1,IMREAD_UNCHANGED);
+				}
 				removeCorners();
 				fsHomo.release();
 
@@ -618,254 +598,30 @@ class UAVAgroStateStitcher{
 			}
 		}
 
-	
-		double* matToCamera(Mat mat){
-			double* camera;
-			camera = new double[6];
-			
-			camera[0]=mat.at<double>(0,0);
-			camera[1]=mat.at<double>(0,1);
-			camera[2]=mat.at<double>(0,2);
-			camera[3]=mat.at<double>(1,0);
-			camera[4]=mat.at<double>(1,1);
-			camera[5]=mat.at<double>(1,2);
-
-			return camera;
-		}
-
-		Mat cameraToMat(double* camera, Mat mat){
-			mat.at<double>(0,0)=camera[0];
-			mat.at<double>(0,1)=camera[1];
-			mat.at<double>(0,2)=camera[2];
-			mat.at<double>(1,0)=camera[3];
-			mat.at<double>(1,1)=camera[4];
-			mat.at<double>(1,2)=camera[5];
-			return mat;
-		}
-
-		struct ActualReprojectionError {
-			ActualReprojectionError(double observed_x, double observed_y)
-				: observed_x(observed_x), observed_y(observed_y) {}
-
-			template <typename T>
-			bool operator()(const T* const camera,
-							const T* const point,
-							T* residuals) const {
-
-				// camera[0,1,2] are the angle-axis rotation.
-				T p[2];
-				// ceres::AngleAxisRotatePoint(camera, point, p);
-				p[0]=camera[0]* point[0] + camera[1]* point[1] + camera[2];
-				p[1]=camera[3]* point[0] + camera[4]* point[1] + camera[5];
-
-				// The error is the difference between the predicted and observed position.
-				residuals[0]  = p[0] - T(observed_x);
-				residuals[1] = p[1] - T(observed_y);
-				
-				return true;
-			}
-
-			// Factory to hide the construction of the CostFunction object from
-			// the client code.
-			static ceres::CostFunction* Create(const double observed_x,
-												const double observed_y) {
-				return (new ceres::AutoDiffCostFunction<ActualReprojectionError, 2,6,2>(
-							new ActualReprojectionError(observed_x, observed_y)));
-			}
-
-			double observed_x;
-			double observed_y;
-		};
-		
-		struct AfterReprojectionError {
-			AfterReprojectionError(double observed_x, double observed_y, Mat H)
-				: observed_x(observed_x), observed_y(observed_y),H(H) {}
-
-			template <typename T>
-			bool operator()(const T* const camera,
-							const T* const point,
-							T* residuals) const {
-
-				// camera[0,1,2] are the angle-axis rotation.
-				T p[2];
-				// ceres::AngleAxisRotatePoint(camera, point, p);
-				T cameraAux[6];
-				cameraAux[0]= camera[0] * T(H.at<double>(0,0)) + camera [1] * T(H.at<double>(1,0)) + camera[2] * T(H.at<double>(2,0));
-				cameraAux[1]= camera[0] * T(H.at<double>(0,1)) + camera [1] * T(H.at<double>(1,1)) + camera[2] * T(H.at<double>(2,1));
-				cameraAux[2]= camera[0] * T(H.at<double>(0,2)) + camera [1] * T(H.at<double>(1,2)) + camera[2] * T(H.at<double>(2,2));
-				cameraAux[3]= camera[3] * T(H.at<double>(0,0)) + camera [4] * T(H.at<double>(1,0)) + camera[5] * T(H.at<double>(2,0));
-				cameraAux[4]= camera[3] * T(H.at<double>(0,1)) + camera [4] * T(H.at<double>(1,1)) + camera[5] * T(H.at<double>(2,1));
-				cameraAux[5]= camera[3] * T(H.at<double>(0,2)) + camera [4] * T(H.at<double>(1,2)) + camera[5] * T(H.at<double>(2,2));
-				
-				p[0]=cameraAux[0]* point[0] + cameraAux[1]* point[1] + cameraAux[2];
-				p[1]=cameraAux[3]* point[0] + cameraAux[4]* point[1] + cameraAux[5];
-
-				// The error is the difference between the predicted and observed position.
-				residuals[0]  = p[0] - T(observed_x);
-				residuals[1] = p[1] - T(observed_y);
-				if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
-					residuals[1] = T(0);
-					residuals[0] = T(0);
-				}
-				
-				return true;
-			}
-
-			// Factory to hide the construction of the CostFunction object from
-			// the client code.
-			static ceres::CostFunction* Create(const double observed_x,
-												const double observed_y,
-												const Mat H) {
-				return (new ceres::AutoDiffCostFunction<AfterReprojectionError, 2,6,2>(
-							new AfterReprojectionError(observed_x, observed_y,H)));
-			}
-
-			double observed_x;
-			double observed_y;
-			Mat H;
-		};
-
-		struct BeforeReprojectionError {
-			BeforeReprojectionError(double observed_x, double observed_y, Mat H)
-				: observed_x(observed_x), observed_y(observed_y),H(H) {}
-
-			template <typename T>
-			bool operator()(const T* const camera,
-							const T* const point,
-							T* residuals) const {
-
-				// camera[0,1,2] are the angle-axis rotation.
-				T p[2];
-				// ceres::AngleAxisRotatePoint(camera, point, p);
-				T cameraAux[6];
-				cameraAux[0]= camera[0] * T(H.at<double>(0,0)) + camera [3] * T(H.at<double>(0,1)) + T(0) * T(H.at<double>(0,2));
-				cameraAux[1]= camera[1] * T(H.at<double>(0,0)) + camera [4] * T(H.at<double>(0,1)) + T(0) * T(H.at<double>(0,2));
-				cameraAux[2]= camera[2] * T(H.at<double>(0,0)) + camera [5] * T(H.at<double>(0,1)) + T(1) * T(H.at<double>(0,2));
-				cameraAux[3]= camera[0] * T(H.at<double>(1,0)) + camera [3] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
-				cameraAux[4]= camera[1] * T(H.at<double>(1,0)) + camera [4] * T(H.at<double>(1,1)) + T(0) * T(H.at<double>(1,2));
-				cameraAux[5]= camera[2] * T(H.at<double>(1,0)) + camera [5] * T(H.at<double>(1,1)) + T(1) * T(H.at<double>(1,2));
-
-
-				p[0]=cameraAux[0]* point[0] + cameraAux[1]* point[1] + cameraAux[2];
-				p[1]=cameraAux[3]* point[0] + cameraAux[4]* point[1] + cameraAux[5];
-
-				// The error is the difference between the predicted and observed position.
-				residuals[0]  = p[0] - T(observed_x);
-				residuals[1] = p[1] - T(observed_y);
-				if(abs(residuals[1]) > T(30) || abs(residuals[0]) > T(30)){
-					residuals[1] = T(0);
-					residuals[0] = T(0);
-				}
-				
-				return true;
-			}
-
-			// Factory to hide the construction of the CostFunction object from
-			// the client code.
-			static ceres::CostFunction* Create(const double observed_x,
-												const double observed_y,
-												const Mat H) {
-				return (new ceres::AutoDiffCostFunction<BeforeReprojectionError, 2,6,2>(
-							new BeforeReprojectionError(observed_x, observed_y,H)));
-			}
-
-			double observed_x;
-			double observed_y;
-			Mat H;
-		};
-		
-		Mat getAfterHomographyError(int i, Mat homo){
-			int maxMatches = 2;
-			int afterMatches = ((imgs.size()-1 - i) > (maxMatches+1))? (maxMatches+1) : imgs.size()-1 - i ;
-			int beforeMatches = (i < maxMatches)? i : maxMatches;
-
-			Problem problem;
-
-			double* camera = matToCamera(homo.clone());
-			Mat hMult = (Mat::eye(3, 3, CV_64F));
-
-			for(int k = 0 ; k < best_inliers[i].size();k++){
-				Point2f pt1 = vecKp[i][best_inliers[i][k].queryIdx].pt;
-				Point2f pt2 = vecKp[i+1][best_inliers[i][k].trainIdx].pt;
-				ceres::CostFunction* cost_function =
-				ActualReprojectionError::Create(pt1.x,pt1.y);
-				double* point = new double[2];
-				point[0] = pt2.x;
-				point[1] = pt2.y;
-				problem.AddResidualBlock(cost_function, NULL,camera,point);
-			}
-
-			for(int j = 1; j < afterMatches; j++){
-				hMult *= homoNoMultiplicated[i+1+j];
-				vector< DMatch > auxMatches;
-				vector< DMatch > auxBestMatches;
-				auxMatches = vecMatch[j][i];
-				sort(auxMatches.begin(),auxMatches.end(),sortByDist);
-				auxMatches.erase(auxMatches.begin()+30,auxMatches.end());
-				auxMatches = removeOutliers(auxMatches,i,i+1+j);
-				auxBestMatches = auxMatches;
-				for(int k = 0 ; k < auxBestMatches.size();k++){
-					Point2f pt1 = vecKp[i][auxBestMatches[k].queryIdx].pt;
-					Point2f pt2 = vecKp[i+1+j][auxBestMatches[k].trainIdx].pt;
-					double* point = new double[2];
-					point[0] = pt2.x;
-					point[1] = pt2.y;
-					ceres::CostFunction* cost_function =
-						AfterReprojectionError::Create(pt1.x,pt1.y,hMult.clone());
-					problem.AddResidualBlock(cost_function, NULL,camera,point);
-				}
-			}
-
-
-			hMult = (Mat::eye(3, 3, CV_64F));
-
-			for(int j = -1; j > -(beforeMatches+1) ; j--){
-				vector< DMatch > auxMatches;
-				vector< DMatch > auxBestMatches;
-				hMult = homoNoMultiplicated[i+1+j] * hMult;
-				auxMatches = vecMatch[-j][i+j];
-				sort(auxMatches.begin(),auxMatches.end(),sortByDist);
-				auxMatches.erase(auxMatches.begin()+30,auxMatches.end());
-				auxMatches = removeOutliers(auxMatches,i+j,i+1);
-				auxBestMatches = auxMatches;
-				for(int k = 0 ; k < auxBestMatches.size();k++){
-					Point2f pt1 = vecKp[i+j][auxBestMatches[k].queryIdx].pt;
-					Point2f pt2 = vecKp[i+1][auxBestMatches[k].trainIdx].pt;
-					double* point = new double[2];
-					point[0] = pt2.x;
-					point[1] = pt2.y;
-					ceres::CostFunction* cost_function =
-						BeforeReprojectionError::Create(pt1.x,pt1.y,hMult.clone());
-					problem.AddResidualBlock(cost_function, NULL,camera,point);
-				}
-			}
-
-			ceres::Solver::Options options;
-			options.linear_solver_type = ceres::DENSE_QR;
-			// options.function_tolerance = 1e-500;
-			// options.parameter_tolerance = 1e-500;
-			// options.minimizer_progress_to_stdout = true;
-			ceres::Solver::Summary summary;
-			ceres::Solve(options, &problem, &summary);
-			cout << summary.BriefReport() << "\n"<<"\n";
-			Mat hAux = cameraToMat(camera,homo.clone());
-
-			return hAux;
-		}
-
-
 		/*
-
+			En base a las homografias realiza el pegado de las imagenes
 		*/
-		Mat stitchImgs(){
-			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
 
-			for (int i = 1; i < imgs.size(); i++){
+		void eraseFromVectors(){
+			imgs.erase(imgs.begin());
+			strImgs.erase(strImgs.begin());
+			vecKp.erase(vecKp.begin());
+			if(vecMatch[0].size() > 0){
+				vecMatch[0].erase(vecMatch[0].begin());
+				best_inliers.erase(best_inliers.begin());
+			}
+		}
+
+		Mat stitchImgs(){
+			cout << "\033[1;32m Generando orthomosaico: ... ("<< H.size()-1<< ")\033[0m"<< endl;
+			eraseFromVectors();
+			for (int i = 1; i < H.size(); i++){
 				cout.flush();
-				boundBox = stitchWarp(boundBox, imgs[i], H[i])[0];
+				boundBox = stitchWarp(boundBox, imgs[0], H[i])[0];
+				eraseFromVectors();
 				// string res = "Imagenes/Pegado/output/resultados" + to_string(i) + ".png";
 				// imwrite(res, boundBox);
-				cout << "-" << (i+1) * 100 / imgs.size() << "%";
+				cout << "-" << (i+1) * 100 / H.size() << "%";
 			}
 			cout<<endl;
 			if(boundBox.channels() < 4){
@@ -874,38 +630,6 @@ class UAVAgroStateStitcher{
 			return boundBox;
 		}
 		
-
-		Mat multiBandStitch(){
-			cout << "\033[1;32m Generando orthomosaico: ... ("<< strImgs.size()-1<< ")\033[0m"<< endl;
-			detail::MultiBandBlender blender(false,2);
-			cvtColor(boundBox, boundBox, cv::COLOR_BGRA2BGR);			
-			blender.prepare(Rect(0,0,boundBox.cols,boundBox.rows));
-
-			Mat bigImage, mask;
-			for (int i = 1; i < imgs.size(); i++){
-				Mat  objWarped, imgMaskWarped, imgMask = cv::Mat(imgs[i].size(), CV_8UC1, cv::Scalar(255));
-				warpPerspective(imgMask, imgMaskWarped, H[i], Size(boundBox.cols, boundBox.rows));
-				Mat obj;
-				cvtColor(imgs[i], obj, cv::COLOR_BGRA2BGR);
-				warpPerspective(obj, objWarped, H[i], Size(boundBox.cols, boundBox.rows));
-				// CommonFunctions::showWindowNormal(objWarped);
-
-				Mat kernel = getStructuringElement(MORPH_RECT, Size(3, 3));
-				erode(imgMaskWarped, imgMaskWarped, kernel, Point(1, 1), 5);
-				
-
-				blender.feed(objWarped.clone(), imgMaskWarped, Point(0, 0));
-				cout << "-" << (i+1) * 100 / imgs.size() << "%";
-			}
-			blender.blend(bigImage, mask);
-			bigImage.convertTo(bigImage, (bigImage.type() / 8) * 8);
-			// CommonFunctions::showWindowNormal(bigImage);
-			cout<<endl;
-			if(boundBox.channels() < 4){
-				boundBox = CommonFunctions::addTransparence(bigImage);
-			}
-			return boundBox;
-		}
 
 		/*
 		quito las esquinas para remover el vignetting
@@ -1013,16 +737,8 @@ class UAVAgroStateStitcher{
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
-			// compensateBright();
-			// borders = CommonFunctions::getBorders(imgs,minMax);
 			
-			// for(int i = 0 ; i < imgs.size() ; i++){
-			// 	vector<Mat> RGB;
-			// 	split(imgs[i],RGB);
-			// 	RGB[1] = Mat::zeros(imgs[i].rows, imgs[i].cols, CV_8UC1);
-			// 	merge(RGB,imgs[i]);
-			// 	// CommonFunctions::showWindowNormal(imgs[i]);
-			// }
+			// compensateBright();
 
 			removeCorners();
 
@@ -1036,31 +752,34 @@ class UAVAgroStateStitcher{
 
 			matchKp();
 			begin = CommonFunctions::tiempo(begin, "realizar matching:");
+			int asdert = 0;
+			while(imgs.size() > 0){
+				getHomographies();
+				begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
 
-			getHomographies();
-			begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
+				findBoundBoxLimits();
 
-			// getHomographyError();
-			// begin = CommonFunctions::tiempo(begin, " obtener error total: ");
+				if(!evaluateHomography()){
+					return Mat();
+				}
 
-			findBoundBoxLimits();
+				generateBoundBox();
+				begin = CommonFunctions::tiempo(begin, " obtener boundbox y su homografia: ");
 
-			if(!evaluateHomography()){
-				return Mat();
+				//adapto los parametros necesarios para que al pegar, se pegue la imagen grande
+				rescaleHomographies();
+
+				//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
+				stitchImgs();
+				// multiBandStitch();
+				begin = CommonFunctions::tiempo(begin, " generar el orthomosaico: ");
+				if(finalResult){
+					imwrite("Imagenes/Pegado/output/resultadofinal.png",boundBox);	
+				}else{
+					imwrite("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(asdert)+".png",boundBox);
+				}
+				asdert++;
 			}
-
-			// imgs = CommonFunctions::cargarImagenes(strImgs , tamano, IMREAD_UNCHANGED);
-
-			generateBoundBox();
-			begin = CommonFunctions::tiempo(begin, " obtener boundbox y su homografia: ");
-
-			//adapto los parametros necesarios para que al pegar, se pegue la imagen grande
-			rescaleHomographies();
-
-			//USANDO LAS HOMOGRAFIAS, COMIENZO EL PEGADO DE LAS IMAGENES
-			stitchImgs();
-			// multiBandStitch();
-			begin = CommonFunctions::tiempo(begin, " generar el orthomosaico: ");
 
 			return boundBox;
 		}
