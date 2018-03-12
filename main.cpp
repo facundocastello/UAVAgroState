@@ -14,48 +14,38 @@ int main(int argc, char** argv)
 	if( argc > 1){
 		option = atoi(argv[1]);
 	}else{
-		cout<<"Que deseas hacer? \n 1: Calibrar camara \n 2: Calcular orthomosaico \n 3: Calcular ndvi \n 4: Salir" << endl;
+		cout<<"Que deseas hacer? \n 0: Calibrar camara \n 1: Remover distorsión  \n 2: Calcular orto-mosaico \n 3: Calcular ndvi \n 4: Salir" << endl;
 		cin>>option;
 	}
 
 	switch(option)
 	{
 		//calibrar o undistort
+		case 0:{
+			cout << "Obteneniendp la matriz para calibrar"<<endl;
+			// int numBoards = 0;
+			int numCornersHor;
+			int numCornersVer;
+
+			printf("Enter number of corners along width: ");
+			scanf("%d", &numCornersHor);
+			
+			printf("Enter number of corners along height: ");
+			scanf("%d", &numCornersVer);
+		
+			cout<<"name of the camera: "<<endl;
+			string cameraName;
+			cin>>cameraName;
+
+			UAVAgroStateCalibration::calibrateImg(numCornersHor,numCornersVer,cameraName);
+		}
+		break;
 		case 1:{
-			int optionCalibration=0;
-			if(argc > 2){
-				optionCalibration = atoi(argv[2]);
-			}else{
-			cout << "Desea obtener la matriz para calibrar (1), o realizar la undistorcion (2)?"<<endl;
-			cin >> optionCalibration;
-			}
-			switch(optionCalibration){
-				case 1:{
-					cout << "Obteneniendp la matriz para calibrar"<<endl;
-					// int numBoards = 0;
-					int numCornersHor;
-					int numCornersVer;
-
-					printf("Enter number of corners along width: ");
-					scanf("%d", &numCornersHor);
-					
-					printf("Enter number of corners along height: ");
-					scanf("%d", &numCornersVer);
-				
-					cout<<"name of the camera: "<<endl;
-					string cameraName;
-					cin>>cameraName;
-
-					UAVAgroStateCalibration::calibrateImg(numCornersHor,numCornersVer,cameraName);
-				}break;
-				case 2:{
-					cout << "Realizando la undistorcion"<<endl;
-					cout<<"name of the camera: "<<endl;
-					string cameraName;
-					cin>>cameraName;
-					UAVAgroStateCalibration::undistortImgs(cameraName);
-				}break;
-				}	
+			cout << "Realizando la undistorcion"<<endl;
+			cout<<"name of the camera: "<<endl;
+			string cameraName;
+			cin>>cameraName;
+			UAVAgroStateCalibration::undistortImgs(cameraName);	
 		}
 		break;
 		//pegar
@@ -63,8 +53,7 @@ int main(int argc, char** argv)
 			//clock_t begin = clock();
 			////Cargo los string de imagenes
 			int tamano = 4;
-			bool undistort = false;
-			float kPoints = 3	;
+			int minKeypoints = 1000;
 			bool originalSize=false;
 
 			struct timeval begin;
@@ -82,45 +71,36 @@ int main(int argc, char** argv)
 				cin>>tamano;
 			}
 			if(argc > 3){
-				undistort = stoi(argv[3]);
+				originalSize = stoi(argv[3]);
 			}else{
-				cout<< "Quiere cargar las imagenes desde undistort? (1): ";
-				cin>>undistort;
+				cout<< "Quiere recuperar el tamaño original de las imágenes? (1): ";
+				cin>>originalSize;
 			}
 			if(argc > 4){
-				kPoints = stof(argv[4]);
+				minKeypoints = stof(argv[4]);
 			}else{
-				cout<< "Que threshold ingresara? (1): ";
-				cin>>kPoints;
+				cout<< "Cantidad minima de kp? (1): ";
+				cin>>minKeypoints;
 			}
-			int usarHomografia = 0;
-			if(argc > 5){
-				usarHomografia = stoi(argv[5]);
-			}
-			// else{
-			// 	cout<< "Desea que la imagen de salida tenga su tamaño original? (1): ";
-			// 	cin>>originalSize;
-			// }
 
-			int minKeypoints = 1000;
 			UAVAgroStateStitcher *uav;
 			vector<string> strImgs;
 			Mat img;
 			while(strImgs.size() == 0){
 				strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
 				if(strImgs.size() == 0){
-					cout << "Para comenzar debe ingresar las imagenes dentro de Imagenes/Pegado/input/ y presione entrer" << endl;
+					cout << "Para comenzar ingrese las imagenes dentro de Imagenes/Pegado/input/ y presione entrer" << endl;
 					getchar();
 				}
 			}
 			uav = new UAVAgroStateStitcher(
-				strImgs,tamano,minKeypoints,kPoints,1,usarHomografia,false);
+				strImgs,tamano,minKeypoints,originalSize,false,false);
 			img = uav->runAll();
 
 			minKeypoints = 10000;
 			strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
 			uav = new UAVAgroStateStitcher(
-				strImgs,4,minKeypoints,kPoints,1,usarHomografia,true);
+				strImgs,1,minKeypoints,originalSize,false,true);
 			img = uav->runAll();
 			imwrite("Imagenes/Pegado/output/resultadofinal.png",img);
 

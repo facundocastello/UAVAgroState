@@ -22,7 +22,6 @@ class UAVAgroStateStitcher{
 	public:
 		int tamano;
 		bool originalsize=false;
-		float kPoints;
 		int maxMatch = 100;
 		double yMin=0;
 		double yMax=0;
@@ -47,14 +46,12 @@ class UAVAgroStateStitcher{
 		UAVAgroStateStitcher(vector<string> strImgs,
 					int tamano = 4,
 					int minKeypoints=5000,
-					float kPoints = 3,
 					bool originalsize=false,
 					bool usarHomografia =false,
 					bool finalResult = false
 					)
 		{
 			this->tamano = tamano;
-			this->kPoints = kPoints;
 			this->originalsize=originalsize;
 			this->usarHomografia = usarHomografia;
 			this->strImgs = strImgs;
