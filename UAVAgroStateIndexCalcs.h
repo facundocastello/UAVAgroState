@@ -20,6 +20,9 @@ public:
 		split(imgaux, BGRA);
 		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
 		subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
+		if(BGRA.size() == 3){
+			BGRA.push_back(Mat(BGRA[0].size(),CV_8U,Scalar(255,255,255)));
+		}
 		//CALCULO NDVI
 		Mat ndvi = ndviCalculation(BGRA);
 		Mat ndviCuantizado = segmentationVariation(ndvi,BGRA[3],5);
