@@ -8,106 +8,96 @@ class UAVAgroStateIndexCalcs
 public:
 
 	
-	Mat static ndviCalcu(string strImg){
+	Mat static indexCalcu(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
 		
 		size_t position = strImg.find_last_of("/");
 		strImg.erase(strImg.begin(),strImg.begin()+position);
+		position = strImg.find_last_of(".");
+		strImg.erase(strImg.begin()+position,strImg.end());
 
 		vector<Mat> BGRA;
-		split(imgaux, BGRA);	
-		Mat numerador,denominador,division, newred;
+		split(imgaux, BGRA);
 		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
-		subtract(BGRA[2],BGRA[0]*0.9,BGRA[2],cv::noArray(),CV_8U);
-		merge(BGRA,newred);
-		//OBTENGO EL NDVI
-		subtract(BGRA[0],BGRA[2],numerador,cv::noArray(),CV_8S);
-		add(BGRA[0],BGRA[2],denominador,cv::noArray(),CV_8S);
-		divide(numerador,denominador,division,1.,CV_32F);
-		//CONVIERTO DE SIGNED A UCHAR
-		division = (division * 256
-		) + 127;
-		division.convertTo(division,CV_8U);
-		//GUARDO EL VALOR EN TONO DE GRISES Y LE AGREGO LA TRANSPARENCIA EN EL CASO DE QUE HAYA
-		Mat resultadogris = division;
-		if(!BGRA[3].empty()){
-			Mat auxAlpha[4]={division,division,division,BGRA[3]};
-			merge(auxAlpha,4,resultadogris);
-		};
-
-		Mat resuladoCuantizado;
-		if(!BGRA[3].empty()){
-			resuladoCuantizado = segmentationVariation(division,BGRA[3]);
-			Mat auxAlpha[4]={resuladoCuantizado,resuladoCuantizado,resuladoCuantizado,BGRA[3]};
-			merge(auxAlpha,4,resuladoCuantizado);
-		};
+		subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
+		//CALCULO NDVI
+		Mat ndvi = ndviCalculation(BGRA);
+		Mat ndviCuantizado = segmentationVariation(ndvi,BGRA[3],5);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"-ndvi.png", addAlpha(ndvi,BGRA[3]) );
+		imwrite("Imagenes/NDVI/output/"+ strImg +"-ndviCuantizado.png", addAlpha(ndviCuantizado,BGRA[3]) );
+		//CALCULO RVI
+		Mat rvi = rviCalculation(BGRA);
+		Mat rviCuantizado = segmentationVariation(rvi,BGRA[3],5);
+		imwrite("Imagenes/NDVI/output/"+ strImg +"-rvi.png", addAlpha(rvi,BGRA[3]) );
+		imwrite("Imagenes/NDVI/output/"+ strImg +"-rviCuantizado.png", addAlpha(rviCuantizado,BGRA[3]) );
 
 
-		// //REALIZO UNA NORMALIZACION PARA QUE SE NOTE MAS LAS DIFERENCIAS
-		// Mat divisionNorm = normalizateMat(division);
-		// if(!BGRA[3].empty()){
-		// 	Mat auxAlpha[4]={divisionNorm,divisionNorm,divisionNorm,BGRA[3]};
-		// 	merge(auxAlpha,4,divisionNorm);
-		// };
-
-		//
-
-		// Mat resultadosalida;
-		// Mat auxSalida[3]={division,division,division};
-		// merge(auxSalida,3,resultadosalida);
-
-		// //OTRA NORMALIZACION A LA CUAL LE AGREGO EL LUT
-		// double min,max;
-		// minMaxLoc(division, &min, &max);
-		// Mat resultadoNormalizado = (division - min) * 256 / (max-min);
-		// applyColorMap(resultadoNormalizado, resultadoNormalizado, COLORMAP_JET);
-		
-		// // LUT SIN NORMALIZACION
-		// division = createLut(division);
-		// // applyColorMap(division, division, COLORMAP_JET);
-		// Mat resultadocolor = division;
-		// if(!BGRA[3].empty()){
-		// 	vector<Mat> BGR;
-		// 	split(division,BGR);
-		// 	Mat auxAlpha2[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
-		// 	merge(auxAlpha2,4,resultadocolor);
-		// 	split(resultadoNormalizado,BGR);
-		// 	Mat auxAlpha3[4]={BGR[0],BGR[1],BGR[2],BGRA[3]};
-		// 	merge(auxAlpha3,4,resultadoNormalizado);
-		// }
-
-		// imwrite("Imagenes/NDVI/output/"+ strImg +"original.png", imgaux);
-		// imwrite("Imagenes/NDVI/output/"+ strImg +"newred.png", newred);
-		imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogris.png", resultadogris);
-		imwrite("Imagenes/NDVI/output/"+ strImg +"resuladoCuantizado.png", resuladoCuantizado);
-		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadogrisnorm.png", divisionNorm);
-		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolor.png", resultadocolor);
-		// imwrite("Imagenes/NDVI/output/"+ strImg +"resultadocolornormalizado.png", resultadoNormalizado);
-
-		
 	
-		return resultadogris;
+		return ndvi;
 	}
 
-	Mat static segmentationVariation(Mat img, Mat trans){
+	Mat static ndviCalculation(vector<Mat> BGRA){
+		Mat division,numerador,denominador;
+		//OBTENGO EL NDVI
+		subtract(BGRA[0],BGRA[2],numerador,BGRA[3],CV_8S);
+		add(BGRA[0],BGRA[2],denominador,BGRA[3],CV_8S);
+		divide(numerador,denominador,division,1.,CV_32F);
+		//CONVIERTO DE SIGNED A UCHAR
+
+		
+		division = (division + 1) * 128;
+		division.convertTo(division,CV_8U);
+
+		return division;
+	}
+	Mat static rviCalculation(vector<Mat> BGRA){
+		Mat division,numerador,denominador;
+		//OBTENGO EL NDVI
+		BGRA[0].convertTo(numerador,CV_8S);
+		BGRA[2].convertTo(denominador,CV_8S);
+		divide(numerador,denominador,division,1.,CV_32F);
+		//CONVIERTO DE SIGNED A UCHAR
+		division = (division + 1) * 128;
+		division.convertTo(division,CV_8U);
+		
+		return division;
+	}
+
+	Mat static addAlpha(Mat img, Mat trans){
+		Mat resultado;
+		if(!trans.empty()){
+			Mat auxAlpha[4]={img,img,img,trans};
+			merge(auxAlpha,4,resultado);
+		}else{
+			return img;
+		}
+		return resultado;
+	}
+
+	Mat static segmentationVariation(Mat img, Mat trans, int cantColores){
 		//recupero fondo blanco
+		img = normalizateMat(img,trans);
+		int denominador = 256/cantColores;
 		trans.convertTo(trans,CV_32F);
 		img.convertTo(img,CV_32F);
 		trans/=256;
 		img/=256;
 		img = img.mul(trans);
-		img.convertTo(img,CV_8U,256/25,.5);
-		img*=25;
+		img.convertTo(img,CV_8U,256/denominador,.5);
+		img*=denominador;
 
 		return img;
 	}
 
-	Mat static normalizateMat(Mat img){
+	Mat static normalizateMat(Mat img, Mat mask){
 		Mat std,mean,dst;
-		meanStdDev(img, mean, std);
+		double max,min;
+		meanStdDev(img, mean, std, mask);
 		
-		dst = img - (mean.at<double>(0,0) - 2 * std.at<double>(0,0));
-		dst = dst * 2 * std.at<double>(0,0);
+		dst = img - (mean.at<double>(0,0) - 1.5 * std.at<double>(0,0));
+		minMaxLoc(dst, &min, &max,0,0,mask);
+		// cout<< max<<endl;
+		dst = dst * (256/max);
 		
 		return dst;
 	}

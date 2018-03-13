@@ -14,7 +14,7 @@ int main(int argc, char** argv)
 	if( argc > 1){
 		option = atoi(argv[1]);
 	}else{
-		cout<<"Que deseas hacer? \n 0: Calibrar camara \n 1: Remover distorsión  \n 2: Calcular orto-mosaico \n 3: Calcular ndvi \n 4: Salir" << endl;
+		cout<<"Que deseas hacer? \n 0: Calibrar camara \n 1: Remover distorsión  \n 2: Calcular orto-mosaico \n 3: Calcular indices de vegetación \n 4: Salir" << endl;
 		cin>>option;
 	}
 
@@ -61,8 +61,8 @@ int main(int argc, char** argv)
 			
 			if(argc > 2){
 				if( atoi(argv[2]) == 0 ){
-					cout<<"The order of the params is:	\n   tamano \n   undistorted \n";
-					cout<<"   position (abDer = 0 -abIzq = 1 -arDer = 2 -arIzq = 3) \n   kPoints \n   rowGrid \n   colGrid \n";
+					cout<<"El orden de los parámetros es:	\n   tamaño (entero) \n  recuperar tamaño original (booleano)  \n";
+					cout<<"    \n  cantidad minima de kpoints";
 					return 0;
 				}
 				tamano = stoi(argv[2]);
@@ -93,9 +93,14 @@ int main(int argc, char** argv)
 					getchar();
 				}
 			}
+			
 			uav = new UAVAgroStateStitcher(
 				strImgs,tamano,minKeypoints,originalSize,false,false);
 			img = uav->runAll();
+			if(img.empty()){
+				cout << "\033[1;31m" << "Los archivos dentro de input, no son imágenes" << "\033[0m" << '\n';
+				break;
+			}
 
 			minKeypoints = 10000;
 			strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
@@ -111,7 +116,7 @@ int main(int argc, char** argv)
 		case 3:{
 			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/NDVI/input/");
 			for(int i = 0 ; i<strNDVI.size();i++){
-				UAVAgroStateIndexCalcs::ndviCalcu(strNDVI[i]);
+				UAVAgroStateIndexCalcs::indexCalcu(strNDVI[i]);
 			}
 		}
 		break;

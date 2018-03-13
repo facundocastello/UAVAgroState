@@ -4,8 +4,6 @@
 #include <stdio.h>
 #include <iostream>
 #include "opencv2/core/core.hpp"
-#include "opencv2/xfeatures2d.hpp"
-#include "opencv2/xfeatures2d/nonfree.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/calib3d/calib3d.hpp"
 #include "funcionesutiles.h"
@@ -734,7 +732,9 @@ class UAVAgroStateStitcher{
 			gettimeofday(&begin, NULL);
 
 			imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
-			
+			if(imgs.empty()){
+				return Mat();
+			}
 			// compensateBright();
 
 			removeCorners();

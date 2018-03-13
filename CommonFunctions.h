@@ -60,10 +60,20 @@ class CommonFunctions{
 		}
 
 		Mat static cargarImagen(string strImg , int tamano = 4, int Tipo = int(IMREAD_UNCHANGED)){
-			Mat img = imread(strImg, Tipo);
-			resize(img, img, Size(img.cols / tamano, img.rows / tamano));
-			if(img.channels() == 3 ){
-				img = addTransparence(img);
+			Mat img;
+			try
+			{
+				img = imread(strImg, Tipo);
+				resize(img, img, Size(img.cols / tamano, img.rows / tamano));
+				if(img.channels() == 3 ){
+					img = addTransparence(img);
+				}
+			}
+			catch( cv::Exception& e )
+			{
+				cout << endl;
+				cout << "\033[1;31m" << "Precaución: " + strImg << " no es una imágen" << "\033[0m" << '\n';
+				return Mat();
 			}
 			return img;
 		}
@@ -255,8 +265,10 @@ class CommonFunctions{
 			for (int i = 0; i < strImgs.size(); i++){
 				cout << "-" << (i+1) * 100 / strImgs.size() << "%";
 				cout.flush();
-				imgs.push_back(cargarImagen(strImgs[i], tamano,Tipo));
-
+				Mat img = cargarImagen(strImgs[i], tamano,Tipo);
+				if(!img.empty()){
+					imgs.push_back(img);
+				}
 			}
 			cout<<endl;
 			return imgs;
