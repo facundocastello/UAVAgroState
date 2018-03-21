@@ -4,15 +4,13 @@
 #include <stdio.h>
 #include <iostream>
 #include <sys/time.h>
-#include "opencv2/core/core.hpp"
-#include "opencv2/features2d/features2d.hpp"
-#include "opencv2/highgui/highgui.hpp"
-#include "opencv2/calib3d/calib3d.hpp"
-#include <opencv2/gpu/gpu.hpp>
+#include "opencv2/opencv.hpp"
+#include "opencv2/plot.hpp"
 #include <ctime>
 #include <dirent.h>
-#include "UAVAgroStateIndexCalcs.h"
 
+using namespace std;
+using namespace cv;
 
 class CommonFunctions{
 	public:
@@ -117,6 +115,7 @@ class CommonFunctions{
 			return minMax;
 		}
 
+
 		Mat static Aindane(Mat inputImage,int sigma){
 			Mat I;
 			inputImage.convertTo(I,CV_32F);
@@ -142,7 +141,7 @@ class CommonFunctions{
 
 			I_gray_norm.convertTo(I_gray_norm, CV_32F);
 			I_gray_norm = I_gray_norm / 255;
-		// 	% Get the threshold that splits the bottom 10% of the CDF
+			// 	% Get the threshold that splits the bottom 10% of the CDF
 			int histSize = 256;
 			float range[] = { 0, 1 } ;
 			const float* histRange = { range };
@@ -298,6 +297,40 @@ class CommonFunctions{
 			}
 			return argumentos;
 		}
+
+
+		bool static crearCarpeta(String str){
+			str="mkdir "+ str;
+			if( system(str.c_str()) == 0){
+				return true;
+			}else{
+				return false;
+			}
+		}
+
+		string static obtenerUltimoDirectorio(string &carpeta){
+			int indice = carpeta.find_last_of("/");
+			string ultimoDir = carpeta.substr(indice+1,carpeta.size());
+			carpeta = carpeta.substr(0,indice);
+			return ultimoDir;
+		}
+
+		void static escribirImagen(string carpeta, Mat img){
+			DIR *dir;
+			struct dirent *ent;
+			vector<string> crearCarpetas;
+			string auxWrite = carpeta;
+			obtenerUltimoDirectorio(carpeta);
+
+			while(! ((dir = opendir(carpeta.c_str())) != NULL) ) {
+				crearCarpetas.push_back(obtenerUltimoDirectorio(carpeta));
+			}
+			for(int i =crearCarpetas.size()-1;i >= 0 ; i--){
+				carpeta += "/" + crearCarpetas[i];
+				crearCarpeta(carpeta);
+			}
+			imwrite(auxWrite,img);
+		}
 		//MUESTRA UNA VENTANA CON LA PROPIEDAD DE WINDOW_NORMAL
 		void static showWindowNormal(Mat img, String namewindow ="img"){
 			namedWindow(namewindow, WINDOW_NORMAL);
@@ -409,15 +442,12 @@ class CommonFunctions{
 		
 			/// Normalize the result to [ 0, histImage.rows ]
 			normalize(hist, hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
-			/// Draw for each channel
-			for( int i = 1; i < histSize; i++ )
-			{
-				line( histImage, Point( bin_w*(i-1), hist_h - cvRound(hist.at<float>(i-1)) ) ,
-						Point( bin_w*(i), hist_h - cvRound(hist.at<float>(i)) ),
-						Scalar( 255, 0, 0), 2, 8, 0  );
-			}
-			/// Display
-			CommonFunctions::showWindowNormal(histImage);
+			Mat hist2;
+			hist.convertTo(hist2,CV_64F);
+			cv::Ptr<cv::plot::Plot2d> plot = cv::plot::createPlot2d( hist2 );
+			Mat imgren;
+			plot->render(imgren);
+			CommonFunctions::showWindowNormal(imgren,imgName);
 		}
 
 		string static type2str(Mat img) {

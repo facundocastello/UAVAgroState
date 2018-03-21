@@ -37,6 +37,7 @@
         "typeinfo": "cpp",
         "*.ipp": "cpp",
         "iostream": "cpp",
-        "slist": "cpp"
+        "slist": "cpp",
+        "vector": "cpp"
     }
 }

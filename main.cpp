@@ -1,12 +1,9 @@
-#include "UAVAgroStateStitcher.h"
-#include "funcionesutiles.h"
-#include "opencv2/core/core.hpp"
+#include "Stitcher.h"
 #include "CommonFunctions.h"
-#include "UAVAgroStateCalibration.h"
+#include "Calibration.h"
+#include "Undistort.h"
+#include "IndexCalculation.h"
 
-using namespace cv;
-
-void readme();
 
 int main(int argc, char** argv)
 {
@@ -37,7 +34,7 @@ int main(int argc, char** argv)
 			string cameraName;
 			cin>>cameraName;
 
-			UAVAgroStateCalibration::calibrateImg(numCornersHor,numCornersVer,cameraName);
+			Calibration::calibrateImg(numCornersHor,numCornersVer,cameraName);
 		}
 		break;
 		case 1:{
@@ -45,7 +42,7 @@ int main(int argc, char** argv)
 			cout<<"name of the camera: "<<endl;
 			string cameraName;
 			cin>>cameraName;
-			UAVAgroStateCalibration::undistortImgs(cameraName);	
+			Undistort::undistortImgs(cameraName);	
 		}
 		break;
 		//pegar
@@ -83,41 +80,18 @@ int main(int argc, char** argv)
 				cin>>minKeypoints;
 			}
 
-			UAVAgroStateStitcher *uav;
-			vector<string> strImgs;
-			Mat img;
-			while(strImgs.size() == 0){
-				strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
-				if(strImgs.size() == 0){
-					cout << "Para comenzar ingrese las imagenes dentro de Imagenes/Pegado/input/ y presione entrer" << endl;
-					getchar();
-				}
-			}
-			
-			uav = new UAVAgroStateStitcher(
-				strImgs,tamano,minKeypoints,originalSize,false,false);
-			img = uav->runAll();
-			if(img.empty()){
-				cout << "\033[1;31m" << "Los archivos dentro de input, no son imágenes" << "\033[0m" << '\n';
-				break;
-			}
-
-			minKeypoints = 10000;
-			strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
-			uav = new UAVAgroStateStitcher(
-				strImgs,1,minKeypoints,originalSize,false,true);
-			img = uav->runAll();
-			imwrite("Imagenes/Pegado/output/resultadofinal.png",img);
+			uav::Stitcher *uav;
+			uav = new uav::Stitcher(tamano,minKeypoints,originalSize,false,false);
+			uav->processManager();
 
 			CommonFunctions::tiempo(begin, "realizar todo: ");
 		}
 		break;
 		//ndvi
 		case 3:{
-			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/NDVI/input/");
-			for(int i = 0 ; i<strNDVI.size();i++){
-				UAVAgroStateIndexCalcs::indexCalcu(strNDVI[i]);
-			}
+			IndexCalculation *uavIndex;
+			uavIndex = new IndexCalculation();
+			uavIndex->processManager();
 		}
 		break;
 	}
