@@ -1,5 +1,4 @@
 #include "Stitcher.h"
-#include "CommonFunctions.h"
 #include "Calibration.h"
 #include "Undistort.h"
 #include "IndexCalculation.h"

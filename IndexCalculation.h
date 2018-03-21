@@ -214,6 +214,63 @@ public:
 		return dst;
 	}
 
+	vector<Vec3f> generarColores(){
+		Vec3f color;
+		vector<Vec3f> colors;
+		color[0] = 1;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 1;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = 1;	colors.push_back(color);
+		color[0] = 1;color[1] = 1;color[2] = 0;	colors.push_back(color);
+		color[0] = 1;color[1] = 0;color[2] = 1;	colors.push_back(color);
+		color[0] = 0;color[1] = 1;color[2] = 1;	colors.push_back(color);
+		color[0] = .5;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .5;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .5;	colors.push_back(color);
+		color[0] = .5;color[1] = .5;color[2] = 0;	colors.push_back(color);
+		color[0] = .5;color[1] = 0;color[2] = .5;	colors.push_back(color);
+		color[0] = 0;color[1] = .5;color[2] = .5;	colors.push_back(color);
+		color[0] = .88;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .88;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .88;	colors.push_back(color);
+		color[0] = .88;color[1] = .88;color[2] = 0;	colors.push_back(color);
+		color[0] = .88;color[1] = 0;color[2] = .88;	colors.push_back(color);
+		color[0] = 0;color[1] = .88;color[2] = .88;	colors.push_back(color);
+		color[0] = .75;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .75;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .75;	colors.push_back(color);
+		color[0] = .75;color[1] = .75;color[2] = 0;	colors.push_back(color);
+		color[0] = .75;color[1] = 0;color[2] = .75;	colors.push_back(color);
+		color[0] = 0;color[1] = .75;color[2] = .75;	colors.push_back(color);
+		color[0] = .25;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .25;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .25;	colors.push_back(color);
+		color[0] = .25;color[1] = .25;color[2] = 0;	colors.push_back(color);
+		color[0] = .25;color[1] = 0;color[2] = .25;	colors.push_back(color);
+		color[0] = 0;color[1] = .25;color[2] = .25;	colors.push_back(color);
+		color[0] = .66;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .66;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .66;	colors.push_back(color);
+		color[0] = .66;color[1] = .66;color[2] = 0;	colors.push_back(color);
+		color[0] = .66;color[1] = 0;color[2] = .66;	colors.push_back(color);
+		color[0] = 0;color[1] = .66;color[2] = .66;	colors.push_back(color);
+		color[0] = .11;color[1] = .22;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .15;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .10;color[2] = .14;	colors.push_back(color);
+		color[0] = .55;color[1] = .78;color[2] = .25;	colors.push_back(color);
+		color[0] = .88;color[1] = 0;color[2] = .15;	colors.push_back(color);
+		color[0] = 0;color[1] = .54;color[2] = .17;	colors.push_back(color);
+		color[0] = .18;color[1] = .82;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .85;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .80;color[2] = .44;	colors.push_back(color);
+		color[0] = .85;color[1] = .48;color[2] = .35;	colors.push_back(color);
+		color[0] = .58;color[1] = 0;color[2] = .27;	colors.push_back(color);
+		color[0] = 0;color[1] = .24;color[2] = .27;	colors.push_back(color);
+		color[0] =.14;color[1] = .24;color[2] = .27;	colors.push_back(color);
+		color[0] = .14;color[1] = .84;color[2] = .27;	colors.push_back(color);
+		return colors;
+	}
+	
+
 	Mat generarGrafico(Mat img,int cantidad, Mat trans){
 		// showWindowNormal(img);
 		int cantPix = 0;
@@ -242,7 +299,8 @@ public:
 			contador[k]/=(cantPix/100);
 		}
 		//generl el grafico con colores aleatorios
-		vector<Vec3b> colors;
+		Vec3f color;
+		vector<Vec3f> colors = generarColores();
 		Mat chart(Size(1200,500),CV_32FC3,Scalar(0,0,0));
 		int contadorAcum = 0;
 		int posText = 5;
@@ -250,10 +308,7 @@ public:
 		for(int k = 0;k < contador.size();k++){
 			if(contador[k] > 0){
 				//dibujo pixel a pixel
-				Vec3f color;
-				color[0] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-				color[1] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
-				color[2] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+				Vec3f color = colors[k];
 				Vec3f colorText = color;
 				for(int i = chart.rows/2 ; i >= 0 ; i--){
 					for(int j = contadorAcum*10; j < (contadorAcum + contador[k])*10-1; j++){

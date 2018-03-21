@@ -1,10 +1,12 @@
 #ifndef COMMONFUNCTIONS_H
 #define COMMONFUNCTIONS_H
 
-#include <stdio.h>
+// #include <stdio.h>
 #include <iostream>
 #include <sys/time.h>
-#include "opencv2/opencv.hpp"
+#include "opencv2/calib3d.hpp"
+#include "opencv2/highgui.hpp"
+#include "opencv2/video.hpp"
 #include "opencv2/plot.hpp"
 #include <ctime>
 #include <dirent.h>
@@ -474,46 +476,46 @@ class CommonFunctions{
 			return r;
 		  }
 
-		  bool static writeMatOnFile(string fileName, Mat content){
-			ofstream out(fileName+".txt");
-			streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-			cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-			cout << content;  //output to the file out.txt
-			cout.rdbuf(coutbuf);
-			return true;
-		  }
+		//   bool static writeMatOnFile(string fileName, Mat content){
+		// 	ofstream out(fileName+".txt");
+		// 	streambuf *coutbuf = std::cout.rdbuf(); //save old buf
+		// 	cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
+		// 	cout << content;  //output to the file out.txt
+		// 	cout.rdbuf(coutbuf);
+		// 	return true;
+		//   }
 
-		  Mat static readMatFromFile(string fileName){
+		//   Mat static readMatFromFile(string fileName){
 			
-			std::ifstream in(fileName+".txt");
-			std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
-			std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
-			std::string aux;
-			int r = std::count(std::istreambuf_iterator<char>(in),std::istreambuf_iterator<char>(), '\n') + 1;
-			in.clear();
-			in.seekg(0, ios::beg);
-			vector<float> content;
+		// 	std::ifstream in(fileName+".txt");
+		// 	std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
+		// 	std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
+		// 	std::string aux;
+		// 	int r = std::count(std::istreambuf_iterator<char>(in),std::istreambuf_iterator<char>(), '\n') + 1;
+		// 	in.clear();
+		// 	in.seekg(0, ios::beg);
+		// 	vector<float> content;
 
-			while(cin >> aux)  //input from the file in.txt
-			{
-				char chars[] = "[],;";
-				for (unsigned int i = 0; i < strlen(chars); ++i)
-				{
-					  // you need include <algorithm> to use general algorithms like std::remove()
-					  aux.erase (std::remove(aux.begin(), aux.end(), chars[i]), aux.end());
-				}
-				content.push_back(stof(aux));
-			}
-			std::cin.rdbuf(cinbuf);   //reset to standard input again
-			int c = content.size() / r;
-			Mat M(r,c,CV_32FC1);
-			for(int i=0;i<r*c;++i)
-			{
-				M.at<float>(i)=content[i];
-			}
+		// 	while(cin >> aux)  //input from the file in.txt
+		// 	{
+		// 		char chars[] = "[],;";
+		// 		for (unsigned int i = 0; i < strlen(chars); ++i)
+		// 		{
+		// 			  // you need include <algorithm> to use general algorithms like std::remove()
+		// 			  aux.erase (std::remove(aux.begin(), aux.end(), chars[i]), aux.end());
+		// 		}
+		// 		content.push_back(stof(aux));
+		// 	}
+		// 	std::cin.rdbuf(cinbuf);   //reset to standard input again
+		// 	int c = content.size() / r;
+		// 	Mat M(r,c,CV_32FC1);
+		// 	for(int i=0;i<r*c;++i)
+		// 	{
+		// 		M.at<float>(i)=content[i];
+		// 	}
 
-			return M;
-		  }
+		// 	return M;
+		//   }
 
 		  Mat static addTransparence(Mat img){
 			Mat tmp,alpha;
