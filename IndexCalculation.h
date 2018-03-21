@@ -11,9 +11,23 @@ public:
 
 	void processManager(){
 		vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/Indices/input/");
-		for(int i = 0 ; i<strNDVI.size();i++){
-			indexCalcu(strNDVI[i]);
+		struct timeval begin;
+		gettimeofday(&begin, NULL);
+		bool parallel = true;
+		if(parallel){
+			parallel_for_(Range(0, strNDVI.size()), [&](const Range& range){
+				for(int i = range.start;i < range.end ; i++){
+				indexCalcu(strNDVI[i]);
+				cout << "Termino " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i]) + "\n";
+				}
+			});
+		}else{
+			for(int i = 0;i < strNDVI.size() ; i++){
+				indexCalcu(strNDVI[i]);
+				cout << "Termino " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i]) + "\n";
+			}
 		}
+		CommonFunctions::tiempo(begin, "realizar todo: ");
 	}
 
 	void indexCalcu(string strImg){
@@ -54,7 +68,7 @@ public:
 
 		Mat ndviCuantizado = segmentationVariation(ndvi,BGRA[3],5);
 		Mat ndviLut = createLut(ndvi,BGRA[3]);
-		Mat ndviChart = generarGrafico(ndvi, 50,BGRA[3]);
+		Mat ndviChart = generarGrafico(ndvi, 40,BGRA[3]);
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi.png", addAlpha(ndvi,BGRA[3]) );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndviCuantizado.png", ndviCuantizado );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndviLut.png", ndviLut );
@@ -72,7 +86,7 @@ public:
 
 		Mat rviCuantizado = segmentationVariation(rvi,BGRA[3],5);
 		Mat rviLut = createLut(rvi,BGRA[3]);
-		Mat rviChart = generarGrafico(rvi, 50,BGRA[3]);
+		Mat rviChart = generarGrafico(rvi, 30,BGRA[3]);
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi.png", addAlpha(rvi,BGRA[3]) );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rviCuantizado.png", rviCuantizado );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rviLut.png", rviLut );
@@ -229,30 +243,30 @@ public:
 		color[0] = .5;color[1] = .5;color[2] = 0;	colors.push_back(color);
 		color[0] = .5;color[1] = 0;color[2] = .5;	colors.push_back(color);
 		color[0] = 0;color[1] = .5;color[2] = .5;	colors.push_back(color);
-		color[0] = .88;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .88;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .88;	colors.push_back(color);
-		color[0] = .88;color[1] = .88;color[2] = 0;	colors.push_back(color);
-		color[0] = .88;color[1] = 0;color[2] = .88;	colors.push_back(color);
-		color[0] = 0;color[1] = .88;color[2] = .88;	colors.push_back(color);
-		color[0] = .75;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .75;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .75;	colors.push_back(color);
-		color[0] = .75;color[1] = .75;color[2] = 0;	colors.push_back(color);
-		color[0] = .75;color[1] = 0;color[2] = .75;	colors.push_back(color);
-		color[0] = 0;color[1] = .75;color[2] = .75;	colors.push_back(color);
-		color[0] = .25;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .25;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .25;	colors.push_back(color);
-		color[0] = .25;color[1] = .25;color[2] = 0;	colors.push_back(color);
-		color[0] = .25;color[1] = 0;color[2] = .25;	colors.push_back(color);
-		color[0] = 0;color[1] = .25;color[2] = .25;	colors.push_back(color);
-		color[0] = .66;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .66;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .66;	colors.push_back(color);
-		color[0] = .66;color[1] = .66;color[2] = 0;	colors.push_back(color);
-		color[0] = .66;color[1] = 0;color[2] = .66;	colors.push_back(color);
-		color[0] = 0;color[1] = .66;color[2] = .66;	colors.push_back(color);
+		color[0] = .8;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .8;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .8;	colors.push_back(color);
+		color[0] = .8;color[1] = .8;color[2] = 0;	colors.push_back(color);
+		color[0] = .8;color[1] = 0;color[2] = .8;	colors.push_back(color);
+		color[0] = 0;color[1] = .8;color[2] = .8;	colors.push_back(color);
+		color[0] = .6;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .6;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .6;	colors.push_back(color);
+		color[0] = .6;color[1] = .6;color[2] = 0;	colors.push_back(color);
+		color[0] = .6;color[1] = 0;color[2] = .6;	colors.push_back(color);
+		color[0] = 0;color[1] = .6;color[2] = .6;	colors.push_back(color);
+		color[0] = .3;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .3;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .3;	colors.push_back(color);
+		color[0] = .3;color[1] = .3;color[2] = 0;	colors.push_back(color);
+		color[0] = .3;color[1] = 0;color[2] = .3;	colors.push_back(color);
+		color[0] = 0;color[1] = .3;color[2] = .3;	colors.push_back(color);
+		color[0] = .45;color[1] = 0;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = .45;color[2] = 0;	colors.push_back(color);
+		color[0] = 0;color[1] = 0;color[2] = .45;	colors.push_back(color);
+		color[0] = .45;color[1] = .45;color[2] = 0;	colors.push_back(color);
+		color[0] = .45;color[1] = 0;color[2] = .45;	colors.push_back(color);
+		color[0] = 0;color[1] = .45;color[2] = .45;	colors.push_back(color);
 		color[0] = .11;color[1] = .22;color[2] = 0;	colors.push_back(color);
 		color[0] = 0;color[1] = .15;color[2] = 0;	colors.push_back(color);
 		color[0] = 0;color[1] = .10;color[2] = .14;	colors.push_back(color);
@@ -303,7 +317,7 @@ public:
 		vector<Vec3f> colors = generarColores();
 		Mat chart(Size(1200,500),CV_32FC3,Scalar(0,0,0));
 		int contadorAcum = 0;
-		int posText = 5;
+		int posText = 2;
 		putText(chart, "min  max  porcentaje" , cvPoint(1000,(posText-1)*25), FONT_HERSHEY_PLAIN, 1.1, cvScalar(1,1,1), 1, CV_AA);
 		for(int k = 0;k < contador.size();k++){
 			if(contador[k] > 0){
