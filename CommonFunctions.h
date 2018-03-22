@@ -322,10 +322,14 @@ class CommonFunctions{
 			imwrite(auxWrite,img);
 		}
 		//MUESTRA UNA VENTANA CON LA PROPIEDAD DE WINDOW_NORMAL
+		
 		void static showWindowNormal(Mat img, String namewindow ="img"){
-			namedWindow(namewindow, WINDOW_NORMAL);
-			imshow(namewindow, img);
-			waitKey();
+			int k = 0;
+			while(k!=27){
+				namedWindow(namewindow, WINDOW_NORMAL);
+				imshow(namewindow, img);
+				k = waitKey();
+			}
 		}
 		timeval static tiempo(timeval begin, string msg){
 
