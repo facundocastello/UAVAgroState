@@ -12,39 +12,52 @@ public:
 
 	void processManager(){
 		vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/Indices/input/");
+		struct timeval beginAll;
 		struct timeval begin;
+		gettimeofday(&beginAll, NULL);
 		gettimeofday(&begin, NULL);
 		bool parallel = true;
-		if(parallel){
-			parallel_for_(Range(0, strNDVI.size()), [&](const Range& range){
-				for(int i = range.start;i < range.end ; i++){
-				indexCalcu(strNDVI[i]);
-				cout << "Termino " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i]) + "\n";
+		bool multispectral = false;
+		cout << "Comenzando calculo de indices para ";
+		if(multispectral){
+			cout<< "multi-espectral ";
+			if(parallel){
+				cout << "con paralelismo \n";
+				parallel_for_(Range(0, strNDVI.size()), [&](const Range& range){
+					for(int i = range.start;i < range.end ; i++){
+					indexCalcuMS(strNDVI[i]);
+					CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
+					}
+				});
+			}else{
+				cout << "sin paralelismo \n";
+				for(int i = 0;i < strNDVI.size() ; i++){
+					indexCalcuMS(strNDVI[i]);
+					begin = CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
 				}
-			});
+			}
 		}else{
+			cout << "rgb \n";
 			for(int i = 0;i < strNDVI.size() ; i++){
-				indexCalcu(strNDVI[i]);
-				cout << "Termino " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i]) + "\n";
+				indexCalcuRGB(strNDVI[i]);
+				begin = CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
 			}
 		}
-		CommonFunctions::tiempo(begin, "realizar todo: ");
+		CommonFunctions::tiempo(beginAll, "Terminar todo: ");
 	}
 
-	void indexCalcu(string strImg){
+	void indexCalcuMS(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
 		
 		size_t position = strImg.find_last_of("/");
-		strImg.erase(strImg.begin(),strImg.begin()+position);
+		strImg.erase(strImg.begin(),strImg.begin()+position+1);
 		position = strImg.find_last_of(".");
 		strImg.erase(strImg.begin()+position,strImg.end());
-
-		
 
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);
 		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
-		// subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
+		subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
 		if(BGRA.size() == 3){
 			BGRA.push_back(Mat(BGRA[0].size(),CV_8U,Scalar(255,255,255)));
 		}
@@ -53,6 +66,79 @@ public:
 		// //CALCULO RVI
 		rviCalculation(BGRA, strImg);
 	}
+
+	void indexCalcuRGB(string strImg){
+		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
+		
+		size_t position = strImg.find_last_of("/");
+		strImg.erase(strImg.begin(),strImg.begin()+position+1);
+		position = strImg.find_last_of(".");
+		strImg.erase(strImg.begin()+position,strImg.end());
+
+		vector<Mat> BGRA;
+		split(imgaux, BGRA);
+		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
+		// subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
+		if(BGRA.size() == 3){
+			BGRA.push_back(Mat(BGRA[0].size(),CV_8U,Scalar(255,255,255)));
+		}
+
+		vector<Mat> separado = separarSuelo(BGRA);
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/"+ strImg +"suelo.png", addAlpha(separado[0],BGRA[3]) );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/"+ strImg +"nosuelo.png", addAlpha(separado[1],BGRA[3]) );
+	}
+
+	vector<Mat> separarSuelo(vector<Mat> BGRA){
+		Mat b,g,r;
+		int min = 115;
+		int max = 255;
+		threshold(BGRA[0], b, min, max, THRESH_BINARY);
+		threshold(BGRA[1], g, min, max, THRESH_BINARY);
+		threshold(BGRA[2], r, min, max, THRESH_BINARY);
+		Mat mask = (b+g+r);
+		Mat maskNoSuelo = 255-mask;
+		BGRA[0].copyTo(b,mask);
+		BGRA[1].copyTo(g,mask);
+		BGRA[2].copyTo(r,mask);
+		Mat resultado;
+		Mat auxAlpha[4]={b,g,r,BGRA[3]};
+		merge(auxAlpha,4,resultado);
+		Mat bNoSuelo(BGRA[0].size(),CV_8U,Scalar(0));
+		Mat gNoSuelo(BGRA[0].size(),CV_8U,Scalar(0));
+		Mat rNoSuelo(BGRA[0].size(),CV_8U,Scalar(0));
+		BGRA[0].copyTo(bNoSuelo,maskNoSuelo);
+		BGRA[1].copyTo(gNoSuelo,maskNoSuelo);
+		BGRA[2].copyTo(rNoSuelo,maskNoSuelo);
+		Mat resultadoNoSuelo;
+		Mat auxAlpha2[4]={bNoSuelo,gNoSuelo,rNoSuelo,BGRA[3]};
+		merge(auxAlpha2,4,resultadoNoSuelo);
+
+		return {resultado, resultadoNoSuelo};
+	}
+
+	vector<int> threshMat(Mat img, string str){
+			Mat dst = img.clone();
+			int min=0;
+			int max=10;
+			namedWindow(str, WINDOW_NORMAL);
+			createTrackbar( "min", str, &min, 255);
+			createTrackbar( "max", str, &max, 255);
+			while(1){
+				imshow(str, dst);
+				int k = waitKey();
+				if(k == 27)
+        			break;
+				threshold(img, dst, min, max, THRESH_BINARY);
+				min = getTrackbarPos("min",str);
+				max = getTrackbarPos("max",str);
+			}
+			// destroyAllWindows();
+			vector<int> minMax;
+			minMax.push_back(min);
+			minMax.push_back(max);
+			return minMax;
+		}
+
 
 	void ndviCalculation(vector<Mat> BGRA, string strImg){
 		Mat ndvi,numerador,denominador;
@@ -69,7 +155,7 @@ public:
 
 		Mat ndviCuantizado = segmentationVariation(ndvi,BGRA[3],5);
 		Mat ndviLut = createLut(ndvi,BGRA[3]);
-		vector<Mat> ndviChart = generarGrafico(ndvi, 35,BGRA[3]);
+		vector<Mat> ndviChart = generarGrafico(ndvi, 20,BGRA[3]);
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndvi.png", addAlpha(ndvi,BGRA[3]) );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviCuantizado.png", ndviCuantizado );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviLut.png", ndviLut );
@@ -88,7 +174,7 @@ public:
 
 		Mat rviCuantizado = segmentationVariation(rvi,BGRA[3],5);
 		Mat rviLut = createLut(rvi,BGRA[3]);
-		vector<Mat> rviChart = generarGrafico(rvi, 35,BGRA[3]);
+		vector<Mat> rviChart = generarGrafico(rvi, 20,BGRA[3]);
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rvi.png", addAlpha(rvi,BGRA[3]) );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviCuantizado.png", rviCuantizado );
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviLut.png", rviLut );
@@ -131,9 +217,12 @@ public:
 	}
 
 	void showWindowNormal(Mat img, String namewindow ="img"){
-		namedWindow(namewindow, WINDOW_NORMAL);
-		imshow(namewindow, img);
-		waitKey();
+		int k = 0;
+		while(k!=27){
+			namedWindow(namewindow, WINDOW_NORMAL);
+			imshow(namewindow, img);
+			k = waitKey();
+		}
 	}
 
 	Mat  createLut(Mat temp, Mat trans){
@@ -243,7 +332,7 @@ public:
 		for(int i = 0 ; i <= cantidad; i++){
 			limites.push_back(i*256/cantidad);
 		}
-		vector<int> contador(limites.size()-1,0);
+		vector<float> contador(limites.size()-1,0);
 		vector<Vec3f> colors = Color::generarColores();
 		//cuento la cantidad de pixeles que esten en cada intervalo
 		for(int i = 0 ; i < img.rows ; i++){
@@ -262,19 +351,20 @@ public:
 		}
 		//paso todo a porcentaje
 		for(int k = 0;k < contador.size(); k++){
-			contador[k]/=(cantPix/100);
+			contador[k]/=((float)cantPix/100);
 		}
 		//generl el grafico con colores aleatorios
 		Vec3f color;
 		Mat chart(Size(1200,500),CV_32FC3,Scalar(0,0,0));
-		int contadorAcum = 0;
+		float contadorAcum = 0;
 		int posText = 2;
 		putText(chart, "min  max  porcentaje" , cvPoint(1000,(posText-1)*25), FONT_HERSHEY_PLAIN, 1.1, cvScalar(1,1,1), 1, CV_AA);
 		for(int k = 0;k < contador.size();k++){
-			if(contador[k] > 0){
+			if(contador[k] > .3){
 				//dibujo pixel a pixel
 				Vec3f color = colors[k];
 				Vec3f colorText = color;
+
 				for(int i = chart.rows/2 ; i >= 0 ; i--){
 					for(int j = contadorAcum*10; j < (contadorAcum + contador[k])*10-1; j++){
 						chart.at<Vec3f>(i,j) = color;

@@ -126,18 +126,7 @@ class CommonFunctions{
 			cvtColor(inputImage, I_gray, CV_BGR2GRAY);
 			vector<Mat> BGRNTSC;
 			split(inputImage,BGRNTSC);
-			// CommonFunctions::showWindowNormal(I_gray,"gray");
-			// for(int j = 0 ; j < I_gray.rows;j++){
-			// 	for(int k =  0; k <I_gray.cols;k++){
-			// 		cout << int(BGRNTSC[0].at<uchar>(j,k))<< " " << int(BGRNTSC[1].at<uchar>(j,k)) << " " << int(BGRNTSC[2].at<uchar>(j,k))<<endl;
-			// 		I_gray.at<uchar>(j,k) =
-			// 			(76.245*BGRNTSC[0].at<uchar>(j,k) +
-			// 			19.685*BGRNTSC[1].at<uchar>(j,k) +
-			// 			29.071*BGRNTSC[2].at<uchar>(j,k) ) / 255;
-			// 		cout<< int(I_gray.at<uchar>(j,k)) << endl;
-			// 	}
-			// }
-			// CommonFunctions::showWindowNormal(I_gray,"NTSC");
+			
 			Mat I_gray_norm = I_gray.clone();
 
 			I_gray_norm.convertTo(I_gray_norm, CV_32F);
@@ -470,47 +459,6 @@ class CommonFunctions{
 		  
 			return r;
 		  }
-
-		//   bool static writeMatOnFile(string fileName, Mat content){
-		// 	ofstream out(fileName+".txt");
-		// 	streambuf *coutbuf = std::cout.rdbuf(); //save old buf
-		// 	cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-		// 	cout << content;  //output to the file out.txt
-		// 	cout.rdbuf(coutbuf);
-		// 	return true;
-		//   }
-
-		//   Mat static readMatFromFile(string fileName){
-			
-		// 	std::ifstream in(fileName+".txt");
-		// 	std::streambuf *cinbuf = std::cin.rdbuf(); //save old buf
-		// 	std::cin.rdbuf(in.rdbuf()); //redirect std::cin to in.txt!
-		// 	std::string aux;
-		// 	int r = std::count(std::istreambuf_iterator<char>(in),std::istreambuf_iterator<char>(), '\n') + 1;
-		// 	in.clear();
-		// 	in.seekg(0, ios::beg);
-		// 	vector<float> content;
-
-		// 	while(cin >> aux)  //input from the file in.txt
-		// 	{
-		// 		char chars[] = "[],;";
-		// 		for (unsigned int i = 0; i < strlen(chars); ++i)
-		// 		{
-		// 			  // you need include <algorithm> to use general algorithms like std::remove()
-		// 			  aux.erase (std::remove(aux.begin(), aux.end(), chars[i]), aux.end());
-		// 		}
-		// 		content.push_back(stof(aux));
-		// 	}
-		// 	std::cin.rdbuf(cinbuf);   //reset to standard input again
-		// 	int c = content.size() / r;
-		// 	Mat M(r,c,CV_32FC1);
-		// 	for(int i=0;i<r*c;++i)
-		// 	{
-		// 		M.at<float>(i)=content[i];
-		// 	}
-
-		// 	return M;
-		//   }
 
 		  Mat static addTransparence(Mat img){
 			Mat tmp,alpha;
