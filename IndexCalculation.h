@@ -2,6 +2,7 @@
 #define INDEXCALCULATION_H
 
 #include "CommonFunctions.h"
+#include "Color.h"
 
 
 class IndexCalculation{
@@ -68,11 +69,12 @@ public:
 
 		Mat ndviCuantizado = segmentationVariation(ndvi,BGRA[3],5);
 		Mat ndviLut = createLut(ndvi,BGRA[3]);
-		Mat ndviChart = generarGrafico(ndvi, 40,BGRA[3]);
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi.png", addAlpha(ndvi,BGRA[3]) );
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndviCuantizado.png", ndviCuantizado );
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndviLut.png", ndviLut );
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndviChart.png", ndviChart );
+		vector<Mat> ndviChart = generarGrafico(ndvi, 35,BGRA[3]);
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndvi.png", addAlpha(ndvi,BGRA[3]) );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviCuantizado.png", ndviCuantizado );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviLut.png", ndviLut );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviChart.png", ndviChart[0] );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/ndvi/"+ strImg +"ndviChartImg.png", addAlpha(ndviChart[1],BGRA[3]) );
 	}
 	void rviCalculation(vector<Mat> BGRA, string strImg){
 		Mat rvi,numerador,denominador;
@@ -86,11 +88,12 @@ public:
 
 		Mat rviCuantizado = segmentationVariation(rvi,BGRA[3],5);
 		Mat rviLut = createLut(rvi,BGRA[3]);
-		Mat rviChart = generarGrafico(rvi, 30,BGRA[3]);
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi.png", addAlpha(rvi,BGRA[3]) );
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rviCuantizado.png", rviCuantizado );
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rviLut.png", rviLut );
-		// CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rviChart.png", rviChart );
+		vector<Mat> rviChart = generarGrafico(rvi, 35,BGRA[3]);
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rvi.png", addAlpha(rvi,BGRA[3]) );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviCuantizado.png", rviCuantizado );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviLut.png", rviLut );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviChart.png", rviChart[0] );
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/"+ strImg +"/rvi/"+ strImg +"rviChartImg.png", addAlpha(rviChart[1],BGRA[3]) );
 	}
 
 	Mat addAlpha(Mat img, Mat trans){
@@ -228,65 +231,12 @@ public:
 		return dst;
 	}
 
-	vector<Vec3f> generarColores(){
-		Vec3f color;
-		vector<Vec3f> colors;
-		color[0] = 1;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 1;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = 1;	colors.push_back(color);
-		color[0] = 1;color[1] = 1;color[2] = 0;	colors.push_back(color);
-		color[0] = 1;color[1] = 0;color[2] = 1;	colors.push_back(color);
-		color[0] = 0;color[1] = 1;color[2] = 1;	colors.push_back(color);
-		color[0] = .5;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .5;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .5;	colors.push_back(color);
-		color[0] = .5;color[1] = .5;color[2] = 0;	colors.push_back(color);
-		color[0] = .5;color[1] = 0;color[2] = .5;	colors.push_back(color);
-		color[0] = 0;color[1] = .5;color[2] = .5;	colors.push_back(color);
-		color[0] = .8;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .8;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .8;	colors.push_back(color);
-		color[0] = .8;color[1] = .8;color[2] = 0;	colors.push_back(color);
-		color[0] = .8;color[1] = 0;color[2] = .8;	colors.push_back(color);
-		color[0] = 0;color[1] = .8;color[2] = .8;	colors.push_back(color);
-		color[0] = .6;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .6;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .6;	colors.push_back(color);
-		color[0] = .6;color[1] = .6;color[2] = 0;	colors.push_back(color);
-		color[0] = .6;color[1] = 0;color[2] = .6;	colors.push_back(color);
-		color[0] = 0;color[1] = .6;color[2] = .6;	colors.push_back(color);
-		color[0] = .3;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .3;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .3;	colors.push_back(color);
-		color[0] = .3;color[1] = .3;color[2] = 0;	colors.push_back(color);
-		color[0] = .3;color[1] = 0;color[2] = .3;	colors.push_back(color);
-		color[0] = 0;color[1] = .3;color[2] = .3;	colors.push_back(color);
-		color[0] = .45;color[1] = 0;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .45;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = 0;color[2] = .45;	colors.push_back(color);
-		color[0] = .45;color[1] = .45;color[2] = 0;	colors.push_back(color);
-		color[0] = .45;color[1] = 0;color[2] = .45;	colors.push_back(color);
-		color[0] = 0;color[1] = .45;color[2] = .45;	colors.push_back(color);
-		color[0] = .11;color[1] = .22;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .15;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .10;color[2] = .14;	colors.push_back(color);
-		color[0] = .55;color[1] = .78;color[2] = .25;	colors.push_back(color);
-		color[0] = .88;color[1] = 0;color[2] = .15;	colors.push_back(color);
-		color[0] = 0;color[1] = .54;color[2] = .17;	colors.push_back(color);
-		color[0] = .18;color[1] = .82;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .85;color[2] = 0;	colors.push_back(color);
-		color[0] = 0;color[1] = .80;color[2] = .44;	colors.push_back(color);
-		color[0] = .85;color[1] = .48;color[2] = .35;	colors.push_back(color);
-		color[0] = .58;color[1] = 0;color[2] = .27;	colors.push_back(color);
-		color[0] = 0;color[1] = .24;color[2] = .27;	colors.push_back(color);
-		color[0] =.14;color[1] = .24;color[2] = .27;	colors.push_back(color);
-		color[0] = .14;color[1] = .84;color[2] = .27;	colors.push_back(color);
-		return colors;
-	}
 	
 
-	Mat generarGrafico(Mat img,int cantidad, Mat trans){
+	vector<Mat> generarGrafico(Mat img,int cantidad, Mat trans){
 		// showWindowNormal(img);
+		Mat imgColor;
+		cvtColor(img,imgColor,CV_GRAY2BGR);
 		int cantPix = 0;
 		vector<int> limites;
 		//en base a la cantdad de intervalos q quiere genero los limites
@@ -294,6 +244,7 @@ public:
 			limites.push_back(i*256/cantidad);
 		}
 		vector<int> contador(limites.size()-1,0);
+		vector<Vec3f> colors = Color::generarColores();
 		//cuento la cantidad de pixeles que esten en cada intervalo
 		for(int i = 0 ; i < img.rows ; i++){
 			for(int j = 0 ; j < img.cols ; j++){
@@ -303,6 +254,7 @@ public:
 					for(int k = 1;k < limites.size(); k++){
 						if(limites[k-1] <= pixVal && pixVal < limites[k]){
 							contador[k-1]++;
+							imgColor.at<Vec3b>(i,j) = colors[k-1]*256;
 						}
 					}
 				}
@@ -314,7 +266,6 @@ public:
 		}
 		//generl el grafico con colores aleatorios
 		Vec3f color;
-		vector<Vec3f> colors = generarColores();
 		Mat chart(Size(1200,500),CV_32FC3,Scalar(0,0,0));
 		int contadorAcum = 0;
 		int posText = 2;
@@ -348,10 +299,11 @@ public:
 		}
 		chart*=256;
 		chart.convertTo(chart,CV_8U);
-
-		return chart;
+		vector<Mat> vecMat;
+		vecMat.push_back(chart);
+		vecMat.push_back(imgColor);
+		return vecMat;
 	}
-
 
     
 };

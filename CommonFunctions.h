@@ -7,7 +7,6 @@
 #include "opencv2/calib3d.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/video.hpp"
-#include "opencv2/plot.hpp"
 #include <ctime>
 #include <dirent.h>
 
@@ -446,10 +445,6 @@ class CommonFunctions{
 			normalize(hist, hist, 0, histImage.rows, NORM_MINMAX, -1, Mat() );
 			Mat hist2;
 			hist.convertTo(hist2,CV_64F);
-			cv::Ptr<cv::plot::Plot2d> plot = cv::plot::createPlot2d( hist2 );
-			Mat imgren;
-			plot->render(imgren);
-			CommonFunctions::showWindowNormal(imgren,imgName);
 		}
 
 		string static type2str(Mat img) {
