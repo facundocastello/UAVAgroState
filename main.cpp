@@ -2,6 +2,7 @@
 #include "Calibration.h"
 #include "Undistort.h"
 #include "IndexCalculation.h"
+#include "Redaction.h"
 
 
 int main(int argc, char** argv)
@@ -91,6 +92,14 @@ int main(int argc, char** argv)
 			IndexCalculation *uavIndex;
 			uavIndex = new IndexCalculation();
 			uavIndex->processManager();
+		}
+		break;
+		case 6:{
+
+			Redaction redact;
+			redact.generatePDF();
+
+			// HPDF_Free (pdf);
 		}
 		break;
 	}
