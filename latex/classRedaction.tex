@@ -1,14 +1,70 @@
 \hypertarget{classRedaction}{}\section{Redaction Class Reference}
 \label{classRedaction}\index{Redaction@{Redaction}}
+
+
+Redacta el P\+DF final.  
+
+
+
+
+{\ttfamily \#include $<$Redaction.\+h$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
+int \mbox{\hyperlink{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}{generate\+P\+DF}} ()
+\begin{DoxyCompactList}\small\item\em Crea un P\+DF con todas las imágenes. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classRedaction_aac938c179683d6862f3f853c346a7b32}{write\+Full\+Page\+Img}} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file, int max\+Width=600, int max\+Height=840, int x\+Space=50, int y\+Space=50)
+\begin{DoxyCompactList}\small\item\em Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Redacta el P\+DF final. 
+
+\subsection{Member Function Documentation}
 \mbox{\Hypertarget{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}\label{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}} 
-int {\bfseries generate\+P\+DF} ()
-\item 
-\mbox{\Hypertarget{classRedaction_a4b1cec4c2a80f6b429d588db48e03e50}\label{classRedaction_a4b1cec4c2a80f6b429d588db48e03e50}} 
-int {\bfseries write\+Full\+Page\+Img} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file)
-\end{DoxyCompactItemize}
+\index{Redaction@{Redaction}!generate\+P\+DF@{generate\+P\+DF}}
+\index{generate\+P\+DF@{generate\+P\+DF}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{generate\+P\+D\+F()}{generatePDF()}}
+{\footnotesize\ttfamily int Redaction\+::generate\+P\+DF (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Crea un P\+DF con todas las imágenes. 
+
+\begin{DoxyReturn}{Returns}
+int 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classRedaction_aac938c179683d6862f3f853c346a7b32}\label{classRedaction_aac938c179683d6862f3f853c346a7b32}} 
+\index{Redaction@{Redaction}!write\+Full\+Page\+Img@{write\+Full\+Page\+Img}}
+\index{write\+Full\+Page\+Img@{write\+Full\+Page\+Img}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Full\+Page\+Img()}{writeFullPageImg()}}
+{\footnotesize\ttfamily int Redaction\+::write\+Full\+Page\+Img (\begin{DoxyParamCaption}\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf,  }\item[{H\+P\+D\+F\+\_\+\+Page}]{page,  }\item[{const char $\ast$}]{file,  }\item[{int}]{max\+Width = {\ttfamily 600},  }\item[{int}]{max\+Height = {\ttfamily 840},  }\item[{int}]{x\+Space = {\ttfamily 50},  }\item[{int}]{y\+Space = {\ttfamily 50} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pdf} & \\
+\hline
+{\em page} & \\
+\hline
+{\em file} & \\
+\hline
+{\em max\+Width} & \\
+\hline
+{\em max\+Height} & \\
+\hline
+{\em x\+Space} & \\
+\hline
+{\em y\+Space} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+int 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

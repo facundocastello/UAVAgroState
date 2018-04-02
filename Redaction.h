@@ -5,9 +5,17 @@
 #include <setjmp.h>
 #include "IndexCalculation.h"
 
-
+/**
+ * @brief Redacta el PDF final.
+ * 
+ */
 class Redaction{
     public:
+		/**
+		 * @brief Crea un PDF con todas las imágenes.
+		 * 
+		 * @return int 
+		 */
         int generatePDF(){
             HPDF_Doc pdf;
 			HPDF_Error_Handler error_handler;
@@ -48,15 +56,21 @@ class Redaction{
             return 0;
 
         }
-
-        int writeFullPageImg(HPDF_Doc pdf, HPDF_Page page, const char* file){
+		/**
+		 * @brief Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada.
+		 * 
+		 * @param pdf 
+		 * @param page 
+		 * @param file 
+		 * @param maxWidth 
+		 * @param maxHeight 
+		 * @param xSpace 
+		 * @param ySpace 
+		 * @return int 
+		 */
+        int writeFullPageImg(HPDF_Doc pdf,HPDF_Page page,const char* file,int maxWidth = 600,int maxHeight = 840,int xSpace = 50,int ySpace = 50){
             try {
 				HPDF_Image img = HPDF_LoadPngImageFromFile(pdf,file);
-				// maxw 600 maxh 840
-				int maxWidth = 600;
-				int maxHeight = 840;
-				int xSpace = 50;
-				int ySpace = 50;
 				maxWidth -= 2*xSpace;
 				maxHeight -= 2*ySpace;
 				int width = HPDF_Image_GetWidth(img);

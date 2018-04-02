@@ -1,47 +1,239 @@
 \hypertarget{classIndexCalculation}{}\section{Index\+Calculation Class Reference}
 \label{classIndexCalculation}\index{Index\+Calculation@{Index\+Calculation}}
+
+
+Calcula los indices de vegetación.  
+
+
+
+
+{\ttfamily \#include $<$Index\+Calculation.\+h$>$}
+
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
 \mbox{\Hypertarget{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}\label{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}} 
-void {\bfseries process\+Manager} ()
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a07039b532b218e5cfe1e603966017373}\label{classIndexCalculation_a07039b532b218e5cfe1e603966017373}} 
-void {\bfseries index\+Calcu} (string str\+Img, bool multispectral)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}\label{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}} 
-void {\bfseries index\+Calcu\+R\+GB} (string str\+Img)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}\label{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}} 
-void {\bfseries rg\+Calculation} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}\label{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}} 
-void {\bfseries index\+Calcu\+MS} (string str\+Img)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}\label{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}} 
-void {\bfseries ndvi\+Calculation} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}\label{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}} 
-void {\bfseries rvi\+Calculation} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
-\item 
+void \mbox{\hyperlink{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}{process\+Manager}} ()
+\begin{DoxyCompactList}\small\item\em Maneja todo el proceso para generación de los indices. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_a07039b532b218e5cfe1e603966017373}{index\+Calcu}} (string str\+Img, bool multispectral)
+\begin{DoxyCompactList}\small\item\em Decide que indices se van a calcular en base al tipo de imágenes que se procesen. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}{index\+Calcu\+R\+GB}} (string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula los indices para imágenes R\+GB. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}{rg\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula y escribe el indice RG=Rojo/\+Verde. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}{index\+Calcu\+MS}} (string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula los indices para imágenes multi-\/espectrales. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}{ndvi\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula y escribe el indice N\+D\+VI=(Infrarojo-\/\+Rojo)/(Infrarojo+\+Rojo). \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}{rvi\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula y escribe el indice R\+VI=Infrarojo/\+Rojo. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}{escribir\+Segmentaciones}} (Mat indice, Mat trans, string Nombre)
+\begin{DoxyCompactList}\small\item\em Escribe los resultados de un indice con diferentes segmentaciones. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a65a88228b2caf575cbbac793a03d1dd6}{obtener\+Input}} (bool multiespectral, bool output\+Stitching)
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes de entrada en base al tipo de imágen y a la BD que la contiene. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}{obtener\+R\+G\+B\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes R\+GB de entrada. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a889a95c13bc480c1194016ca0e1e9559}{obtener\+M\+S\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de entrada. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}{obtener\+R\+G\+B\+Output}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes R\+GB de salida. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a43b986cd58175d47714a399e7fdfd7e3}{obtener\+M\+S\+Output}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de salida. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Calcula los indices de vegetación. 
+
+\subsection{Member Function Documentation}
 \mbox{\Hypertarget{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}\label{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}} 
-void {\bfseries escribir\+Segmentaciones} (Mat indice, Mat trans, string Nombre)
-\item 
+\index{Index\+Calculation@{Index\+Calculation}!escribir\+Segmentaciones@{escribir\+Segmentaciones}}
+\index{escribir\+Segmentaciones@{escribir\+Segmentaciones}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{escribir\+Segmentaciones()}{escribirSegmentaciones()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::escribir\+Segmentaciones (\begin{DoxyParamCaption}\item[{Mat}]{indice,  }\item[{Mat}]{trans,  }\item[{string}]{Nombre }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Escribe los resultados de un indice con diferentes segmentaciones. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em indice} & \\
+\hline
+{\em trans} & \\
+\hline
+{\em Nombre} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_a07039b532b218e5cfe1e603966017373}\label{classIndexCalculation_a07039b532b218e5cfe1e603966017373}} 
+\index{Index\+Calculation@{Index\+Calculation}!index\+Calcu@{index\+Calcu}}
+\index{index\+Calcu@{index\+Calcu}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{index\+Calcu()}{indexCalcu()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::index\+Calcu (\begin{DoxyParamCaption}\item[{string}]{str\+Img,  }\item[{bool}]{multispectral }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Decide que indices se van a calcular en base al tipo de imágenes que se procesen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img} & \\
+\hline
+{\em multispectral} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}\label{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}} 
+\index{Index\+Calculation@{Index\+Calculation}!index\+Calcu\+MS@{index\+Calcu\+MS}}
+\index{index\+Calcu\+MS@{index\+Calcu\+MS}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{index\+Calcu\+M\+S()}{indexCalcuMS()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::index\+Calcu\+MS (\begin{DoxyParamCaption}\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula los indices para imágenes multi-\/espectrales. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}\label{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}} 
+\index{Index\+Calculation@{Index\+Calculation}!index\+Calcu\+R\+GB@{index\+Calcu\+R\+GB}}
+\index{index\+Calcu\+R\+GB@{index\+Calcu\+R\+GB}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{index\+Calcu\+R\+G\+B()}{indexCalcuRGB()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::index\+Calcu\+R\+GB (\begin{DoxyParamCaption}\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula los indices para imágenes R\+GB. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}\label{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}} 
+\index{Index\+Calculation@{Index\+Calculation}!ndvi\+Calculation@{ndvi\+Calculation}}
+\index{ndvi\+Calculation@{ndvi\+Calculation}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{ndvi\+Calculation()}{ndviCalculation()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::ndvi\+Calculation (\begin{DoxyParamCaption}\item[{vector$<$ Mat $>$}]{B\+G\+RA,  }\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula y escribe el indice N\+D\+VI=(Infrarojo-\/\+Rojo)/(Infrarojo+\+Rojo). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em B\+G\+RA} & \\
+\hline
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
 \mbox{\Hypertarget{classIndexCalculation_a65a88228b2caf575cbbac793a03d1dd6}\label{classIndexCalculation_a65a88228b2caf575cbbac793a03d1dd6}} 
-vector$<$ string $>$ {\bfseries obtener\+Input} (bool multiespectral, bool output\+Stitching)
-\item 
-\mbox{\Hypertarget{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}\label{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}} 
-vector$<$ string $>$ {\bfseries obtener\+R\+G\+B\+Input} ()
-\item 
+\index{Index\+Calculation@{Index\+Calculation}!obtener\+Input@{obtener\+Input}}
+\index{obtener\+Input@{obtener\+Input}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{obtener\+Input()}{obtenerInput()}}
+{\footnotesize\ttfamily vector$<$string$>$ Index\+Calculation\+::obtener\+Input (\begin{DoxyParamCaption}\item[{bool}]{multiespectral,  }\item[{bool}]{output\+Stitching }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de las imágenes de entrada en base al tipo de imágen y a la BD que la contiene. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em multiespectral} & \\
+\hline
+{\em output\+Stitching} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classIndexCalculation_a889a95c13bc480c1194016ca0e1e9559}\label{classIndexCalculation_a889a95c13bc480c1194016ca0e1e9559}} 
-vector$<$ string $>$ {\bfseries obtener\+M\+S\+Input} ()
-\item 
-\mbox{\Hypertarget{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}\label{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}} 
-vector$<$ string $>$ {\bfseries obtener\+R\+G\+B\+Output} ()
-\item 
+\index{Index\+Calculation@{Index\+Calculation}!obtener\+M\+S\+Input@{obtener\+M\+S\+Input}}
+\index{obtener\+M\+S\+Input@{obtener\+M\+S\+Input}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{obtener\+M\+S\+Input()}{obtenerMSInput()}}
+{\footnotesize\ttfamily vector$<$string$>$ Index\+Calculation\+::obtener\+M\+S\+Input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de las imágenes multi-\/espectrales de entrada. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classIndexCalculation_a43b986cd58175d47714a399e7fdfd7e3}\label{classIndexCalculation_a43b986cd58175d47714a399e7fdfd7e3}} 
-vector$<$ string $>$ {\bfseries obtener\+M\+S\+Output} ()
-\end{DoxyCompactItemize}
+\index{Index\+Calculation@{Index\+Calculation}!obtener\+M\+S\+Output@{obtener\+M\+S\+Output}}
+\index{obtener\+M\+S\+Output@{obtener\+M\+S\+Output}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{obtener\+M\+S\+Output()}{obtenerMSOutput()}}
+{\footnotesize\ttfamily vector$<$string$>$ Index\+Calculation\+::obtener\+M\+S\+Output (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de las imágenes multi-\/espectrales de salida. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}\label{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}} 
+\index{Index\+Calculation@{Index\+Calculation}!obtener\+R\+G\+B\+Input@{obtener\+R\+G\+B\+Input}}
+\index{obtener\+R\+G\+B\+Input@{obtener\+R\+G\+B\+Input}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{obtener\+R\+G\+B\+Input()}{obtenerRGBInput()}}
+{\footnotesize\ttfamily vector$<$string$>$ Index\+Calculation\+::obtener\+R\+G\+B\+Input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de las imágenes R\+GB de entrada. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}\label{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}} 
+\index{Index\+Calculation@{Index\+Calculation}!obtener\+R\+G\+B\+Output@{obtener\+R\+G\+B\+Output}}
+\index{obtener\+R\+G\+B\+Output@{obtener\+R\+G\+B\+Output}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{obtener\+R\+G\+B\+Output()}{obtenerRGBOutput()}}
+{\footnotesize\ttfamily vector$<$string$>$ Index\+Calculation\+::obtener\+R\+G\+B\+Output (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de las imágenes R\+GB de salida. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}\label{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}} 
+\index{Index\+Calculation@{Index\+Calculation}!rg\+Calculation@{rg\+Calculation}}
+\index{rg\+Calculation@{rg\+Calculation}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{rg\+Calculation()}{rgCalculation()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::rg\+Calculation (\begin{DoxyParamCaption}\item[{vector$<$ Mat $>$}]{B\+G\+RA,  }\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula y escribe el indice RG=Rojo/\+Verde. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em B\+G\+RA} & \\
+\hline
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}\label{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}} 
+\index{Index\+Calculation@{Index\+Calculation}!rvi\+Calculation@{rvi\+Calculation}}
+\index{rvi\+Calculation@{rvi\+Calculation}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{rvi\+Calculation()}{rviCalculation()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::rvi\+Calculation (\begin{DoxyParamCaption}\item[{vector$<$ Mat $>$}]{B\+G\+RA,  }\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula y escribe el indice R\+VI=Infrarojo/\+Rojo. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em B\+G\+RA} & \\
+\hline
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

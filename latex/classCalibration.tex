@@ -1,17 +1,100 @@
 \hypertarget{classCalibration}{}\section{Calibration Class Reference}
 \label{classCalibration}\index{Calibration@{Calibration}}
+
+
+Clase utilizada para la obtención de la matriz de calibración.  
+
+
+
+
+{\ttfamily \#include $<$Calibration.\+h$>$}
+
 \subsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
+static void \mbox{\hyperlink{classCalibration_a8e682a5065279297279b6b8ca4c095b6}{calibrate\+Img}} (int num\+Corners\+Hor, int num\+Corners\+Ver, string camera\+Name)
+\begin{DoxyCompactList}\small\item\em Obtiene matriz de calibración. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{classCalibration_af14df4879d8b1c76ff2faa6ede59fc94}{store\+Calibration\+Mat}} (Mat intrinsic, Mat dist\+Coeffs, string camera\+Name)
+\begin{DoxyCompactList}\small\item\em Escribe matriz de calibración. \end{DoxyCompactList}\item 
+static vector$<$ Mat $>$ \mbox{\hyperlink{classCalibration_a1700229db91e644ab02ace6e27c84a6a}{read\+Calibration\+Mat}} (string camera\+Name)
+\begin{DoxyCompactList}\small\item\em Lee matriz de calibración. \end{DoxyCompactList}\item 
+static vector$<$ string $>$ \mbox{\hyperlink{classCalibration_aea52dbf7c47bb8be3c28f0b853b76c9d}{obtener\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes de entrada. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Clase utilizada para la obtención de la matriz de calibración. 
+
+\subsection{Member Function Documentation}
 \mbox{\Hypertarget{classCalibration_a8e682a5065279297279b6b8ca4c095b6}\label{classCalibration_a8e682a5065279297279b6b8ca4c095b6}} 
-static void {\bfseries calibrate\+Img} (int num\+Corners\+Hor, int num\+Corners\+Ver, string camera\+Name)
-\item 
-\mbox{\Hypertarget{classCalibration_af14df4879d8b1c76ff2faa6ede59fc94}\label{classCalibration_af14df4879d8b1c76ff2faa6ede59fc94}} 
-static void {\bfseries store\+Calibration\+Mat} (Mat intrinsic, Mat dist\+Coeffs, string camera\+Name)
-\item 
+\index{Calibration@{Calibration}!calibrate\+Img@{calibrate\+Img}}
+\index{calibrate\+Img@{calibrate\+Img}!Calibration@{Calibration}}
+\subsubsection{\texorpdfstring{calibrate\+Img()}{calibrateImg()}}
+{\footnotesize\ttfamily static void Calibration\+::calibrate\+Img (\begin{DoxyParamCaption}\item[{int}]{num\+Corners\+Hor,  }\item[{int}]{num\+Corners\+Ver,  }\item[{string}]{camera\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene matriz de calibración. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+Corners\+Hor} & \\
+\hline
+{\em num\+Corners\+Ver} & \\
+\hline
+{\em camera\+Name} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classCalibration_aea52dbf7c47bb8be3c28f0b853b76c9d}\label{classCalibration_aea52dbf7c47bb8be3c28f0b853b76c9d}} 
+\index{Calibration@{Calibration}!obtener\+Input@{obtener\+Input}}
+\index{obtener\+Input@{obtener\+Input}!Calibration@{Calibration}}
+\subsubsection{\texorpdfstring{obtener\+Input()}{obtenerInput()}}
+{\footnotesize\ttfamily static vector$<$string$>$ Calibration\+::obtener\+Input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene las ubicaciones de las imágenes de entrada. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCalibration_a1700229db91e644ab02ace6e27c84a6a}\label{classCalibration_a1700229db91e644ab02ace6e27c84a6a}} 
-static vector$<$ Mat $>$ {\bfseries read\+Calibration\+Mat} (string camera\+Name)
-\end{DoxyCompactItemize}
+\index{Calibration@{Calibration}!read\+Calibration\+Mat@{read\+Calibration\+Mat}}
+\index{read\+Calibration\+Mat@{read\+Calibration\+Mat}!Calibration@{Calibration}}
+\subsubsection{\texorpdfstring{read\+Calibration\+Mat()}{readCalibrationMat()}}
+{\footnotesize\ttfamily static vector$<$Mat$>$ Calibration\+::read\+Calibration\+Mat (\begin{DoxyParamCaption}\item[{string}]{camera\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Lee matriz de calibración. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em camera\+Name} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$\+Mat$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCalibration_af14df4879d8b1c76ff2faa6ede59fc94}\label{classCalibration_af14df4879d8b1c76ff2faa6ede59fc94}} 
+\index{Calibration@{Calibration}!store\+Calibration\+Mat@{store\+Calibration\+Mat}}
+\index{store\+Calibration\+Mat@{store\+Calibration\+Mat}!Calibration@{Calibration}}
+\subsubsection{\texorpdfstring{store\+Calibration\+Mat()}{storeCalibrationMat()}}
+{\footnotesize\ttfamily static void Calibration\+::store\+Calibration\+Mat (\begin{DoxyParamCaption}\item[{Mat}]{intrinsic,  }\item[{Mat}]{dist\+Coeffs,  }\item[{string}]{camera\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Escribe matriz de calibración. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em intrinsic} & \\
+\hline
+{\em dist\+Coeffs} & \\
+\hline
+{\em camera\+Name} & \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

@@ -2,7 +2,10 @@
 
 #include <opencv/cv.hpp>
 #include <opencv/cv.h>
-
+/**
+ * @brief Genera un conjunto de scalares que representan diferentes colores.
+ * 
+ */
 class Color
 {
 public:
@@ -153,7 +156,11 @@ public:
     static cv::Scalar whitesmoke;
     static cv::Scalar yellow;
     static cv::Scalar yellowgreen;
-
+    /**
+     * @brief Genera un vector con varios colores.
+     * 
+     * @return vector<Vec3f> 
+     */
     vector<Vec3f> static generarColores(){
 		vector<Vec3f> colors;
         colors.push_back(scalarToVec(blue));
@@ -218,6 +225,12 @@ public:
         colors.push_back(scalarToVec(darkred));
 		return colors;
 	}
+    /**
+     * @brief Convierte un escalar a Vec3f.
+     * 
+     * @param sclColor 
+     * @return Vec3f 
+     */
 	Vec3f static scalarToVec(Scalar sclColor){
 		Vec3f color;
 		color[0]=sclColor[0]/255;

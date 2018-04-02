@@ -4,7 +4,10 @@
 #include "CommonFunctions.h"
 #include "Color.h"
 
-
+/**
+ * @brief Genera las diferentes segmentaciones.
+ * 
+ */
 class Segmentation{
 public:
     double min=0;
@@ -36,7 +39,13 @@ public:
 		img*=denominador;
 		return CommonFunctions::addAlpha(img,trans);
 	}
-
+	/**
+	 * @brief Crea y aplica un mapa de colores a una imágen y luego genera y pega un indice para que se pueda ver que valor tiene cada color en una imagen.
+	 * 
+	 * @param temp 
+	 * @param trans 
+	 * @return Mat 
+	 */
 	Mat static  createLut(Mat temp, Mat trans){
         double min,max;
 		//Normalizo la matriz, que seria como ecualizarla
@@ -79,7 +88,16 @@ public:
 
 		return dst;
 	}
-
+	/**
+	 * @brief Genera y pega un indice para que se pueda ver que valor tiene cada color en una imagen.
+	 * 
+	 * @param img 
+	 * @param Lut 
+	 * @param trans 
+	 * @param min 
+	 * @param max 
+	 * @return Mat 
+	 */
 	Mat static  drawIndexOfIndex(Mat img,Mat Lut,Mat trans,double min, double max){
 		//creo imagen blanca
 		int sizeIndex = img.cols > img.rows? img.cols : img.rows;
@@ -115,7 +133,15 @@ public:
 		img = CommonFunctions::addAlpha(img,transAux);
 		return img;
 	}
-
+	/**
+	 * @brief Normaliza los pixeles de una imágen.
+	 * 
+	 * @param img 
+	 * @param mask 
+	 * @param min 
+	 * @param max 
+	 * @return Mat 
+	 */
 	Mat static normalizateMat(Mat img, Mat mask,double &min, double &max){
 		Mat std,mean,dst;
 		//calculo minimo, maximo, media y desviacion estandar
@@ -133,7 +159,14 @@ public:
 				
 		return dst;
 	}
-
+	/**
+	 * @brief Aplica una cuantización de una imágen y a cada cuantizado le asigna su porcentaje de aparición en la imágen, con esto se realiza un gráfico.
+	 * 
+	 * @param img 
+	 * @param cantidad 
+	 * @param trans 
+	 * @return vector<Mat> 
+	 */
 	vector<Mat> static generarGrafico(Mat img,int cantidad, Mat trans){
 		Mat imgColor;
 		cvtColor(img,imgColor,CV_GRAY2BGR);
@@ -206,31 +239,12 @@ public:
 		vecMat.push_back(imgColor);
 		return vecMat;
 	}
-
-
-
-	vector<int> static threshMat(Mat img, string str){
-			Mat dst = img.clone();
-			int min=0;
-			int max=10;
-			namedWindow(str, WINDOW_NORMAL);
-			createTrackbar( "min", str, &min, 255);
-			createTrackbar( "max", str, &max, 255);
-			while(1){
-				imshow(str, dst);
-				int k = waitKey();
-				if(k == 27)
-        			break;
-				threshold(img, dst, min, max, THRESH_BINARY);
-				min = getTrackbarPos("min",str);
-				max = getTrackbarPos("max",str);
-			}
-			// destroyAllWindows();
-			vector<int> minMax;
-			minMax.push_back(min);
-			minMax.push_back(max);
-			return minMax;
-	}
+	/**
+	 * @brief Separa el suelo de la vegetación.
+	 * 
+	 * @param BGRA 
+	 * @return Mat 
+	 */
 
     Mat static separarSuelo(vector<Mat> BGRA){
 		Mat b,g,r;

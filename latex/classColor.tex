@@ -1,14 +1,21 @@
 \hypertarget{classColor}{}\section{Color Class Reference}
 \label{classColor}\index{Color@{Color}}
+
+
+Genera un conjunto de scalares que representan diferentes colores.  
+
+
+
+
+{\ttfamily \#include $<$Color.\+h$>$}
+
 \subsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classColor_a036f1d514a7bf1e6c36eb4231f18d43e}\label{classColor_a036f1d514a7bf1e6c36eb4231f18d43e}} 
-static vector$<$ Vec3f $>$ {\bfseries generar\+Colores} ()
-\item 
-\mbox{\Hypertarget{classColor_ae8b98ec693bfc1fde81e24f8e68a4b48}\label{classColor_ae8b98ec693bfc1fde81e24f8e68a4b48}} 
-static Vec3f {\bfseries scalar\+To\+Vec} (Scalar scl\+Color)
-\end{DoxyCompactItemize}
+static vector$<$ Vec3f $>$ \mbox{\hyperlink{classColor_a036f1d514a7bf1e6c36eb4231f18d43e}{generar\+Colores}} ()
+\begin{DoxyCompactList}\small\item\em Genera un vector con varios colores. \end{DoxyCompactList}\item 
+static Vec3f \mbox{\hyperlink{classColor_ae8b98ec693bfc1fde81e24f8e68a4b48}{scalar\+To\+Vec}} (Scalar scl\+Color)
+\begin{DoxyCompactList}\small\item\em Convierte un escalar a Vec3f. \end{DoxyCompactList}\end{DoxyCompactItemize}
 \subsection*{Static Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
@@ -453,6 +460,43 @@ static cv\+::\+Scalar {\bfseries yellow}
 \mbox{\Hypertarget{classColor_ad68dd4b7603c9e4fd4c60b8b5ad06974}\label{classColor_ad68dd4b7603c9e4fd4c60b8b5ad06974}} 
 static cv\+::\+Scalar {\bfseries yellowgreen}
 \end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Genera un conjunto de scalares que representan diferentes colores. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classColor_a036f1d514a7bf1e6c36eb4231f18d43e}\label{classColor_a036f1d514a7bf1e6c36eb4231f18d43e}} 
+\index{Color@{Color}!generar\+Colores@{generar\+Colores}}
+\index{generar\+Colores@{generar\+Colores}!Color@{Color}}
+\subsubsection{\texorpdfstring{generar\+Colores()}{generarColores()}}
+{\footnotesize\ttfamily static vector$<$Vec3f$>$ Color\+::generar\+Colores (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Genera un vector con varios colores. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$\+Vec3f$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classColor_ae8b98ec693bfc1fde81e24f8e68a4b48}\label{classColor_ae8b98ec693bfc1fde81e24f8e68a4b48}} 
+\index{Color@{Color}!scalar\+To\+Vec@{scalar\+To\+Vec}}
+\index{scalar\+To\+Vec@{scalar\+To\+Vec}!Color@{Color}}
+\subsubsection{\texorpdfstring{scalar\+To\+Vec()}{scalarToVec()}}
+{\footnotesize\ttfamily static Vec3f Color\+::scalar\+To\+Vec (\begin{DoxyParamCaption}\item[{Scalar}]{scl\+Color }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Convierte un escalar a Vec3f. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em scl\+Color} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Vec3f 
+\end{DoxyReturn}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

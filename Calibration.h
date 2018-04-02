@@ -12,16 +12,26 @@
 
 using namespace cv;
 using namespace std;
-
+/**
+ * @brief Clase utilizada para la obtención de la matriz de calibración.
+ * 
+ */
 class Calibration{
 public:
+    /**
+     * @brief Obtiene matriz de calibración.
+     * 
+     * @param numCornersHor 
+     * @param numCornersVer 
+     * @param cameraName 
+     */
     void static calibrateImg(int numCornersHor, int numCornersVer, string cameraName){
                 // printf("Enter number of boards: ");
         // scanf("%d", &numBoards);
         int numSquares = numCornersHor * numCornersVer;
         Size patternsize = Size(numCornersHor, numCornersVer);
 
-        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Calibrar/input/");
+        vector<string> strImgs = obtenerInput();
         vector<vector<Point3f>> object_points(strImgs.size());		//physical position of the corners in 3d space. this has to be measured by us
         vector<vector<Point2f>> image_points(strImgs.size());		//location of corners on in the image (2d) once the program has actual physical locations and locations			
         vector<vector<Point3f>> object_points2;		//physical position of the corners in 3d space. this has to be measured by us
@@ -33,6 +43,7 @@ public:
         vector<Point3f> obj;
         for(int j=0; j<numSquares; j++)
             obj.push_back(Point3f(j/numCornersHor, j%numCornersHor, 0));
+
 		parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
 			for(int i = range.start;i < range.end ; i++){
                 Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
@@ -45,8 +56,6 @@ public:
                 cornerSubPix(frame,corners, Size(11,11), Size(-1,-1), criteria);
                 drawChessboardCorners(frame, patternsize, Mat(corners), patternfound);
                 if(patternfound){
-                    string res = "Imagenes/Calibrar/output/resultados" + to_string(i) + ".png";
-                    imwrite(res,frame);
                     image_points[i] = corners;
                     object_points[i] = obj;
                 }
@@ -87,12 +96,24 @@ public:
 
     }
 
-
+    /**
+     * @brief Escribe matriz de calibración.
+     * 
+     * @param intrinsic 
+     * @param distCoeffs 
+     * @param cameraName 
+     */
     void static storeCalibrationMat(Mat intrinsic, Mat distCoeffs, string cameraName){
         FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::WRITE);
         fs << "intrinsic" << intrinsic << "distCoeffs" << distCoeffs;
         fs.release();
     }
+    /**
+     * @brief Lee matriz de calibración.
+     * 
+     * @param cameraName 
+     * @return vector<Mat> 
+     */
     vector<Mat> static readCalibrationMat(string cameraName){
         FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::READ);
 
@@ -103,6 +124,14 @@ public:
         fs.release();
 
         return {intrinsic, distCoeffs};
+    }
+    /**
+     * @brief Obtiene las ubicaciones de las imágenes de entrada.
+     * 
+     * @return vector<string> 
+     */
+    vector<string> static obtenerInput(){
+        return CommonFunctions::obtenerImagenes("Imagenes/Calibrar/input/");
     }
 };
 

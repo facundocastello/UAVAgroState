@@ -3,7 +3,10 @@
 
 #include "Segmentation.h"
 
-
+/**
+ * @brief Calcula los indices de desempeño.
+ * 
+ */
 class Performance{
 public:
 

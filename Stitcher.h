@@ -12,7 +12,10 @@ namespace uav{
 	bool sortByDist(DMatch a, DMatch b){
 		return a.distance < b.distance;
 	}
-
+	/**
+	 * @brief Realiza el pegado de un conjunto de imágenes.
+	 * 
+	 */
 	class Stitcher{
 		public:
 			/**

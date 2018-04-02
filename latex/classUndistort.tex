@@ -1,11 +1,74 @@
 \hypertarget{classUndistort}{}\section{Undistort Class Reference}
 \label{classUndistort}\index{Undistort@{Undistort}}
+
+
+Clase utilizada para quitar la distorsión de un conjunto de imágenes.  
+
+
+
+
+{\ttfamily \#include $<$Undistort.\+h$>$}
+
 \subsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
+static void \mbox{\hyperlink{classUndistort_a1082f78a003fca5fca34a8181796561f}{undistort\+Imgs}} (string camera\+Name)
+\begin{DoxyCompactList}\small\item\em Quita la distorsión de un conjunto de imágenes utilizando una matriz de transformación. \end{DoxyCompactList}\item 
+static vector$<$ string $>$ \mbox{\hyperlink{classUndistort_a72d7d2e5eae6b78c822a11feb5231644}{obtener\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene la ubicación de las imágenes a las que se le quitará la distorsión. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{classUndistort_a5179286860682effd17fcc2c1da2169e}{escribir\+Output}} (Mat frame\+Undistorted, string str\+Img)
+\begin{DoxyCompactList}\small\item\em Escribe las imágenes sin distorsión. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+Clase utilizada para quitar la distorsión de un conjunto de imágenes. 
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classUndistort_a5179286860682effd17fcc2c1da2169e}\label{classUndistort_a5179286860682effd17fcc2c1da2169e}} 
+\index{Undistort@{Undistort}!escribir\+Output@{escribir\+Output}}
+\index{escribir\+Output@{escribir\+Output}!Undistort@{Undistort}}
+\subsubsection{\texorpdfstring{escribir\+Output()}{escribirOutput()}}
+{\footnotesize\ttfamily static void Undistort\+::escribir\+Output (\begin{DoxyParamCaption}\item[{Mat}]{frame\+Undistorted,  }\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Escribe las imágenes sin distorsión. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em frame\+Undistorted} & \\
+\hline
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classUndistort_a72d7d2e5eae6b78c822a11feb5231644}\label{classUndistort_a72d7d2e5eae6b78c822a11feb5231644}} 
+\index{Undistort@{Undistort}!obtener\+Input@{obtener\+Input}}
+\index{obtener\+Input@{obtener\+Input}!Undistort@{Undistort}}
+\subsubsection{\texorpdfstring{obtener\+Input()}{obtenerInput()}}
+{\footnotesize\ttfamily static vector$<$string$>$ Undistort\+::obtener\+Input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene la ubicación de las imágenes a las que se le quitará la distorsión. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classUndistort_a1082f78a003fca5fca34a8181796561f}\label{classUndistort_a1082f78a003fca5fca34a8181796561f}} 
-static void {\bfseries undistort\+Imgs} (string camera\+Name)
-\end{DoxyCompactItemize}
+\index{Undistort@{Undistort}!undistort\+Imgs@{undistort\+Imgs}}
+\index{undistort\+Imgs@{undistort\+Imgs}!Undistort@{Undistort}}
+\subsubsection{\texorpdfstring{undistort\+Imgs()}{undistortImgs()}}
+{\footnotesize\ttfamily static void Undistort\+::undistort\+Imgs (\begin{DoxyParamCaption}\item[{string}]{camera\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Quita la distorsión de un conjunto de imágenes utilizando una matriz de transformación. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em camera\+Name} & \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

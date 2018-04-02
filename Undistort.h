@@ -12,23 +12,57 @@
 
 using namespace cv;
 using namespace std;
-
+/**
+ * @brief Clase utilizada para quitar la distorsión de un conjunto de imágenes.
+ * 
+ */
 class Undistort{
 public:
+    /**
+     * @brief Quita la distorsión de un conjunto de imágenes utilizando una matriz de transformación.
+     * 
+     * @param cameraName 
+     */
     void static undistortImgs(string cameraName){
+        struct timeval beginAll;
+		gettimeofday(&beginAll, NULL);
+
         string folder = "Data/Calibrar/";
         vector<Mat> calibrationMat =  Calibration::readCalibrationMat(cameraName);
-        vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Undistort/input/");
-        for(int i = 0 ; i < strImgs.size() ; i++){
-            Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
-            Mat frameUndistorted;
-            undistort(frame, frameUndistorted, calibrationMat[0], calibrationMat[1]);
-            size_t position = strImgs[i].find_last_of("/");
-            strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
-            // frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
-            string res = "Imagenes/Undistort/output" + strImgs[i];
-            imwrite(res, frameUndistorted);
-        }
+        vector<string> strImgs = obtenerInput();
+        parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
+			for(int i = range.start;i < range.end ; i++){
+                struct timeval begin;
+                gettimeofday(&begin, NULL);
+                Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
+                Mat frameUndistorted;
+                undistort(frame, frameUndistorted, calibrationMat[0], calibrationMat[1]);
+                size_t position = strImgs[i].find_last_of("/");
+                strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
+                // frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
+                escribirOutput(frameUndistorted,strImgs[i]);
+                CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strImgs[i])+":");
+            }
+        });
+        CommonFunctions::tiempo(beginAll, "Terminar todo: ");
+    }
+    /**
+     * @brief Obtiene la ubicación de las imágenes a las que se le quitará la distorsión.
+     * 
+     * @return vector<string> 
+     */
+    vector<string> static obtenerInput(){
+        return CommonFunctions::obtenerImagenes("Imagenes/Undistort/input/");
+    }
+    /**
+     * @brief Escribe las imágenes sin distorsión.
+     * 
+     * @param frameUndistorted 
+     * @param strImg 
+     */
+    void static escribirOutput(Mat frameUndistorted, string strImg){
+        string res = "Imagenes/Undistort/output" + strImg;
+        imwrite(res, frameUndistorted);
     }
 };
 

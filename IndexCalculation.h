@@ -6,11 +6,17 @@
 #include "Segmentation.h"
 #include "Stitcher.h"
 
-
+/**
+ * @brief Calcula los indices de vegetación
+ * 
+ */
 class IndexCalculation{
 public:
 
-
+	/**
+	 * @brief Maneja todo el proceso para generación de los indices.
+	 * 
+	 */
 	void processManager(){
 		
 		struct timeval beginAll;
@@ -24,6 +30,8 @@ public:
 		if(parallel){
 			cout << "con paralelismo \n";
 			parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
+				struct timeval begin;
+        		gettimeofday(&begin, NULL);
 				for(int i = range.start;i < range.end ; i++){
 				indexCalcu(strImgs[i],multispectral);
 				CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strImgs[i])+":");
@@ -38,7 +46,12 @@ public:
 		}
 		CommonFunctions::tiempo(beginAll, "Terminar todo: ");
 	}
-
+	/**
+	 * @brief Decide que indices se van a calcular en base al tipo de imágenes que se procesen.
+	 * 
+	 * @param strImg 
+	 * @param multispectral 
+	 */
 	void indexCalcu(string strImg, bool multispectral){
 		if(multispectral){
 			cout << "Comenzando calculo de indices para " + strImg + " multi-espectral \n";
@@ -48,7 +61,11 @@ public:
 			indexCalcuRGB(strImg);
 		}
 	}
-
+	/**
+	 * @brief Calcula los indices para imágenes RGB.
+	 * 
+	 * @param strImg 
+	 */
 	void indexCalcuRGB(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
 		
@@ -69,9 +86,12 @@ public:
 		Mat separado = Segmentation::separarSuelo(BGRA);
 		CommonFunctions::escribirImagen("Imagenes/Indices/output/rgb/"+ strImg +"/"+ strImg +"suelo.../", separado);
 	}
-
-
-
+	/**
+	 * @brief Calcula y escribe el indice RG=Rojo/Verde.
+	 * 
+	 * @param BGRA 
+	 * @param strImg 
+	 */
 	void rgCalculation(vector<Mat> BGRA, string strImg){
 		Mat rg,numerador,denominador;
 		divide(BGRA[2],BGRA[1],rg,123,CV_8U);
@@ -79,7 +99,11 @@ public:
 		String escribir = "Imagenes/Indices/output/rgb/"+ strImg +"/rg/"+ strImg +"rg";
 		escribirSegmentaciones(rg, BGRA[3], escribir);
 	}
-
+	/**
+	 * @brief Calcula los indices para imágenes multi-espectrales.
+	 * 
+	 * @param strImg 
+	 */
 	void indexCalcuMS(string strImg){
 		Mat imgaux = imread(strImg, IMREAD_UNCHANGED);
 		
@@ -101,7 +125,12 @@ public:
 		rviCalculation(BGRA, strImg);
 	}
 
-
+	/**
+	 * @brief Calcula y escribe el indice NDVI=(Infrarojo-Rojo)/(Infrarojo+Rojo).
+	 * 
+	 * @param BGRA 
+	 * @param strImg 
+	 */
 	void ndviCalculation(vector<Mat> BGRA, string strImg){
 		Mat ndvi,numerador,denominador;
 		//OBTENGO EL NDVI
@@ -116,6 +145,12 @@ public:
 		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/ndvi/"+ strImg + "ndvi";
 		escribirSegmentaciones(ndvi, BGRA[3], escribir);
 	}
+	/**
+	 * @brief Calcula y escribe el indice RVI=Infrarojo/Rojo
+	 * 
+	 * @param BGRA 
+	 * @param strImg 
+	 */
 	void rviCalculation(vector<Mat> BGRA, string strImg){
 		Mat rvi,numerador,denominador;
 		//OBTENGO EL NDVI
@@ -124,7 +159,13 @@ public:
 		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/rvi/"+ strImg + "rvi";
 		escribirSegmentaciones(rvi, BGRA[3], escribir);
 	}
-
+	/**
+	 * @brief Escribe los resultados de un indice con diferentes segmentaciones.
+	 * 
+	 * @param indice 
+	 * @param trans 
+	 * @param Nombre 
+	 */
 	void escribirSegmentaciones(Mat indice, Mat trans, string Nombre){
 		Mat indiceCuantizado = Segmentation::segmentationVariation(indice,trans,5);
 		Mat indiceLut = Segmentation::createLut(indice,trans);
@@ -135,7 +176,13 @@ public:
 		CommonFunctions::escribirImagen(Nombre +"Chart.png", indiceChart[0] );
 		CommonFunctions::escribirImagen(Nombre +"ChartImg.png", CommonFunctions::addAlpha(indiceChart[1],trans) );
 	}
-
+	/**
+	 * @brief Obtiene las ubicaciones de las imágenes de entrada en base al tipo de imágen y a la BD que la contiene.
+	 * 
+	 * @param multiespectral 
+	 * @param outputStitching 
+	 * @return vector<string> 
+	 */
 	vector<string> obtenerInput(bool multiespectral, bool outputStitching){
 		if(outputStitching){
 			uav::Stitcher stitch;
@@ -148,19 +195,35 @@ public:
 		}
 		return obtenerRGBInput();
 	}
-
+	/**
+	 * @brief Obtiene las ubicaciones de las imágenes RGB de entrada.
+	 * 
+	 * @return vector<string> 
+	 */
 	vector<string> obtenerRGBInput(){
 		return CommonFunctions::obtenerImagenes("Imagenes/Indices/input/rgb/");;
 	}
-
+	/**
+	 * @brief Obtiene las ubicaciones de las imágenes multi-espectrales de entrada.
+	 * 
+	 * @return vector<string> 
+	 */
 	vector<string> obtenerMSInput(){
 		return CommonFunctions::obtenerImagenes("Imagenes/Indices/input/ms/");;
 	}
-
+	/**
+	 * @brief Obtiene las ubicaciones de las imágenes RGB de salida.
+	 * 
+	 * @return vector<string> 
+	 */
 	vector<string> obtenerRGBOutput(){
 		return CommonFunctions::obtenerImagenes("Imagenes/Indices/output/rgb/");;
 	}
-
+	/**
+	 * @brief  Obtiene las ubicaciones de las imágenes multi-espectrales de salida.
+	 * 
+	 * @return vector<string> 
+	 */
 	vector<string> obtenerMSOutput(){
 		return CommonFunctions::obtenerImagenes("Imagenes/Indices/output/ms/");;
 	}
