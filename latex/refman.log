@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.11.9)  2 APR 2018 18:10
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.11.9)  2 APR 2018 18:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -1185,15 +1185,23 @@ LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <10> not available
 (Font)              Font shape `T1/phv/b/n' tried instead on input line 1.
 LaTeX Font Info:    Font shape `T1/phv/b/n' will be
 (Font)              scaled to size 8.99994pt on input line 1.
-)
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 7.19995pt on input line 11.
+LaTeX Font Info:    Try loading font information for T1+pcr on input line 11.
+
+(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
+File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
+) [1
+
+])
 \tf@toc=\write5
 \openout5 = `refman.toc'.
 
- [1
-
-] [2
-
-]
+LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <7> not available
+(Font)              Font shape `T1/phv/b/n' tried instead on input line 136.
+LaTeX Font Info:    Font shape `T1/phv/b/n' will be
+(Font)              scaled to size 6.29996pt on input line 136.
+ [2]
 Package hyperref Info: Option `pageanchor' set `true' on input line 138.
 
 Chapter 1.
@@ -1214,12 +1222,8 @@ LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
 (Font)              scaled to size 12.9599pt on input line 1.
 ) [1
 
-]
-LaTeX Font Info:    Font shape `T1/phv/bx/n' in size <7> not available
-(Font)              Font shape `T1/phv/b/n' tried instead on input line 143.
-LaTeX Font Info:    Font shape `T1/phv/b/n' will be
-(Font)              scaled to size 6.29996pt on input line 143.
- [2
+
+] [2
 
 ]
 Chapter 2.
@@ -1241,41 +1245,52 @@ LaTeX Font Info:    Font shape `TS1/phv/m/n' will be
 [3] [4] [5]) (./classCommonFunctions.tex
 LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
 (Font)              scaled to size 6.29996pt on input line 1.
+LaTeX Font Info:    Font shape `T1/phv/m/n' will be
+(Font)              scaled to size 8.09995pt on input line 16.
+LaTeX Font Info:    Font shape `T1/phv/m/it' in size <9> not available
+(Font)              Font shape `T1/phv/m/sl' tried instead on input line 16.
+LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
+(Font)              scaled to size 8.09995pt on input line 16.
  [6]
 LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
-(Font)              scaled to size 8.99994pt on input line 95.
-LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 7.19995pt on input line 96.
-LaTeX Font Info:    Try loading font information for T1+pcr on input line 96.
-
-(/usr/share/texlive/texmf-dist/tex/latex/psnfss/t1pcr.fd
-File: t1pcr.fd 2001/06/04 font definitions for T1/pcr.
-)
+(Font)              scaled to size 8.99994pt on input line 69.
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <8> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 96.
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 70.
+ [7]
+Underfull \hbox (badness 10000) detected at line 83
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 101
+[][][]
+ []
+
+LaTeX Font Info:    Font shape `T1/phv/bc/n' will be
+(Font)              scaled to size 7.19995pt on input line 107.
+
+LaTeX Font Warning: Font shape `T1/pcr/bc/n' undefined
+(Font)              using `T1/pcr/m/n' instead on input line 107.
+
+
+Underfull \hbox (badness 10000) detected at line 123
+[][][]
+ []
+
 LaTeX Font Info:    Font shape `T1/pcr/m/it' in size <7> not available
-(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 96.
-)
-(./classIndexCalculation.tex) (./classPerformance.tex [7])
-(./classRedaction.tex) (./classSegmentation.tex
-LaTeX Font Info:    Font shape `T1/phv/m/n' will be
-(Font)              scaled to size 8.09995pt on input line 7.
-LaTeX Font Info:    Font shape `T1/phv/m/it' in size <9> not available
-(Font)              Font shape `T1/phv/m/sl' tried instead on input line 7.
-LaTeX Font Info:    Font shape `T1/phv/m/sl' will be
-(Font)              scaled to size 8.09995pt on input line 7.
- [8]
-Underfull \hbox (badness 10000) detected at line 57
+(Font)              Font shape `T1/pcr/m/sl' tried instead on input line 130.
+[8]
+Underfull \hbox (badness 10000) detected at line 149
 [][][]
  []
 
-) (./classuav_1_1Stitcher.tex [9] [10]
-Underfull \hbox (badness 10000) detected at line 148
+
+Underfull \hbox (badness 10000) detected at line 171
 [][][]
  []
 
-[11]
-Underfull \hbox (badness 10000) detected at line 170
+[9]
+Underfull \hbox (badness 10000) detected at line 193
 [][][]
  []
 
@@ -1284,20 +1299,83 @@ Underfull \hbox (badness 10000) detected at line 213
 [][][]
  []
 
-[12]
-Underfull \hbox (badness 10000) detected at line 243
+[10]
+Underfull \hbox (badness 10000) detected at line 231
 [][][]
  []
 
 
+Underfull \hbox (badness 10000) detected at line 253
+[][][]
+ []
+
+[11]
+Underfull \hbox (badness 10000) detected at line 290
+[][][]
+ []
+
+[12]
+Underfull \hbox (badness 10000) detected at line 367
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 385
+[][][]
+ []
+
+[13]
+Underfull \hbox (badness 10000) detected at line 403
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 421
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 439
+[][][]
+ []
+
+[14]
+Underfull \hbox (badness 10000) detected at line 476
+[][][]
+ []
+
+) (./classIndexCalculation.tex [15]) (./classPerformance.tex)
+(./classRedaction.tex) (./classSegmentation.tex [16]
+Underfull \hbox (badness 10000) detected at line 57
+[][][]
+ []
+
+) (./classuav_1_1Stitcher.tex [17] [18] [19]
+Underfull \hbox (badness 10000) detected at line 148
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 170
+[][][]
+ []
+
+[20]
+Underfull \hbox (badness 10000) detected at line 213
+[][][]
+ []
+
+
+Underfull \hbox (badness 10000) detected at line 243
+[][][]
+ []
+
+[21]
 Underfull \hbox (badness 10000) detected at line 256
 [][][]
  []
 
 
-Underfull \vbox (badness 10000) has occurred while \output is active []
-
- [13]
 Underfull \hbox (badness 10000) detected at line 274
 [][][]
  []
@@ -1307,20 +1385,21 @@ Underfull \hbox (badness 10000) detected at line 287
 [][][]
  []
 
-
+[22]
 Underfull \hbox (badness 10000) detected at line 319
 [][][]
  []
 
-[14]
+
 Underfull \hbox (badness 10000) detected at line 341
 [][][]
  []
 
-) (./classUndistort.tex) [15] [16
+) (./classUndistort.tex [23]) [24] (./refman.ind [25
 
-] (./refman.ind [17
 
+
+] [26
 
 ])
 Package atveryend Info: Empty hook `BeforeClearDocument' on input line 163.
@@ -1329,32 +1408,37 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 163.
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 163.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 163.
 Package rerunfilecheck Info: File `refman.out' has not changed.
-(rerunfilecheck)             Checksum: 4A6EE5092BD1D16FDDDD0685680DA18C;6201.
+(rerunfilecheck)             Checksum: 3616C85F1353310A4008764F508EDC42;10447.
+
+
+LaTeX Font Warning: Some font shapes were not available, defaults substituted.
+
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 163.
  ) 
 Here is how much of TeX's memory you used:
- 15400 strings out of 494850
- 234845 string characters out of 6178024
- 322759 words of memory out of 5000000
- 18106 multiletter control sequences out of 15000+600000
- 65101 words of font info for 82 fonts, out of 8000000 for 9000
+ 15490 strings out of 494850
+ 235622 string characters out of 6178024
+ 322379 words of memory out of 5000000
+ 18150 multiletter control sequences out of 15000+600000
+ 67356 words of font info for 85 fonts, out of 8000000 for 9000
  62 hyphenation exceptions out of 8191
- 53i,15n,92p,486b,632s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 53i,16n,92p,758b,632s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r.enc}</usr/share/texliv
 e/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></usr/share/texlive/texm
 f-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></usr/share/texlive/texmf-dist/
 fonts/type1/public/amsfonts/cm/cmmi8.pfb></usr/share/texlive/texmf-dist/fonts/t
 ype1/public/amsfonts/cm/cmsy10.pfb></usr/share/texlive/texmf-dist/fonts/type1/p
-ublic/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/cour
-ier/ucrr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrro8a.p
-fb></usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/sha
-re/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texlive/
-texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/f
-onts/type1/urw/helvetic/uhvro8a.pfb>
-Output written on refman.pdf (21 pages, 148387 bytes).
+ublic/amsfonts/cm/cmsy7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/a
+msfonts/cm/cmsy8.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucr
+r8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/courier/ucrro8a.pfb></us
+r/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/share/texl
+ive/texmf-dist/fonts/type1/urw/helvetic/uhvb8ac.pfb></usr/share/texlive/texmf-d
+ist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive/texmf-dist/fonts/ty
+pe1/urw/helvetic/uhvro8a.pfb>
+Output written on refman.pdf (30 pages, 179219 bytes).
 PDF statistics:
- 751 PDF objects out of 1000 (max. 8388607)
- 709 compressed objects within 8 object streams
- 327 named destinations out of 1000 (max. 500000)
- 249 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 980 PDF objects out of 1000 (max. 8388607)
+ 926 compressed objects within 10 object streams
+ 372 named destinations out of 1000 (max. 500000)
+ 417 words of extra memory for PDF output out of 10000 (max. 10000000)
 

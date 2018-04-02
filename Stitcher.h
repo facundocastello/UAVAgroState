@@ -869,6 +869,7 @@ namespace uav{
 			 * @param numRes 
 			 */
 			void escribirOutput(int numRes){
+				boundBox = CommonFunctions::cropRectorROI(boundBox, CommonFunctions::rectROI(boundBox));
 				if(finalResult){
 					escribirOutputRF();
 				}else{

@@ -1,107 +1,482 @@
 \hypertarget{classCommonFunctions}{}\section{Common\+Functions Class Reference}
 \label{classCommonFunctions}\index{Common\+Functions@{Common\+Functions}}
+
+
+Realiza funciones genéricas que pueden ser utiles para cualquier proceso de este software.  
+
+
+
+
+{\ttfamily \#include $<$Common\+Functions.\+h$>$}
+
 \subsection*{Static Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classCommonFunctions_a7929553dc4f6c186d0b47c4df99d8277}\label{classCommonFunctions_a7929553dc4f6c186d0b47c4df99d8277}} 
-static Mat {\bfseries add\+Indent} (Mat bound\+Box, int position, int cols, int rows, int col\+Grid, int row\+Grid, float col\+Overlap, float row\+Overlap, int extra\+Indent=200)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}\label{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}} 
-static void {\bfseries info} (const cv\+::\+Mat \&image, std\+::ostream \&out=std\+::cout)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}\label{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}} 
-static Mat {\bfseries cargar\+Imagen} (string str\+Img, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
-\item 
-\mbox{\Hypertarget{classCommonFunctions_ae99903337e2288caf5e685162491cdb0}\label{classCommonFunctions_ae99903337e2288caf5e685162491cdb0}} 
-static vector$<$ int $>$ {\bfseries set\+Border} (Mat img)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a8fbb5de9311cca7ee8dec4d4afaab6ff}\label{classCommonFunctions_a8fbb5de9311cca7ee8dec4d4afaab6ff}} 
-static Mat {\bfseries Aindane} (Mat input\+Image, int sigma)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a12aab213d05635ce869cfc70a72be43d}\label{classCommonFunctions_a12aab213d05635ce869cfc70a72be43d}} 
-static Mat {\bfseries get\+Border} (Mat img, vector$<$ int $>$ min\+Max)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a796534c3ac4d0dfb260d29af60e620ee}\label{classCommonFunctions_a796534c3ac4d0dfb260d29af60e620ee}} 
-static vector$<$ Mat $>$ {\bfseries get\+Borders} (vector$<$ Mat $>$ imgs, vector$<$ int $>$ min\+Max)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}\label{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}} 
-static vector$<$ Mat $>$ {\bfseries cargar\+Imagenes} (vector$<$ string $>$ str\+Imgs, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}\label{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}} 
-static vector$<$ string $>$ {\bfseries obtener\+Imagenes} (const char $\ast$carpeta, bool reverse=false)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}\label{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}} 
-static bool {\bfseries crear\+Carpeta} (String str)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}\label{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}} 
-static string {\bfseries obtener\+Ultimo\+Directorio} (string \&carpeta)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}\label{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}} 
-static string {\bfseries obtener\+Ultimo\+Directorio2} (string carpeta)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}\label{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}} 
-static void {\bfseries manejar\+Carpeta} (string carpeta)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}\label{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}} 
-static void {\bfseries escribir\+Imagen} (string carpeta, Mat img)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}\label{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}} 
-static void {\bfseries show\+Window\+Normal} (Mat img, String namewindow=\char`\"{}img\char`\"{})
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}\label{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}} 
-static timeval {\bfseries tiempo} (timeval begin, string msg)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}\label{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}} 
-static Rect {\bfseries rect\+R\+OI} (Mat img)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}\label{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}} 
-static Mat {\bfseries crop\+Rector\+R\+OI} (Mat img, Rect rect)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}\label{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}} 
-static Mat {\bfseries bounding\+Box} (Mat img, int colindent, int rowindent)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}\label{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}} 
-static Mat {\bfseries copy\+To\+Transparent} (Mat obj, Mat scene)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}\label{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}} 
-static Mat {\bfseries bounding\+Box} (Mat img, int ar\+Indent, int ab\+Indent, int iz\+Indent, int der\+Indent)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}\label{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}} 
-static bool {\bfseries escribir\+P\+DF} (H\+P\+D\+F\+\_\+\+Doc pdf, string str)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a8e39cb29f27952c6658f69fd9be55ec3}\label{classCommonFunctions_a8e39cb29f27952c6658f69fd9be55ec3}} 
-static Mat {\bfseries make\+Back\+Ground\+Transparent} (Mat img)
-\item 
+static void \mbox{\hyperlink{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}{info}} (const cv\+::\+Mat \&image, std\+::ostream \&out=std\+::cout)
+\begin{DoxyCompactList}\small\item\em Imprime en pantalla el tamaño, cantidad de canales, y profundidad de una imágen. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}{cargar\+Imagen}} (string str\+Img, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
+\begin{DoxyCompactList}\small\item\em Carga y redimensiona una imágen en base a su ubicación. \end{DoxyCompactList}\item 
+static vector$<$ Mat $>$ \mbox{\hyperlink{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}{cargar\+Imagenes}} (vector$<$ string $>$ str\+Imgs, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
+\begin{DoxyCompactList}\small\item\em Carga y redimensiona un grupo de imágenes en base a sus ubicaciones. \end{DoxyCompactList}\item 
+static vector$<$ string $>$ \mbox{\hyperlink{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}{obtener\+Imagenes}} (const char $\ast$carpeta, bool reverse=false)
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de un conjunto de imágenes que estan dentro de una carpeta. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}{crear\+Carpeta}} (String str)
+\begin{DoxyCompactList}\small\item\em Crea una carpeta. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}{obtener\+Ultimo\+Directorio}} (string \&carpeta)
+\begin{DoxyCompactList}\small\item\em Obtiene el ultimo directorio (o archivo) de una ubicación y además lo borra de la cadena de texto. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}{obtener\+Ultimo\+Directorio2}} (string carpeta)
+\begin{DoxyCompactList}\small\item\em Obtiene el ultimo directorio (o archivo) de una ubicación sin borrarlo de la cadena de texto. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}{manejar\+Carpeta}} (string carpeta)
+\begin{DoxyCompactList}\small\item\em Verifica si la ubicación de un archivo existe, en caso contrario crea las carpetas que sean necesarias. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}{escribir\+Imagen}} (string carpeta, Mat img)
+\begin{DoxyCompactList}\small\item\em Escribe una imágen, creando previamente las carpetas que sean necesarias. \end{DoxyCompactList}\item 
+static void \mbox{\hyperlink{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}{show\+Window\+Normal}} (Mat img, String namewindow=\char`\"{}img\char`\"{})
+\begin{DoxyCompactList}\small\item\em Muesta una imágen en una ventana. \end{DoxyCompactList}\item 
+static timeval \mbox{\hyperlink{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}{tiempo}} (timeval begin, string msg)
+\begin{DoxyCompactList}\small\item\em Devuelve la diferencia en segundos entre un timeval y el timeval actual, e imprime en pantalla esa diferencia. \end{DoxyCompactList}\item 
+static Rect \mbox{\hyperlink{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}{rect\+R\+OI}} (Mat img)
+\begin{DoxyCompactList}\small\item\em Obtiene un rectangulo que indica la caja de límites del area de interes. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}{crop\+Rector\+R\+OI}} (Mat img, Rect rect)
+\begin{DoxyCompactList}\small\item\em En base a una imágen y a un rectangulo que indique el area de interes, corta la imagen. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}{bounding\+Box}} (Mat img, int colindent, int rowindent)
+\begin{DoxyCompactList}\small\item\em Agrega a una imágen espacios iguales a la izquierda y derecha, y arriba y abajo. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}{bounding\+Box}} (Mat img, int ar\+Indent, int ab\+Indent, int iz\+Indent, int der\+Indent)
+\begin{DoxyCompactList}\small\item\em Agrega a una imágen espacios arriba, abajo, izquierda y derecha. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}{copy\+To\+Transparent}} (Mat obj, Mat scene)
+\begin{DoxyCompactList}\small\item\em Copia una imágen dentro de otra, pero manteniendo las transparencias. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}{escribir\+P\+DF}} (H\+P\+D\+F\+\_\+\+Doc pdf, string str)
+\begin{DoxyCompactList}\small\item\em Escribe un pdf en una carpeta, creando las carpetas faltantes. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}{add\+Transparence}} (Mat img)
+\begin{DoxyCompactList}\small\item\em Agrega transparencia a una imágen, en base a un umbral. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}{add\+Alpha}} (Mat img, Mat trans)
+\begin{DoxyCompactList}\small\item\em Agrega transparencia a una imágen, en base a una mascara. \end{DoxyCompactList}\item 
+static Mat \mbox{\hyperlink{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}{remove\+Alpha}} (Mat img)
+\begin{DoxyCompactList}\small\item\em Quita el cuarto canal de una imágen. \end{DoxyCompactList}\item 
 static void \mbox{\hyperlink{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}{hist\+Draw}} (Mat img, string img\+Name)
-\item 
+\begin{DoxyCompactList}\small\item\em Dibuja el histograma de una imágen. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}\label{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}} 
 static string {\bfseries type2str} (Mat img)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}\label{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}} 
-static Mat {\bfseries add\+Alpha} (Mat img, Mat trans)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}\label{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}} 
-static Mat {\bfseries add\+Transparence} (Mat img)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}\label{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}} 
-static Mat {\bfseries remove\+Alpha} (Mat img)
 \end{DoxyCompactItemize}
 
 
+\subsection{Detailed Description}
+Realiza funciones genéricas que pueden ser utiles para cualquier proceso de este software. 
+
 \subsection{Member Function Documentation}
+\mbox{\Hypertarget{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}\label{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}} 
+\index{Common\+Functions@{Common\+Functions}!add\+Alpha@{add\+Alpha}}
+\index{add\+Alpha@{add\+Alpha}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{add\+Alpha()}{addAlpha()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::add\+Alpha (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{Mat}]{trans }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Agrega transparencia a una imágen, en base a una mascara. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em trans} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}\label{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}} 
+\index{Common\+Functions@{Common\+Functions}!add\+Transparence@{add\+Transparence}}
+\index{add\+Transparence@{add\+Transparence}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{add\+Transparence()}{addTransparence()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::add\+Transparence (\begin{DoxyParamCaption}\item[{Mat}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Agrega transparencia a una imágen, en base a un umbral. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}\label{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}} 
+\index{Common\+Functions@{Common\+Functions}!bounding\+Box@{bounding\+Box}}
+\index{bounding\+Box@{bounding\+Box}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{bounding\+Box()}{boundingBox()}\hspace{0.1cm}{\footnotesize\ttfamily [1/2]}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::bounding\+Box (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{int}]{colindent,  }\item[{int}]{rowindent }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Agrega a una imágen espacios iguales a la izquierda y derecha, y arriba y abajo. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em colindent} & \\
+\hline
+{\em rowindent} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}\label{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}} 
+\index{Common\+Functions@{Common\+Functions}!bounding\+Box@{bounding\+Box}}
+\index{bounding\+Box@{bounding\+Box}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{bounding\+Box()}{boundingBox()}\hspace{0.1cm}{\footnotesize\ttfamily [2/2]}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::bounding\+Box (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{int}]{ar\+Indent,  }\item[{int}]{ab\+Indent,  }\item[{int}]{iz\+Indent,  }\item[{int}]{der\+Indent }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Agrega a una imágen espacios arriba, abajo, izquierda y derecha. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em ar\+Indent} & \\
+\hline
+{\em ab\+Indent} & \\
+\hline
+{\em iz\+Indent} & \\
+\hline
+{\em der\+Indent} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}\label{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}} 
+\index{Common\+Functions@{Common\+Functions}!cargar\+Imagen@{cargar\+Imagen}}
+\index{cargar\+Imagen@{cargar\+Imagen}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{cargar\+Imagen()}{cargarImagen()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::cargar\+Imagen (\begin{DoxyParamCaption}\item[{string}]{str\+Img,  }\item[{int}]{tamano = {\ttfamily 4},  }\item[{int}]{Tipo = {\ttfamily int(IMREAD\+\_\+UNCHANGED)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Carga y redimensiona una imágen en base a su ubicación. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img} & \\
+\hline
+{\em tamano} & \\
+\hline
+{\em Tipo} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}\label{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}} 
+\index{Common\+Functions@{Common\+Functions}!cargar\+Imagenes@{cargar\+Imagenes}}
+\index{cargar\+Imagenes@{cargar\+Imagenes}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{cargar\+Imagenes()}{cargarImagenes()}}
+{\footnotesize\ttfamily static vector$<$Mat$>$ Common\+Functions\+::cargar\+Imagenes (\begin{DoxyParamCaption}\item[{vector$<$ string $>$}]{str\+Imgs,  }\item[{int}]{tamano = {\ttfamily 4},  }\item[{int}]{Tipo = {\ttfamily int(IMREAD\+\_\+UNCHANGED)} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Carga y redimensiona un grupo de imágenes en base a sus ubicaciones. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Imgs} & \\
+\hline
+{\em tamano} & \\
+\hline
+{\em Tipo} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$\+Mat$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}\label{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}} 
+\index{Common\+Functions@{Common\+Functions}!copy\+To\+Transparent@{copy\+To\+Transparent}}
+\index{copy\+To\+Transparent@{copy\+To\+Transparent}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{copy\+To\+Transparent()}{copyToTransparent()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::copy\+To\+Transparent (\begin{DoxyParamCaption}\item[{Mat}]{obj,  }\item[{Mat}]{scene }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Copia una imágen dentro de otra, pero manteniendo las transparencias. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em obj} & \\
+\hline
+{\em scene} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}\label{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}} 
+\index{Common\+Functions@{Common\+Functions}!crear\+Carpeta@{crear\+Carpeta}}
+\index{crear\+Carpeta@{crear\+Carpeta}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{crear\+Carpeta()}{crearCarpeta()}}
+{\footnotesize\ttfamily static bool Common\+Functions\+::crear\+Carpeta (\begin{DoxyParamCaption}\item[{String}]{str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Crea una carpeta. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}\label{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}} 
+\index{Common\+Functions@{Common\+Functions}!crop\+Rector\+R\+OI@{crop\+Rector\+R\+OI}}
+\index{crop\+Rector\+R\+OI@{crop\+Rector\+R\+OI}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{crop\+Rector\+R\+O\+I()}{cropRectorROI()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::crop\+Rector\+R\+OI (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{Rect}]{rect }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+En base a una imágen y a un rectangulo que indique el area de interes, corta la imagen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em rect} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}\label{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}} 
+\index{Common\+Functions@{Common\+Functions}!escribir\+Imagen@{escribir\+Imagen}}
+\index{escribir\+Imagen@{escribir\+Imagen}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{escribir\+Imagen()}{escribirImagen()}}
+{\footnotesize\ttfamily static void Common\+Functions\+::escribir\+Imagen (\begin{DoxyParamCaption}\item[{string}]{carpeta,  }\item[{Mat}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Escribe una imágen, creando previamente las carpetas que sean necesarias. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em carpeta} & \\
+\hline
+{\em img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}\label{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}} 
+\index{Common\+Functions@{Common\+Functions}!escribir\+P\+DF@{escribir\+P\+DF}}
+\index{escribir\+P\+DF@{escribir\+P\+DF}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{escribir\+P\+D\+F()}{escribirPDF()}}
+{\footnotesize\ttfamily static bool Common\+Functions\+::escribir\+P\+DF (\begin{DoxyParamCaption}\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf,  }\item[{string}]{str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Escribe un pdf en una carpeta, creando las carpetas faltantes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em pdf} & \\
+\hline
+{\em str} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}\label{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}} 
 \index{Common\+Functions@{Common\+Functions}!hist\+Draw@{hist\+Draw}}
 \index{hist\+Draw@{hist\+Draw}!Common\+Functions@{Common\+Functions}}
 \subsubsection{\texorpdfstring{hist\+Draw()}{histDraw()}}
 {\footnotesize\ttfamily static void Common\+Functions\+::hist\+Draw (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{string}]{img\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
 
+
+
+Dibuja el histograma de una imágen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em img\+Name} & \\
+\hline
+\end{DoxyParams}
 Establish the number of bins
 
 Set the ranges ( for B,G,R) )
 
 Compute the histograms\+:
 
-Normalize the result to \mbox{[} 0, hist\+Image.\+rows \mbox{]} 
+Normalize the result to \mbox{[} 0, hist\+Image.\+rows \mbox{]} \mbox{\Hypertarget{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}\label{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}} 
+\index{Common\+Functions@{Common\+Functions}!info@{info}}
+\index{info@{info}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{info()}{info()}}
+{\footnotesize\ttfamily static void Common\+Functions\+::info (\begin{DoxyParamCaption}\item[{const cv\+::\+Mat \&}]{image,  }\item[{std\+::ostream \&}]{out = {\ttfamily std\+:\+:cout} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Imprime en pantalla el tamaño, cantidad de canales, y profundidad de una imágen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em image} & \\
+\hline
+{\em out} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}\label{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}} 
+\index{Common\+Functions@{Common\+Functions}!manejar\+Carpeta@{manejar\+Carpeta}}
+\index{manejar\+Carpeta@{manejar\+Carpeta}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{manejar\+Carpeta()}{manejarCarpeta()}}
+{\footnotesize\ttfamily static void Common\+Functions\+::manejar\+Carpeta (\begin{DoxyParamCaption}\item[{string}]{carpeta }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Verifica si la ubicación de un archivo existe, en caso contrario crea las carpetas que sean necesarias. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em carpeta} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}\label{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}} 
+\index{Common\+Functions@{Common\+Functions}!obtener\+Imagenes@{obtener\+Imagenes}}
+\index{obtener\+Imagenes@{obtener\+Imagenes}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{obtener\+Imagenes()}{obtenerImagenes()}}
+{\footnotesize\ttfamily static vector$<$string$>$ Common\+Functions\+::obtener\+Imagenes (\begin{DoxyParamCaption}\item[{const char $\ast$}]{carpeta,  }\item[{bool}]{reverse = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene las ubicaciones de un conjunto de imágenes que estan dentro de una carpeta. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em carpeta} & \\
+\hline
+{\em reverse} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}\label{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}} 
+\index{Common\+Functions@{Common\+Functions}!obtener\+Ultimo\+Directorio@{obtener\+Ultimo\+Directorio}}
+\index{obtener\+Ultimo\+Directorio@{obtener\+Ultimo\+Directorio}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{obtener\+Ultimo\+Directorio()}{obtenerUltimoDirectorio()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::obtener\+Ultimo\+Directorio (\begin{DoxyParamCaption}\item[{string \&}]{carpeta }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene el ultimo directorio (o archivo) de una ubicación y además lo borra de la cadena de texto. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em carpeta} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}\label{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}} 
+\index{Common\+Functions@{Common\+Functions}!obtener\+Ultimo\+Directorio2@{obtener\+Ultimo\+Directorio2}}
+\index{obtener\+Ultimo\+Directorio2@{obtener\+Ultimo\+Directorio2}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{obtener\+Ultimo\+Directorio2()}{obtenerUltimoDirectorio2()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::obtener\+Ultimo\+Directorio2 (\begin{DoxyParamCaption}\item[{string}]{carpeta }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene el ultimo directorio (o archivo) de una ubicación sin borrarlo de la cadena de texto. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em carpeta} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}\label{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}} 
+\index{Common\+Functions@{Common\+Functions}!rect\+R\+OI@{rect\+R\+OI}}
+\index{rect\+R\+OI@{rect\+R\+OI}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{rect\+R\+O\+I()}{rectROI()}}
+{\footnotesize\ttfamily static Rect Common\+Functions\+::rect\+R\+OI (\begin{DoxyParamCaption}\item[{Mat}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtiene un rectangulo que indica la caja de límites del area de interes. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Rect 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}\label{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}} 
+\index{Common\+Functions@{Common\+Functions}!remove\+Alpha@{remove\+Alpha}}
+\index{remove\+Alpha@{remove\+Alpha}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{remove\+Alpha()}{removeAlpha()}}
+{\footnotesize\ttfamily static Mat Common\+Functions\+::remove\+Alpha (\begin{DoxyParamCaption}\item[{Mat}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Quita el cuarto canal de una imágen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}\label{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}} 
+\index{Common\+Functions@{Common\+Functions}!show\+Window\+Normal@{show\+Window\+Normal}}
+\index{show\+Window\+Normal@{show\+Window\+Normal}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{show\+Window\+Normal()}{showWindowNormal()}}
+{\footnotesize\ttfamily static void Common\+Functions\+::show\+Window\+Normal (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{String}]{namewindow = {\ttfamily \char`\"{}img\char`\"{}} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Muesta una imágen en una ventana. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em namewindow} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}\label{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}} 
+\index{Common\+Functions@{Common\+Functions}!tiempo@{tiempo}}
+\index{tiempo@{tiempo}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{tiempo()}{tiempo()}}
+{\footnotesize\ttfamily static timeval Common\+Functions\+::tiempo (\begin{DoxyParamCaption}\item[{timeval}]{begin,  }\item[{string}]{msg }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Devuelve la diferencia en segundos entre un timeval y el timeval actual, e imprime en pantalla esa diferencia. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em begin} & \\
+\hline
+{\em msg} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+timeval 
+\end{DoxyReturn}
+
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
 \item 
