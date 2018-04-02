@@ -13,6 +13,18 @@
 class IndexCalculation{
 public:
 
+	bool outputStitching;
+	bool parallel;
+	bool multispectral;
+
+	IndexCalculation(bool outputStitching = false,
+		bool multispectral = true,
+		bool parallel = true){
+			this->outputStitching = outputStitching;
+			this->parallel = parallel;
+			this->multispectral = multispectral;
+		}
+
 	/**
 	 * @brief Maneja todo el proceso para generación de los indices.
 	 * 
@@ -23,9 +35,7 @@ public:
 		struct timeval begin;
 		gettimeofday(&beginAll, NULL);
 		gettimeofday(&begin, NULL);
-		bool outputStitching = false;
-		bool parallel = true;
-		bool multispectral = true;
+
 		vector<string> strImgs = obtenerInput(multispectral , outputStitching);
 		if(parallel){
 			cout << "con paralelismo \n";
@@ -96,7 +106,7 @@ public:
 		Mat rg,numerador,denominador;
 		divide(BGRA[2],BGRA[1],rg,123,CV_8U);
 		
-		String escribir = "Imagenes/Indices/output/rgb/"+ strImg +"/rg/"+ strImg +"rg";
+		String escribir = "Imagenes/Indices/output/rgb/"+ strImg +"/rg/rg";
 		escribirSegmentaciones(rg, BGRA[3], escribir);
 	}
 	/**
@@ -142,7 +152,7 @@ public:
 		ndvi = (ndvi + 1) * 128;
 		ndvi.convertTo(ndvi,CV_8U);
 		
-		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/ndvi/"+ strImg + "ndvi";
+		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/ndvi/ndvi";
 		escribirSegmentaciones(ndvi, BGRA[3], escribir);
 	}
 	/**
@@ -155,8 +165,7 @@ public:
 		Mat rvi,numerador,denominador;
 		//OBTENGO EL NDVI
 		divide(BGRA[0],BGRA[2],rvi,127,CV_8U);
-
-		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/rvi/"+ strImg + "rvi";
+		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/rvi/rvi";
 		escribirSegmentaciones(rvi, BGRA[3], escribir);
 	}
 	/**

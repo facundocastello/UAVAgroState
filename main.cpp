@@ -57,11 +57,6 @@ int main(int argc, char** argv)
 			gettimeofday(&begin, NULL);
 			
 			if(argc > 2){
-				if( atoi(argv[2]) == 0 ){
-					cout<<"El orden de los parámetros es:	\n   tamaño (entero) \n  recuperar tamaño original (booleano)  \n";
-					cout<<"    \n  cantidad minima de kpoints";
-					return 0;
-				}
 				tamano = stoi(argv[2]);
 			}else{
 				cout<< "Resize de las imagenes 1/n, ingrese n: ";
@@ -70,13 +65,13 @@ int main(int argc, char** argv)
 			if(argc > 3){
 				originalSize = stoi(argv[3]);
 			}else{
-				cout<< "Quiere recuperar el tamaño original de las imágenes? (1): ";
+				cout<< "Quiere recuperar el tamaño original de las imágenes? (0 o 1): ";
 				cin>>originalSize;
 			}
 			if(argc > 4){
 				minKeypoints = stof(argv[4]);
 			}else{
-				cout<< "Cantidad minima de kp? (1): ";
+				cout<< "Cantidad minima de kp?: ";
 				cin>>minKeypoints;
 			}
 
@@ -89,8 +84,29 @@ int main(int argc, char** argv)
 		break;
 		//ndvi
 		case 3:{
+			bool otputSticthing;
+			bool multispectral;
+			bool paralell;
+			if(argc > 2){
+				otputSticthing = stoi(argv[2]);
+			}else{
+				cout<< "Desea calcular los indices del resultado obtenido en el pegado? (0 o 1)";
+				cin>>otputSticthing;
+			}
+			if(argc > 3){
+				multispectral = stoi(argv[2]);
+			}else{
+				cout<< "Los indices a obtener son para imágenes multi-espectrales(1) o RGB(0)?";
+				cin>>multispectral;
+			}
+			if(argc > 4){
+				paralell = stoi(argv[2]);
+			}else{
+				cout<< "Desea implementar calculo paralelo? (0 o 1)";
+				cin>>paralell;
+			}
 			IndexCalculation *uavIndex;
-			uavIndex = new IndexCalculation();
+			uavIndex = new IndexCalculation(otputSticthing,multispectral,paralell);
 			uavIndex->processManager();
 		}
 		break;
