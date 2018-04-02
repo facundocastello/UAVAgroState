@@ -4,6 +4,7 @@
 #include "CommonFunctions.h"
 #include "Color.h"
 #include "Segmentation.h"
+#include "Stitcher.h"
 
 
 class IndexCalculation{
@@ -16,48 +17,36 @@ public:
 		struct timeval begin;
 		gettimeofday(&beginAll, NULL);
 		gettimeofday(&begin, NULL);
+		bool outputStitching = false;
 		bool parallel = true;
 		bool multispectral = true;
-		if(multispectral){
-			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/Indices/input/ms/");
-			cout << "Comenzando calculo de indices para ";
-			cout<< "multi-espectral ";
-			if(parallel){
-				cout << "con paralelismo \n";
-				parallel_for_(Range(0, strNDVI.size()), [&](const Range& range){
-					for(int i = range.start;i < range.end ; i++){
-					indexCalcuMS(strNDVI[i]);
-					CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
-					}
-				});
-			}else{
-				cout << "sin paralelismo \n";
-				for(int i = 0;i < strNDVI.size() ; i++){
-					indexCalcuMS(strNDVI[i]);
-					begin = CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
+		vector<string> strImgs = obtenerInput(multispectral , outputStitching);
+		if(parallel){
+			cout << "con paralelismo \n";
+			parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
+				for(int i = range.start;i < range.end ; i++){
+				indexCalcu(strImgs[i],multispectral);
+				CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strImgs[i])+":");
 				}
-			}
+			});
 		}else{
-			cout << "Comenzando calculo de indices para ";
-			cout << "rgb \n";
-			vector<string> strNDVI = CommonFunctions::obtenerImagenes("Imagenes/Indices/input/rgb/");
-			if(parallel){
-				cout << "con paralelismo \n";
-				parallel_for_(Range(0, strNDVI.size()), [&](const Range& range){
-					for(int i = range.start;i < range.end ; i++){
-					indexCalcuRGB(strNDVI[i]);
-					CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
-					}
-				});
-			}else{
-				cout << "sin paralelismo \n";
-				for(int i = 0;i < strNDVI.size() ; i++){
-					indexCalcuRGB(strNDVI[i]);
-					begin = CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strNDVI[i])+":");
-				}
+			cout << "sin paralelismo \n";
+			for(int i = 0;i < strImgs.size() ; i++){
+				indexCalcu(strImgs[i],multispectral);
+				begin = CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strImgs[i])+":");
 			}
 		}
 		CommonFunctions::tiempo(beginAll, "Terminar todo: ");
+	}
+
+	void indexCalcu(string strImg, bool multispectral){
+		if(multispectral){
+			cout << "Comenzando calculo de indices para " + strImg + " multi-espectral \n";
+			indexCalcuMS(strImg);
+		}else{
+			cout << "Comenzando calculo de indices para " + strImg + " RGB \n";
+			indexCalcuRGB(strImg);
+		}
 	}
 
 	void indexCalcuRGB(string strImg){
@@ -78,7 +67,7 @@ public:
 
 		rgCalculation(BGRA,strImg);
 		Mat separado = Segmentation::separarSuelo(BGRA);
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/rgb/"+ strImg +"/"+ strImg +"suelo.png", separado);
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/rgb/"+ strImg +"/"+ strImg +"suelo.../", separado);
 	}
 
 
@@ -140,11 +129,40 @@ public:
 		Mat indiceCuantizado = Segmentation::segmentationVariation(indice,trans,5);
 		Mat indiceLut = Segmentation::createLut(indice,trans);
 		vector<Mat> indiceChart = Segmentation::generarGrafico(indice, 20,trans);
-		CommonFunctions::escribirImagen(Nombre +".png", Segmentation::addAlpha(indice,trans) );
+		CommonFunctions::escribirImagen(Nombre +".png", CommonFunctions::addAlpha(indice,trans) );
 		CommonFunctions::escribirImagen(Nombre +"Cuantizado.png", indiceCuantizado );
 		CommonFunctions::escribirImagen(Nombre +"Lut.png", indiceLut );
 		CommonFunctions::escribirImagen(Nombre +"Chart.png", indiceChart[0] );
-		CommonFunctions::escribirImagen(Nombre +"ChartImg.png", Segmentation::addAlpha(indiceChart[1],trans) );
+		CommonFunctions::escribirImagen(Nombre +"ChartImg.png", CommonFunctions::addAlpha(indiceChart[1],trans) );
+	}
+
+	vector<string> obtenerInput(bool multiespectral, bool outputStitching){
+		if(outputStitching){
+			uav::Stitcher stitch;
+			vector<string> str;
+			str.push_back(stitch.obtenerOutputRF());
+			return str;
+		}
+		if(multiespectral){
+			return obtenerMSInput();
+		}
+		return obtenerRGBInput();
+	}
+
+	vector<string> obtenerRGBInput(){
+		return CommonFunctions::obtenerImagenes("Imagenes/Indices/input/rgb/");;
+	}
+
+	vector<string> obtenerMSInput(){
+		return CommonFunctions::obtenerImagenes("Imagenes/Indices/input/ms/");;
+	}
+
+	vector<string> obtenerRGBOutput(){
+		return CommonFunctions::obtenerImagenes("Imagenes/Indices/output/rgb/");;
+	}
+
+	vector<string> obtenerMSOutput(){
+		return CommonFunctions::obtenerImagenes("Imagenes/Indices/output/ms/");;
 	}
 
 };

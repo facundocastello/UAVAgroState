@@ -418,7 +418,6 @@ namespace uav{
 				// drawMatches(removeAlpha(imgs[numHomo]), vecKp[numHomo],removeAlpha(imgs[numHomo+1]),vecKp[numHomo+1],best_inliers[numHomo],aux,
 				// Scalar::all(-1),Scalar::all(-1),
 				// vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
-				// CommonFunctions::escribirImagen("Imagenes/Pegado/output/matches/matchs"+to_string(numHomo)+".png",aux);
 			}
 			/*
 			obtengo varias homografias modificando ciertos parametros, y elijo la que
@@ -737,7 +736,7 @@ namespace uav{
 
 				matchKp();
 				begin = CommonFunctions::tiempo(begin, "realizar matching:");
-				int asdert = 0;
+				int numRes = 0;
 				while(imgs.size() > 0){
 					getHomographies();
 					begin = CommonFunctions::tiempo(begin, " obtener las homografias: ");
@@ -759,11 +758,11 @@ namespace uav{
 					// multiBandStitch();
 					begin = CommonFunctions::tiempo(begin, " generar el orthomosaico: ");
 					if(finalResult){
-						CommonFunctions::escribirImagen("Imagenes/Pegado/output/resultadofinal.png",boundBox);	
+						escribirOutputRF();
 					}else{
-						CommonFunctions::escribirImagen("Imagenes/Pegado/output/ortomosaico/resultado"+to_string(asdert)+".png",boundBox);
+						escribirOutputOrto(numRes);
 					}
-					asdert++;
+					numRes++;
 				}
 
 				return boundBox;
@@ -776,7 +775,7 @@ namespace uav{
 
 				Mat img;
 				while(strImgs.size() == 0){
-					strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
+					strImgs = obtenerInput();
 					if(strImgs.size() == 0){
 						cout << "Para comenzar ingrese las imagenes dentro de Imagenes/Pegado/input/ y presione entrer" << endl;
 						getchar();
@@ -790,13 +789,35 @@ namespace uav{
 				}else{
 					minKeypoints = 10000;
 					tamano = originalSize? tamano:1;
-					strImgs = CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
+					strImgs = obtenerInputOrto();
 					finalResult = true;
 					img = runAll();
 					
 				}
 
 			}
+
+			vector<string> obtenerInput(){
+				return CommonFunctions::obtenerImagenes("Imagenes/Pegado/input/");
+			}
+			vector<string> obtenerInputOrto(){
+				return CommonFunctions::obtenerImagenes("Imagenes/Pegado/output/ortomosaico/");
+			}
+			string obtenerOutputRF(){
+				return "Imagenes/Pegado/output/resultadofinal.png";
+			}
+			string obtenerOutputOrto(int num){
+				return "Imagenes/Pegado/output/ortomosaico/resultado"+to_string(num)+".png";
+			}
+
+			void escribirOutputRF(){
+				CommonFunctions::escribirImagen(obtenerOutputRF(),boundBox);
+			}
+
+			void escribirOutputOrto(int numRes){
+				CommonFunctions::escribirImagen(obtenerOutputOrto(numRes),boundBox);
+			}
+
 
 	};
 }

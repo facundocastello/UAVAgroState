@@ -14,22 +14,27 @@ public:
 		//recupero fondo blanco
 		Mat transAux = trans.clone();
         double min,max;
+		//Normalizo la matriz, que seria como ecualizarla
 		img = normalizateMat(img,transAux,min,max);
 		int denominador = 256/cantColores;
+		//convierto a flotante
 		transAux.convertTo(transAux,CV_32F);
 		img.convertTo(img,CV_32F);
 		transAux/=256;
 		img/=256;
+		//aplico transparencia
 		img = img.mul(transAux);
+		//aplico la cuantizacion
 		img.convertTo(img,CV_8U,256/denominador,.5);
 		img*=denominador;
-
-		return addAlpha(img,trans);
+		return CommonFunctions::addAlpha(img,trans);
 	}
 
 	Mat static  createLut(Mat temp, Mat trans){
         double min,max;
+		//Normalizo la matriz, que seria como ecualizarla
 		temp = normalizateMat(temp, trans,min,max);
+		// creo las matrices que mapean el valor del pixel rx (1-256), con el valor que va a tener cada canal (BGR) Mx
 		Mat M1(1,256,CV_8U);
 		Mat M2(1,256,CV_8U);
 		Mat M3(1,256,CV_8U);
@@ -46,7 +51,7 @@ public:
 		}
 	
 		Mat r1,r2,r3;
-		
+		// aplico el mapeo de Mx-rx
 		cv::LUT(temp,M1,r1);
 		cv::LUT(temp,M2,r2);
 		cv::LUT(temp,M3,r3);
@@ -56,9 +61,7 @@ public:
 		planes.push_back(r3);
 		Mat dst;
 		cv::merge(planes,dst);
-
-
-
+		//Agrego el cartel que muestra como es el LUT
 		std::vector<cv::Mat> planes2;
 		planes2.push_back(M1);
 		planes2.push_back(M2);
@@ -75,7 +78,7 @@ public:
 		int sizeIndex = img.cols > img.rows? img.cols : img.rows;
 		int resize = 30;
 		Mat index(Size(sizeIndex/resize,sizeIndex/(resize/2)),CV_8UC3,Scalar(255,255,255));
-		//para agregar el cuado a la transparencia
+		//agrego el cuadro a la transparencia
 		Mat transAux = trans.clone();
 		Mat indexTrans(Size(sizeIndex/resize,sizeIndex/(resize/2)),CV_8U,255);
 		indexTrans.copyTo(transAux(Rect(trans.cols-1.1*indexTrans.cols,trans.rows-1.1*indexTrans.rows,indexTrans.cols,indexTrans.rows)));
@@ -99,19 +102,21 @@ public:
     	FONT_HERSHEY_TRIPLEX, index.rows/200, cvScalar(0,0,0), 3, CV_AA);
 		putText(index, "0."+to_string(auxMax), cvPoint(index.cols*.1,index.rows*.9), 
     	FONT_HERSHEY_TRIPLEX, index.rows/170, cvScalar(0,0,0), 3, CV_AA);
+		//copio el indice a la imagen
 		index.copyTo(img(Rect(img.cols-1.1*index.cols,img.rows-1.1*index.rows,index.cols,index.rows)));
 
-		img = addAlpha(img,transAux);
+		img = CommonFunctions::addAlpha(img,transAux);
 		return img;
 	}
 
 	Mat static normalizateMat(Mat img, Mat mask,double &min, double &max){
 		Mat std,mean,dst;
+		//calculo minimo, maximo, media y desviacion estandar
 		minMaxLoc(img,&min,&max,0,0,mask);
 		meanStdDev(img, mean, std, mask);
-
 		// CommonFunctions::histDraw(img,"asd1");
 		// dst = img - (mean.at<double>(0,0) - std.at<double>(0,0));
+		//pongo un minimo, un maximo y los uso para realizar la normalizacion
 		min = mean.at<double>(0,0) - 4*std.at<double>(0,0);
 		max = mean.at<double>(0,0) + 4*std.at<double>(0,0);
 		dst = img - min;
@@ -195,23 +200,6 @@ public:
 		return vecMat;
 	}
 
-	Mat static addAlpha(Mat img, Mat trans){
-		Mat resultado;
-		if(!trans.empty() && img.channels() < 4){
-			if(img.channels()==1){
-				Mat auxAlpha[4]={img*0,img,img*0,trans};
-				merge(auxAlpha,4,resultado);
-			}else{
-				vector<Mat> BGR;
-				split(img,BGR);
-				Mat auxAlpha[4]={BGR[0],BGR[1],BGR[2],trans};
-				merge(auxAlpha,4,resultado);
-			}
-		}else{
-			return img;
-		}
-		return resultado;
-	}
 
 
 	vector<int> static threshMat(Mat img, string str){

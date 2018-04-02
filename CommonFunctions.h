@@ -4,6 +4,7 @@
 // #include <stdio.h>
 #include <iostream>
 #include <sys/time.h>
+#include "hpdf.h"
 #include "opencv2/calib3d.hpp"
 #include "opencv2/highgui.hpp"
 #include "opencv2/video.hpp"
@@ -305,7 +306,14 @@ class CommonFunctions{
 			return ultimoDir;
 		}
 
-		void static escribirImagen(string carpeta, Mat img){
+		string static obtenerUltimoDirectorio2(string carpeta){
+			int indice = carpeta.find_last_of("/");
+			string ultimoDir = carpeta.substr(indice+1,carpeta.size());
+			carpeta = carpeta.substr(0,indice);
+			return ultimoDir;
+		}
+
+		void static manejarCarpeta(string carpeta){
 			DIR *dir;
 			struct dirent *ent;
 			vector<string> crearCarpetas;
@@ -319,7 +327,11 @@ class CommonFunctions{
 				carpeta += "/" + crearCarpetas[i];
 				crearCarpeta(carpeta);
 			}
-			imwrite(auxWrite,img);
+		}
+
+		void static escribirImagen(string carpeta, Mat img){
+			manejarCarpeta(carpeta);
+			imwrite(carpeta,img);
 		}
 		//MUESTRA UNA VENTANA CON LA PROPIEDAD DE WINDOW_NORMAL
 		
@@ -402,6 +414,18 @@ class CommonFunctions{
 			CommonFunctions::copyToTransparent(img , roibounding);
 			return boundingBox;
 		}
+		
+		bool static escribirPDF(HPDF_Doc pdf, string str){
+			
+			try{
+				manejarCarpeta(str);
+				HPDF_SaveToFile (pdf, str.c_str());
+			} catch (...) {
+				HPDF_Free (pdf);
+				return false;
+			}
+
+		}
 
 		Mat static makeBackGroundTransparent(Mat img){
 			Mat dst;//(src.rows,src.cols,CV_8UC4);
@@ -463,6 +487,25 @@ class CommonFunctions{
 		  
 			return r;
 		  }
+
+	  	Mat static addAlpha(Mat img, Mat trans){
+			Mat resultado;
+			if(!trans.empty() && img.channels() < 4){
+				if(img.channels()==1){
+					Mat auxAlpha[4]={img*0,img,img*0,trans};
+					merge(auxAlpha,4,resultado);
+				}else{
+					vector<Mat> BGR;
+					split(img,BGR);
+					Mat auxAlpha[4]={BGR[0],BGR[1],BGR[2],trans};
+					merge(auxAlpha,4,resultado);
+				}
+			}else{
+				return img;
+			}
+			return resultado;
+		}
+
 
 		  Mat static addTransparence(Mat img){
 			Mat tmp,alpha;

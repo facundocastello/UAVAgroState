@@ -3,6 +3,7 @@
 
 #include "hpdf.h"
 #include <setjmp.h>
+#include "IndexCalculation.h"
 
 
 class Redaction{
@@ -17,23 +18,32 @@ class Redaction{
 				printf ("ERROR: cannot create pdf object.\n");
 				return 1;
 			}
-
 			if (setjmp(env)) {
 				HPDF_Free (pdf);
 				return 1;
 			}
-			vector<string> strImgs = CommonFunctions::obtenerImagenes("Imagenes/Indices/input/ms/");
-            for(int i = 0 ; i < strImgs.size() ; i++){
-                HPDF_Page page_1;
-                page_1 = HPDF_AddPage (pdf);
-                writeFullPageImg(pdf, page_1, strImgs[i].c_str());
-                try{
-                    HPDF_SaveToFile (pdf, "Data/Informes/test2.pdf");
-                } catch (...) {
-                    HPDF_Free (pdf);
-                    return 1;
-                }
-            }
+
+			IndexCalculation ic;
+			vector<string> strImgsName = ic.obtenerMSOutput();
+			vector<string> strNDVI = CommonFunctions::obtenerImagenes((strImgsName[0]+"/").c_str());
+			vector<string> strImgs = CommonFunctions::obtenerImagenes((strNDVI[0]+"/").c_str());
+			for(int i = 0 ; i < strImgsName.size() ; i++){
+				vector<string> strNDVI = CommonFunctions::obtenerImagenes((strImgsName[i]+"/").c_str());
+				for(int j = 0 ; j < strNDVI.size() ; j++){
+					pdf = HPDF_New (error_handler, NULL);
+					HPDF_SetCompressionMode (pdf, HPDF_COMP_ALL);
+					vector<string> strImgs = CommonFunctions::obtenerImagenes((strNDVI[j]+"/").c_str());
+					for(int k = 0 ; k < strImgs.size(); k++){
+						HPDF_Page page_1;
+						page_1 = HPDF_AddPage (pdf);
+						writeFullPageImg(pdf, page_1, strImgs[k].c_str());
+					}
+					CommonFunctions::escribirPDF(pdf,"Data/Informes/" + 
+						CommonFunctions::obtenerUltimoDirectorio2(strImgsName[i]) + 
+						CommonFunctions::obtenerUltimoDirectorio2(strNDVI[j]) );
+				}
+			}
+
 			// HPDF_Page_SetSize (page_1, HPDF_PAGE_SIZE_B5, HPDF_PAGE_LANDSCAPE);
             return 0;
 
