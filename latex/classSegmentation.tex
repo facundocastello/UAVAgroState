@@ -1,0 +1,64 @@
+\hypertarget{classSegmentation}{}\section{Segmentation Class Reference}
+\label{classSegmentation}\index{Segmentation@{Segmentation}}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+static Mat \mbox{\hyperlink{classSegmentation_a68ad8bc7035c2e0b5f09f8d264b418bc}{segmentation\+Variation}} (Mat img, Mat trans, int cant\+Colores)
+\begin{DoxyCompactList}\small\item\em Realiza una normalizacion de la imagen (gris) y luego cuantiza sus valores para reducir las escalas de grises. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classSegmentation_aa15a21553b49e70fc2ee5a3be3ff9695}\label{classSegmentation_aa15a21553b49e70fc2ee5a3be3ff9695}} 
+static Mat {\bfseries create\+Lut} (Mat temp, Mat trans)
+\item 
+\mbox{\Hypertarget{classSegmentation_a0894154b8202a84decfdd991dda750c1}\label{classSegmentation_a0894154b8202a84decfdd991dda750c1}} 
+static Mat {\bfseries draw\+Index\+Of\+Index} (Mat img, Mat Lut, Mat trans, double min, double max)
+\item 
+\mbox{\Hypertarget{classSegmentation_a4f43910a97bc9b895ef3796e5ab6eb5a}\label{classSegmentation_a4f43910a97bc9b895ef3796e5ab6eb5a}} 
+static Mat {\bfseries normalizate\+Mat} (Mat img, Mat mask, double \&min, double \&max)
+\item 
+\mbox{\Hypertarget{classSegmentation_a83c50607e87525469ce7876894e5f5ab}\label{classSegmentation_a83c50607e87525469ce7876894e5f5ab}} 
+static vector$<$ Mat $>$ {\bfseries generar\+Grafico} (Mat img, int cantidad, Mat trans)
+\item 
+\mbox{\Hypertarget{classSegmentation_a40ecb2a81891f58d72e653f9450c6b8f}\label{classSegmentation_a40ecb2a81891f58d72e653f9450c6b8f}} 
+static vector$<$ int $>$ {\bfseries thresh\+Mat} (Mat img, string str)
+\item 
+\mbox{\Hypertarget{classSegmentation_abe304fc9d6a13f16927ae7682f90b540}\label{classSegmentation_abe304fc9d6a13f16927ae7682f90b540}} 
+static Mat {\bfseries separar\+Suelo} (vector$<$ Mat $>$ B\+G\+RA)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classSegmentation_a9eb5fd1fcc0bbac6ed405b5907461918}\label{classSegmentation_a9eb5fd1fcc0bbac6ed405b5907461918}} 
+double {\bfseries min} =0
+\item 
+\mbox{\Hypertarget{classSegmentation_ad885b287f4bedc6a72725c9ea3318bcf}\label{classSegmentation_ad885b287f4bedc6a72725c9ea3318bcf}} 
+double {\bfseries max} =0
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classSegmentation_a68ad8bc7035c2e0b5f09f8d264b418bc}\label{classSegmentation_a68ad8bc7035c2e0b5f09f8d264b418bc}} 
+\index{Segmentation@{Segmentation}!segmentation\+Variation@{segmentation\+Variation}}
+\index{segmentation\+Variation@{segmentation\+Variation}!Segmentation@{Segmentation}}
+\subsubsection{\texorpdfstring{segmentation\+Variation()}{segmentationVariation()}}
+{\footnotesize\ttfamily static Mat Segmentation\+::segmentation\+Variation (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{Mat}]{trans,  }\item[{int}]{cant\+Colores }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Realiza una normalizacion de la imagen (gris) y luego cuantiza sus valores para reducir las escalas de grises. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+{\em trans} & \\
+\hline
+{\em cant\+Colores} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Segmentation.\+h\end{DoxyCompactItemize}

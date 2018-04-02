@@ -1,0 +1,85 @@
+\begin{theindex}
+
+  \item {Calibration}, \hyperpage{3}
+  \item {Color}, \hyperpage{3}
+  \item {Common\+Functions}, \hyperpage{6}
+    \subitem {hist\+Draw}, \hyperpage{7}
+  \item {compare\+Mats}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{11}
+  \item {copy\+To\+Transparent}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{11}
+
+  \indexspace
+
+  \item {escribir\+Output}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{12}
+  \item {escribir\+Output\+Orto}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{12}
+  \item {evaluate\+Homography}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{12}
+
+  \indexspace
+
+  \item {get\+Homography}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{12}
+
+  \indexspace
+
+  \item {hist\+Draw}
+    \subitem {Common\+Functions}, \hyperpage{7}
+
+  \indexspace
+
+  \item {Index\+Calculation}, \hyperpage{7}
+
+  \indexspace
+
+  \item {obtener\+Input}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{13}
+  \item {obtener\+Input\+Orto}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{13}
+  \item {obtener\+Output\+Orto}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{13}
+  \item {obtener\+Output\+RF}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{14}
+
+  \indexspace
+
+  \item {Performance}, \hyperpage{8}
+
+  \indexspace
+
+  \item {Redaction}, \hyperpage{8}
+  \item {run\+All}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{14}
+
+  \indexspace
+
+  \item {Segmentation}, \hyperpage{8}
+    \subitem {segmentation\+Variation}, \hyperpage{8}
+  \item {segmentation\+Variation}
+    \subitem {Segmentation}, \hyperpage{8}
+  \item {stitch\+Imgs}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{14}
+  \item {stitch\+Warp}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{14}
+
+  \indexspace
+
+  \item {uav\+::\+Stitcher}, \hyperpage{9}
+    \subitem {compare\+Mats}, \hyperpage{11}
+    \subitem {copy\+To\+Transparent}, \hyperpage{11}
+    \subitem {escribir\+Output}, \hyperpage{12}
+    \subitem {escribir\+Output\+Orto}, \hyperpage{12}
+    \subitem {evaluate\+Homography}, \hyperpage{12}
+    \subitem {get\+Homography}, \hyperpage{12}
+    \subitem {obtener\+Input}, \hyperpage{13}
+    \subitem {obtener\+Input\+Orto}, \hyperpage{13}
+    \subitem {obtener\+Output\+Orto}, \hyperpage{13}
+    \subitem {obtener\+Output\+RF}, \hyperpage{14}
+    \subitem {run\+All}, \hyperpage{14}
+    \subitem {stitch\+Imgs}, \hyperpage{14}
+    \subitem {stitch\+Warp}, \hyperpage{14}
+  \item {Undistort}, \hyperpage{15}
+
+\end{theindex}

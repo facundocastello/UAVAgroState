@@ -521,6 +521,16 @@ class CommonFunctions{
 
 			return img;
 		  }
+
+		Mat static removeAlpha(Mat img){
+			if(img.channels() == 4){
+				vector <Mat> bgra;
+				split(img,bgra);
+				Mat bgr[3] = {bgra[0],bgra[1],bgra[2]};
+				merge(bgr,3,img);
+			}
+			return img;
+		}
 		  
 		
 

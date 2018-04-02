@@ -81,7 +81,7 @@ int main(int argc, char** argv)
 			}
 
 			uav::Stitcher *uav;
-			uav = new uav::Stitcher(tamano,minKeypoints,originalSize,false,false);
+			uav = new uav::Stitcher(tamano,minKeypoints,originalSize);
 			uav->processManager();
 
 			CommonFunctions::tiempo(begin, "realizar todo: ");

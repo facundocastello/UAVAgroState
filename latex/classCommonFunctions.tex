@@ -1,0 +1,108 @@
+\hypertarget{classCommonFunctions}{}\section{Common\+Functions Class Reference}
+\label{classCommonFunctions}\index{Common\+Functions@{Common\+Functions}}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a7929553dc4f6c186d0b47c4df99d8277}\label{classCommonFunctions_a7929553dc4f6c186d0b47c4df99d8277}} 
+static Mat {\bfseries add\+Indent} (Mat bound\+Box, int position, int cols, int rows, int col\+Grid, int row\+Grid, float col\+Overlap, float row\+Overlap, int extra\+Indent=200)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}\label{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}} 
+static void {\bfseries info} (const cv\+::\+Mat \&image, std\+::ostream \&out=std\+::cout)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}\label{classCommonFunctions_afd243765a93b61f26d97467a72838ff9}} 
+static Mat {\bfseries cargar\+Imagen} (string str\+Img, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
+\item 
+\mbox{\Hypertarget{classCommonFunctions_ae99903337e2288caf5e685162491cdb0}\label{classCommonFunctions_ae99903337e2288caf5e685162491cdb0}} 
+static vector$<$ int $>$ {\bfseries set\+Border} (Mat img)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a8fbb5de9311cca7ee8dec4d4afaab6ff}\label{classCommonFunctions_a8fbb5de9311cca7ee8dec4d4afaab6ff}} 
+static Mat {\bfseries Aindane} (Mat input\+Image, int sigma)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a12aab213d05635ce869cfc70a72be43d}\label{classCommonFunctions_a12aab213d05635ce869cfc70a72be43d}} 
+static Mat {\bfseries get\+Border} (Mat img, vector$<$ int $>$ min\+Max)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a796534c3ac4d0dfb260d29af60e620ee}\label{classCommonFunctions_a796534c3ac4d0dfb260d29af60e620ee}} 
+static vector$<$ Mat $>$ {\bfseries get\+Borders} (vector$<$ Mat $>$ imgs, vector$<$ int $>$ min\+Max)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}\label{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}} 
+static vector$<$ Mat $>$ {\bfseries cargar\+Imagenes} (vector$<$ string $>$ str\+Imgs, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}\label{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}} 
+static vector$<$ string $>$ {\bfseries obtener\+Imagenes} (const char $\ast$carpeta, bool reverse=false)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}\label{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}} 
+static bool {\bfseries crear\+Carpeta} (String str)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}\label{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}} 
+static string {\bfseries obtener\+Ultimo\+Directorio} (string \&carpeta)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}\label{classCommonFunctions_af27fbe7fc5de24747ddf5a0496016301}} 
+static string {\bfseries obtener\+Ultimo\+Directorio2} (string carpeta)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}\label{classCommonFunctions_a8f31532bc3dd60e5c95d40daaef7c705}} 
+static void {\bfseries manejar\+Carpeta} (string carpeta)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}\label{classCommonFunctions_a1cbb74aeab1ac5dc96ba4871d0f07792}} 
+static void {\bfseries escribir\+Imagen} (string carpeta, Mat img)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}\label{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}} 
+static void {\bfseries show\+Window\+Normal} (Mat img, String namewindow=\char`\"{}img\char`\"{})
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}\label{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}} 
+static timeval {\bfseries tiempo} (timeval begin, string msg)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}\label{classCommonFunctions_aaa36dbe5e5b5be0caf0af58306f333bf}} 
+static Rect {\bfseries rect\+R\+OI} (Mat img)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}\label{classCommonFunctions_a59211fa9ca611fd09496f4e376649ab2}} 
+static Mat {\bfseries crop\+Rector\+R\+OI} (Mat img, Rect rect)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}\label{classCommonFunctions_a4a2a24e283f18beb6e217993924759c6}} 
+static Mat {\bfseries bounding\+Box} (Mat img, int colindent, int rowindent)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}\label{classCommonFunctions_a8cd6fcf506c80ec5bcbc8edd26004cc3}} 
+static Mat {\bfseries copy\+To\+Transparent} (Mat obj, Mat scene)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}\label{classCommonFunctions_aaeebbb5957d3384fa121e5d231de03ab}} 
+static Mat {\bfseries bounding\+Box} (Mat img, int ar\+Indent, int ab\+Indent, int iz\+Indent, int der\+Indent)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}\label{classCommonFunctions_a188e7c8fcb797856482ecfd4010c62a9}} 
+static bool {\bfseries escribir\+P\+DF} (H\+P\+D\+F\+\_\+\+Doc pdf, string str)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a8e39cb29f27952c6658f69fd9be55ec3}\label{classCommonFunctions_a8e39cb29f27952c6658f69fd9be55ec3}} 
+static Mat {\bfseries make\+Back\+Ground\+Transparent} (Mat img)
+\item 
+static void \mbox{\hyperlink{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}{hist\+Draw}} (Mat img, string img\+Name)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}\label{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}} 
+static string {\bfseries type2str} (Mat img)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}\label{classCommonFunctions_acede9b6245c18d795b94b7c2261671b1}} 
+static Mat {\bfseries add\+Alpha} (Mat img, Mat trans)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}\label{classCommonFunctions_a66c8badc3cb8d173aaac77a3acdbec4c}} 
+static Mat {\bfseries add\+Transparence} (Mat img)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}\label{classCommonFunctions_a511266d1137ccdefb6e7c5d156145831}} 
+static Mat {\bfseries remove\+Alpha} (Mat img)
+\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}\label{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}} 
+\index{Common\+Functions@{Common\+Functions}!hist\+Draw@{hist\+Draw}}
+\index{hist\+Draw@{hist\+Draw}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{hist\+Draw()}{histDraw()}}
+{\footnotesize\ttfamily static void Common\+Functions\+::hist\+Draw (\begin{DoxyParamCaption}\item[{Mat}]{img,  }\item[{string}]{img\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+Establish the number of bins
+
+Set the ranges ( for B,G,R) )
+
+Compute the histograms\+:
+
+Normalize the result to \mbox{[} 0, hist\+Image.\+rows \mbox{]} 
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Common\+Functions.\+h\end{DoxyCompactItemize}

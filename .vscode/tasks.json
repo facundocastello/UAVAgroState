@@ -6,7 +6,8 @@
         {
             "label": "main",
             "type": "shell",
-            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug . .. && make && cp main .. && cd .. && ./main 3 4 0 10000",
+            "command": "cd build && cmake -DCMAKE_BUILD_TYPE=Debug . .. && make && cp main .. && cd .. && ./main 2 8 0 5000",
+            // "command": "doxygen Doxyfile && cd latex/ && make",
             "group": {
                 "kind": "build",
                 "isDefault": true

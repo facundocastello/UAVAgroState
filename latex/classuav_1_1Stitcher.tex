@@ -1,0 +1,348 @@
+\hypertarget{classuav_1_1Stitcher}{}\section{uav\+:\+:Stitcher Class Reference}
+\label{classuav_1_1Stitcher}\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_ac106b49de9c5d1162ff97a0f6d96d59c}\label{classuav_1_1Stitcher_ac106b49de9c5d1162ff97a0f6d96d59c}} 
+{\bfseries Stitcher} (int \mbox{\hyperlink{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}{tamano}}=4, int \mbox{\hyperlink{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}{min\+Keypoints}}=5000, bool \mbox{\hyperlink{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}{original\+Size}}=false)
+\item 
+vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a096e8020a5544325400743836c8ba58d}{stitch\+Warp}} (Mat scene, Mat obj, Mat homo\+Matrix)
+\begin{DoxyCompactList}\small\item\em funcion para pegar una imagen transformada por una homografia en otra imagen. En el caso de q tenga 4 canales (o sea el cuarto sea alpha \mbox{[}transparente\mbox{]}) hace un pegado especial para que no se pierda la transparencia, y en el caso contrario la pega de una manera q no se note el paso de una imagen a otra \end{DoxyCompactList}\item 
+Mat \mbox{\hyperlink{classuav_1_1Stitcher_a16bfb7a49f1e3a9c38ef03d72969094d}{copy\+To\+Transparent}} (Mat obj, Mat scene, Mat mask)
+\begin{DoxyCompactList}\small\item\em Aplica un blending especial donde, en base a una mascara, decide que valor van a aportar los pixeles del objeto y la escena, en la escena final. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{classuav_1_1Stitcher_a0745fd6db5669c1f9bce1b637c2be163}{compare\+Mats}} (int num\+Homo, Mat homo\+Matrix)
+\begin{DoxyCompactList}\small\item\em Compara una imagen(escena) con la consecuente(objeto) transformada. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_aa2e06db82b2e702285a1cc335aef9bfe}\label{classuav_1_1Stitcher_aa2e06db82b2e702285a1cc335aef9bfe}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_aa2e06db82b2e702285a1cc335aef9bfe}{detect\+And\+Descript}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene los keypoints y descriptores de cada imágen y los escribe en vec\+Kp y vec\+Desc. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a4f2f80e5505962c031d2b788c621c8fd}\label{classuav_1_1Stitcher_a4f2f80e5505962c031d2b788c621c8fd}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a4f2f80e5505962c031d2b788c621c8fd}{match\+Kp}} ()
+\begin{DoxyCompactList}\small\item\em Realiza emparejamientos entre los keypoints de 2 imagenes, en base a sus descriptores(vec\+Desc), y escribe los resultados en vec\+Match. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a1d9236693b18d722cb5329c5edc29ea9}\label{classuav_1_1Stitcher_a1d9236693b18d722cb5329c5edc29ea9}} 
+Mat \mbox{\hyperlink{classuav_1_1Stitcher_a1d9236693b18d722cb5329c5edc29ea9}{rigid\+To\+Homography}} (Mat R)
+\begin{DoxyCompactList}\small\item\em convierte una matriz de transformada rigida a una homografía \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a1dfaf5c6e14e6234bfca0d8997bc0fc5}\label{classuav_1_1Stitcher_a1dfaf5c6e14e6234bfca0d8997bc0fc5}} 
+vector$<$ D\+Match $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a1dfaf5c6e14e6234bfca0d8997bc0fc5}{remove\+Outliers}} (vector$<$ D\+Match $>$ gm, int num\+Homo, int num\+Homo2)
+\begin{DoxyCompactList}\small\item\em Elimina emparejamientos erroneos por medio de la media y varianza de las posiciones en X e Y de los keypoints con y sin desplazamientos. Los emparejamientos con desplazamiento muy lejos de la media, se coinsideran erroneos. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classuav_1_1Stitcher_aafe09514806435e6258d8740b9f6c122}{get\+Homography}} (int num\+Homo)
+\begin{DoxyCompactList}\small\item\em Obtengo varias homografias modificando ciertos parametros, elijo la que sea mas adecuada y la escribo en homo\+No\+Multiplicated. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a9dde85d6912b1868a2da36abf84184a9}\label{classuav_1_1Stitcher_a9dde85d6912b1868a2da36abf84184a9}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a9dde85d6912b1868a2da36abf84184a9}{get\+Homographies}} ()
+\begin{DoxyCompactList}\small\item\em Obtengo las homografias entre cada par de imágenes consecutivas, las múltiplico para adaptar las transformaciones al espacio que se use como marco de referencia y las guardo en el vector H. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a9a1b51dde72c48576b5d5ced0edc087b}\label{classuav_1_1Stitcher_a9a1b51dde72c48576b5d5ced0edc087b}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a9a1b51dde72c48576b5d5ced0edc087b}{find\+Bound\+Box\+Limits}} ()
+\begin{DoxyCompactList}\small\item\em En base a las homografias, se obtienen los valores que van a delimitar al bound box. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{classuav_1_1Stitcher_a90039daf32275b9b9a4d7820e7a6a929}{evaluate\+Homography}} ()
+\begin{DoxyCompactList}\small\item\em Evalua que los limites del boundbox no sean de una homogragia mal calculada. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a47deddeee449c53103b85082be7171df}\label{classuav_1_1Stitcher_a47deddeee449c53103b85082be7171df}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a47deddeee449c53103b85082be7171df}{generate\+Bound\+Box}} ()
+\begin{DoxyCompactList}\small\item\em Usando los boundboxlimits obtenidos en la funcion find\+Bound\+Box\+Limits, se genera el boundbox. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a26bf84ee9e54a9f2f4c9d640554d7067}\label{classuav_1_1Stitcher_a26bf84ee9e54a9f2f4c9d640554d7067}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a26bf84ee9e54a9f2f4c9d640554d7067}{rescale\+Homographies}} ()
+\begin{DoxyCompactList}\small\item\em En el caso de que las homografias se hayan calculado en base a imagenes a las cuales se les cambio el tamaño para que sea mas rapido el procesamiento, se les modifica la homografia para adaptarlas a su tamaño. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a58dc76aa6524d65d9af960d12effe26b}\label{classuav_1_1Stitcher_a58dc76aa6524d65d9af960d12effe26b}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a58dc76aa6524d65d9af960d12effe26b}{erase\+From\+Vectors}} ()
+\begin{DoxyCompactList}\small\item\em Elimina las imágenes que ya hayan sido pegadas. \end{DoxyCompactList}\item 
+Mat \mbox{\hyperlink{classuav_1_1Stitcher_a650ea572d679be3b9ca07e142508a324}{stitch\+Imgs}} ()
+\begin{DoxyCompactList}\small\item\em En base a las homografias realiza el pegado de las imagenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_ab52ee0552b5e12dae2cd157ddc29cab2}\label{classuav_1_1Stitcher_ab52ee0552b5e12dae2cd157ddc29cab2}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_ab52ee0552b5e12dae2cd157ddc29cab2}{remove\+Corners}} ()
+\begin{DoxyCompactList}\small\item\em quito las esquinas para remover el vignetting \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a75bb9ec1e173c137d53f650dd9077460}\label{classuav_1_1Stitcher_a75bb9ec1e173c137d53f650dd9077460}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a75bb9ec1e173c137d53f650dd9077460}{compensate\+Bright}} ()
+\begin{DoxyCompactList}\small\item\em Hago que todas las imágenes tengan la misma media en cada canal. \end{DoxyCompactList}\item 
+Mat \mbox{\hyperlink{classuav_1_1Stitcher_a0b78aba00328166db74d46884485f3bd}{run\+All}} ()
+\begin{DoxyCompactList}\small\item\em Utilizo todas las funciones anteriores para realizar el stitching, siguiento el siguiente proceso\+: \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}\label{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}{process\+Manager}} ()
+\begin{DoxyCompactList}\small\item\em Realiza todo el proceso para pegar las imágenes. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a33521f40ecd0a4b57e3433b32c33f872}{obtener\+Input}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones las imágenes a pegar. \end{DoxyCompactList}\item 
+vector$<$ string $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a4a31cc35b3bc69697cdaa8094d4490b8}{obtener\+Input\+Orto}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de los resultados intermedos, para pegarlos y generar el resultado final. \end{DoxyCompactList}\item 
+string \mbox{\hyperlink{classuav_1_1Stitcher_a2f5433b17c42c874359f7f92148b4ee2}{obtener\+Output\+Orto}} (int num)
+\begin{DoxyCompactList}\small\item\em Obtiene la ubicación donde se escribiran los resultados intermedios. \end{DoxyCompactList}\item 
+string \mbox{\hyperlink{classuav_1_1Stitcher_a5f6f8f09c80f39daf9f2ea34e0db91b9}{obtener\+Output\+RF}} ()
+\begin{DoxyCompactList}\small\item\em Obtiene la ubicación donde se escribirá el resultado final. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a079c00542221b0e2fc551d2e97df7b97}{escribir\+Output}} (int num\+Res)
+\begin{DoxyCompactList}\small\item\em Escribe los resultados intermedios o finaledependiendo de final\+Result. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_aedccb071e6ee13405e842c0764a08ecd}\label{classuav_1_1Stitcher_aedccb071e6ee13405e842c0764a08ecd}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_aedccb071e6ee13405e842c0764a08ecd}{escribir\+Output\+RF}} ()
+\begin{DoxyCompactList}\small\item\em Escribe resultado final. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classuav_1_1Stitcher_aa3ed2d63f08d787b3b78ec4445195b2b}{escribir\+Output\+Orto}} (int num\+Res)
+\begin{DoxyCompactList}\small\item\em Escribe resultados intermedios. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}\label{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}} 
+int \mbox{\hyperlink{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}{tamano}}
+\begin{DoxyCompactList}\small\item\em Tamaño con el que se redimensionan las imágenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}\label{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}} 
+bool \mbox{\hyperlink{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}{original\+Size}} =false
+\begin{DoxyCompactList}\small\item\em Booleano que decide si recuperar tamaño original en el resultado final. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a4b793c80fbb1052781b3787e90d19f97}\label{classuav_1_1Stitcher_a4b793c80fbb1052781b3787e90d19f97}} 
+double \mbox{\hyperlink{classuav_1_1Stitcher_a4b793c80fbb1052781b3787e90d19f97}{y\+Min}} =0
+\begin{DoxyCompactList}\small\item\em Limite superior de la caja de limites. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_ae5ef4cb4ade964a9ff73c8228db26f6a}\label{classuav_1_1Stitcher_ae5ef4cb4ade964a9ff73c8228db26f6a}} 
+double \mbox{\hyperlink{classuav_1_1Stitcher_ae5ef4cb4ade964a9ff73c8228db26f6a}{y\+Max}} =0
+\begin{DoxyCompactList}\small\item\em Limite inferior de la caja de limites. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a26ca9f2ae4842f0d380f95d792c0c7ba}\label{classuav_1_1Stitcher_a26ca9f2ae4842f0d380f95d792c0c7ba}} 
+double \mbox{\hyperlink{classuav_1_1Stitcher_a26ca9f2ae4842f0d380f95d792c0c7ba}{x\+Min}} =0
+\begin{DoxyCompactList}\small\item\em Limite izquierdo de la caja de limites. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a20838e1362253194087dad4602a2fd94}\label{classuav_1_1Stitcher_a20838e1362253194087dad4602a2fd94}} 
+double \mbox{\hyperlink{classuav_1_1Stitcher_a20838e1362253194087dad4602a2fd94}{x\+Max}} =0
+\begin{DoxyCompactList}\small\item\em Limite derecho de la caja de limites. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}\label{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}} 
+int \mbox{\hyperlink{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}{min\+Keypoints}}
+\begin{DoxyCompactList}\small\item\em Cantidad minima de keypoints a calcular. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}\label{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}} 
+bool \mbox{\hyperlink{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}{final\+Result}}
+\begin{DoxyCompactList}\small\item\em Booleano que decide si se esta procesando los resultados intermedios o el resultado final. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}\label{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}} 
+vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}{imgs}}
+\begin{DoxyCompactList}\small\item\em Imágenes a pegar. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a742222e7b42e4ccfcda30eea161d1f02}\label{classuav_1_1Stitcher_a742222e7b42e4ccfcda30eea161d1f02}} 
+vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a742222e7b42e4ccfcda30eea161d1f02}{vec\+Desc}}
+\begin{DoxyCompactList}\small\item\em Descriptores de las imágenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a1fad5b1dfd31fa5a9ec63b41b6e6eda1}\label{classuav_1_1Stitcher_a1fad5b1dfd31fa5a9ec63b41b6e6eda1}} 
+vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a1fad5b1dfd31fa5a9ec63b41b6e6eda1}{H}}
+\begin{DoxyCompactList}\small\item\em Transformaciones entre cada par de imágenes adaptadas al marco de referencia inicial. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a1ff9477028582e3b935101bafb64cde7}\label{classuav_1_1Stitcher_a1ff9477028582e3b935101bafb64cde7}} 
+vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a1ff9477028582e3b935101bafb64cde7}{homo\+No\+Multiplicated}}
+\begin{DoxyCompactList}\small\item\em Transformaciones entre cada par de imágenes no adaptadas. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a1217b2cb8a67e8928b0073b6478aa594}\label{classuav_1_1Stitcher_a1217b2cb8a67e8928b0073b6478aa594}} 
+vector$<$ string $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a1217b2cb8a67e8928b0073b6478aa594}{str\+Imgs}}
+\begin{DoxyCompactList}\small\item\em Ubicación de cada imágen. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_af1e3706aa47771911eb5429ade12c287}\label{classuav_1_1Stitcher_af1e3706aa47771911eb5429ade12c287}} 
+vector$<$ vector$<$ Key\+Point $>$ $>$ \mbox{\hyperlink{classuav_1_1Stitcher_af1e3706aa47771911eb5429ade12c287}{vec\+Kp}}
+\begin{DoxyCompactList}\small\item\em Puntos claves de las imágenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a31fb6a699efa47ae64fe109201ef216c}\label{classuav_1_1Stitcher_a31fb6a699efa47ae64fe109201ef216c}} 
+vector$<$ vector$<$ D\+Match $>$ $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a31fb6a699efa47ae64fe109201ef216c}{vec\+Match}}
+\begin{DoxyCompactList}\small\item\em Emparejamiento entre cada punto clave de imágenes consecutivas. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a3aecc00facecd4f6952594b76cf4ea52}\label{classuav_1_1Stitcher_a3aecc00facecd4f6952594b76cf4ea52}} 
+vector$<$ vector$<$ D\+Match $>$ $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a3aecc00facecd4f6952594b76cf4ea52}{best\+\_\+inliers}}
+\begin{DoxyCompactList}\small\item\em Emparejamientos correctos. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a6f27d69501dd482cf217de22ca57fd13}\label{classuav_1_1Stitcher_a6f27d69501dd482cf217de22ca57fd13}} 
+Mat \mbox{\hyperlink{classuav_1_1Stitcher_a6f27d69501dd482cf217de22ca57fd13}{bound\+Box}}
+\begin{DoxyCompactList}\small\item\em Caja de limites. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\subsection{Member Function Documentation}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a0745fd6db5669c1f9bce1b637c2be163}\label{classuav_1_1Stitcher_a0745fd6db5669c1f9bce1b637c2be163}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!compare\+Mats@{compare\+Mats}}
+\index{compare\+Mats@{compare\+Mats}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{compare\+Mats()}{compareMats()}}
+{\footnotesize\ttfamily double uav\+::\+Stitcher\+::compare\+Mats (\begin{DoxyParamCaption}\item[{int}]{num\+Homo,  }\item[{Mat}]{homo\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Compara una imagen(escena) con la consecuente(objeto) transformada. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+Homo} & \\
+\hline
+{\em homo\+Matrix} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+double 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a16bfb7a49f1e3a9c38ef03d72969094d}\label{classuav_1_1Stitcher_a16bfb7a49f1e3a9c38ef03d72969094d}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!copy\+To\+Transparent@{copy\+To\+Transparent}}
+\index{copy\+To\+Transparent@{copy\+To\+Transparent}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{copy\+To\+Transparent()}{copyToTransparent()}}
+{\footnotesize\ttfamily Mat uav\+::\+Stitcher\+::copy\+To\+Transparent (\begin{DoxyParamCaption}\item[{Mat}]{obj,  }\item[{Mat}]{scene,  }\item[{Mat}]{mask }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Aplica un blending especial donde, en base a una mascara, decide que valor van a aportar los pixeles del objeto y la escena, en la escena final. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em obj} & \\
+\hline
+{\em scene} & \\
+\hline
+{\em mask} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a079c00542221b0e2fc551d2e97df7b97}\label{classuav_1_1Stitcher_a079c00542221b0e2fc551d2e97df7b97}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!escribir\+Output@{escribir\+Output}}
+\index{escribir\+Output@{escribir\+Output}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{escribir\+Output()}{escribirOutput()}}
+{\footnotesize\ttfamily void uav\+::\+Stitcher\+::escribir\+Output (\begin{DoxyParamCaption}\item[{int}]{num\+Res }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Escribe los resultados intermedios o finaledependiendo de final\+Result. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+Res} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classuav_1_1Stitcher_aa3ed2d63f08d787b3b78ec4445195b2b}\label{classuav_1_1Stitcher_aa3ed2d63f08d787b3b78ec4445195b2b}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!escribir\+Output\+Orto@{escribir\+Output\+Orto}}
+\index{escribir\+Output\+Orto@{escribir\+Output\+Orto}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{escribir\+Output\+Orto()}{escribirOutputOrto()}}
+{\footnotesize\ttfamily void uav\+::\+Stitcher\+::escribir\+Output\+Orto (\begin{DoxyParamCaption}\item[{int}]{num\+Res }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Escribe resultados intermedios. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+Res} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a90039daf32275b9b9a4d7820e7a6a929}\label{classuav_1_1Stitcher_a90039daf32275b9b9a4d7820e7a6a929}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!evaluate\+Homography@{evaluate\+Homography}}
+\index{evaluate\+Homography@{evaluate\+Homography}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{evaluate\+Homography()}{evaluateHomography()}}
+{\footnotesize\ttfamily bool uav\+::\+Stitcher\+::evaluate\+Homography (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Evalua que los limites del boundbox no sean de una homogragia mal calculada. 
+
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_aafe09514806435e6258d8740b9f6c122}\label{classuav_1_1Stitcher_aafe09514806435e6258d8740b9f6c122}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!get\+Homography@{get\+Homography}}
+\index{get\+Homography@{get\+Homography}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{get\+Homography()}{getHomography()}}
+{\footnotesize\ttfamily void uav\+::\+Stitcher\+::get\+Homography (\begin{DoxyParamCaption}\item[{int}]{num\+Homo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtengo varias homografias modificando ciertos parametros, elijo la que sea mas adecuada y la escribo en homo\+No\+Multiplicated. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num\+Homo} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a33521f40ecd0a4b57e3433b32c33f872}\label{classuav_1_1Stitcher_a33521f40ecd0a4b57e3433b32c33f872}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!obtener\+Input@{obtener\+Input}}
+\index{obtener\+Input@{obtener\+Input}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{obtener\+Input()}{obtenerInput()}}
+{\footnotesize\ttfamily vector$<$string$>$ uav\+::\+Stitcher\+::obtener\+Input (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones las imágenes a pegar. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a4a31cc35b3bc69697cdaa8094d4490b8}\label{classuav_1_1Stitcher_a4a31cc35b3bc69697cdaa8094d4490b8}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!obtener\+Input\+Orto@{obtener\+Input\+Orto}}
+\index{obtener\+Input\+Orto@{obtener\+Input\+Orto}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{obtener\+Input\+Orto()}{obtenerInputOrto()}}
+{\footnotesize\ttfamily vector$<$string$>$ uav\+::\+Stitcher\+::obtener\+Input\+Orto (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene las ubicaciones de los resultados intermedos, para pegarlos y generar el resultado final. 
+
+\begin{DoxyReturn}{Returns}
+vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a2f5433b17c42c874359f7f92148b4ee2}\label{classuav_1_1Stitcher_a2f5433b17c42c874359f7f92148b4ee2}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!obtener\+Output\+Orto@{obtener\+Output\+Orto}}
+\index{obtener\+Output\+Orto@{obtener\+Output\+Orto}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{obtener\+Output\+Orto()}{obtenerOutputOrto()}}
+{\footnotesize\ttfamily string uav\+::\+Stitcher\+::obtener\+Output\+Orto (\begin{DoxyParamCaption}\item[{int}]{num }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene la ubicación donde se escribiran los resultados intermedios. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em num} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a5f6f8f09c80f39daf9f2ea34e0db91b9}\label{classuav_1_1Stitcher_a5f6f8f09c80f39daf9f2ea34e0db91b9}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!obtener\+Output\+RF@{obtener\+Output\+RF}}
+\index{obtener\+Output\+RF@{obtener\+Output\+RF}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{obtener\+Output\+R\+F()}{obtenerOutputRF()}}
+{\footnotesize\ttfamily string uav\+::\+Stitcher\+::obtener\+Output\+RF (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Obtiene la ubicación donde se escribirá el resultado final. 
+
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a0b78aba00328166db74d46884485f3bd}\label{classuav_1_1Stitcher_a0b78aba00328166db74d46884485f3bd}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!run\+All@{run\+All}}
+\index{run\+All@{run\+All}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{run\+All()}{runAll()}}
+{\footnotesize\ttfamily Mat uav\+::\+Stitcher\+::run\+All (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Utilizo todas las funciones anteriores para realizar el stitching, siguiento el siguiente proceso\+: 
+
+
+\begin{DoxyItemize}
+\item Quito esquinas.
+\item Obtengo keypoints y descriptores.
+\item Realizo emparejamiento.
+\item Obtengo homografias.
+\item Genero caja de límites.
+\item Adapto homografias al tamaño original.
+\item Pego las imagenes. 
+\end{DoxyItemize}\mbox{\Hypertarget{classuav_1_1Stitcher_a650ea572d679be3b9ca07e142508a324}\label{classuav_1_1Stitcher_a650ea572d679be3b9ca07e142508a324}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!stitch\+Imgs@{stitch\+Imgs}}
+\index{stitch\+Imgs@{stitch\+Imgs}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{stitch\+Imgs()}{stitchImgs()}}
+{\footnotesize\ttfamily Mat uav\+::\+Stitcher\+::stitch\+Imgs (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+En base a las homografias realiza el pegado de las imagenes. 
+
+\begin{DoxyReturn}{Returns}
+Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classuav_1_1Stitcher_a096e8020a5544325400743836c8ba58d}\label{classuav_1_1Stitcher_a096e8020a5544325400743836c8ba58d}} 
+\index{uav\+::\+Stitcher@{uav\+::\+Stitcher}!stitch\+Warp@{stitch\+Warp}}
+\index{stitch\+Warp@{stitch\+Warp}!uav\+::\+Stitcher@{uav\+::\+Stitcher}}
+\subsubsection{\texorpdfstring{stitch\+Warp()}{stitchWarp()}}
+{\footnotesize\ttfamily vector$<$Mat$>$ uav\+::\+Stitcher\+::stitch\+Warp (\begin{DoxyParamCaption}\item[{Mat}]{scene,  }\item[{Mat}]{obj,  }\item[{Mat}]{homo\+Matrix }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+funcion para pegar una imagen transformada por una homografia en otra imagen. En el caso de q tenga 4 canales (o sea el cuarto sea alpha \mbox{[}transparente\mbox{]}) hace un pegado especial para que no se pierda la transparencia, y en el caso contrario la pega de una manera q no se note el paso de una imagen a otra 
+
+
+\begin{DoxyParams}{Parameters}
+{\em scene} & asd \\
+\hline
+{\em obj} & \\
+\hline
+{\em homo\+Matrix} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$\+Mat$>$ 
+\end{DoxyReturn}
+
+
+The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+Stitcher.\+h\end{DoxyCompactItemize}

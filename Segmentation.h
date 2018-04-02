@@ -9,7 +9,14 @@ class Segmentation{
 public:
     double min=0;
 	double max=0;
-
+	/**
+	 * @brief Realiza una normalizacion de la imagen (gris) y luego cuantiza sus valores para reducir las escalas de grises
+	 * 
+	 * @param img 
+	 * @param trans 
+	 * @param cantColores 
+	 * @return Mat 
+	 */
 	Mat static segmentationVariation(Mat img, Mat trans, int cantColores){
 		//recupero fondo blanco
 		Mat transAux = trans.clone();
