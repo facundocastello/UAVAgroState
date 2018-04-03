@@ -107,7 +107,7 @@ public:
 		divide(BGRA[2],BGRA[1],rg,123,CV_8U);
 		
 		String escribir = "Imagenes/Indices/output/rgb/"+ strImg +"/rg/rg";
-		escribirSegmentaciones(rg, BGRA[3], escribir);
+		escribirSegmentaciones(rg, BGRA[3],  strImg, "rg");
 	}
 	/**
 	 * @brief Calcula los indices para imágenes multi-espectrales.
@@ -153,7 +153,7 @@ public:
 		ndvi.convertTo(ndvi,CV_8U);
 		
 		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/ndvi/ndvi";
-		escribirSegmentaciones(ndvi, BGRA[3], escribir);
+		escribirSegmentaciones(ndvi, BGRA[3],  strImg, "ndvi");
 	}
 	/**
 	 * @brief Calcula y escribe el indice RVI=Infrarojo/Rojo
@@ -165,20 +165,22 @@ public:
 		Mat rvi,numerador,denominador;
 		//OBTENGO EL NDVI
 		divide(BGRA[0],BGRA[2],rvi,127,CV_8U);
-		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/rvi/rvi";
-		escribirSegmentaciones(rvi, BGRA[3], escribir);
+		
+		escribirSegmentaciones(rvi, BGRA[3], strImg, "rvi");
 	}
 	/**
-	 * @brief Escribe los resultados de un indice con diferentes segmentaciones.
+	 * @brief  Escribe los resultados de un indice con diferentes segmentaciones.
 	 * 
 	 * @param indice 
 	 * @param trans 
-	 * @param Nombre 
+	 * @param strImg 
+	 * @param strIndex 
 	 */
-	void escribirSegmentaciones(Mat indice, Mat trans, string Nombre){
+	void escribirSegmentaciones(Mat indice, Mat trans, string strImg,string strIndex){
+		String Nombre = "Imagenes/Indices/output/ms/"+ strImg + "/" + strIndex+ "/" + strIndex;
 		Mat indiceCuantizado = Segmentation::segmentationVariation(indice,trans,5);
 		Mat indiceLut = Segmentation::createLut(indice,trans);
-		vector<Mat> indiceChart = Segmentation::generarGrafico(indice, 20,trans);
+		vector<Mat> indiceChart = Segmentation::generarGrafico(indice, 20,trans,strImg,strIndex);
 		CommonFunctions::escribirImagen(Nombre +".png", CommonFunctions::addAlpha(indice,trans) );
 		CommonFunctions::escribirImagen(Nombre +"Cuantizado.png", indiceCuantizado );
 		CommonFunctions::escribirImagen(Nombre +"Lut.png", indiceLut );
@@ -195,8 +197,7 @@ public:
 	vector<string> obtenerInput(bool multiespectral, bool outputStitching){
 		if(outputStitching){
 			uav::Stitcher stitch;
-			vector<string> str;
-			str.push_back(stitch.obtenerOutputRF());
+			vector<string> str = CommonFunctions::obtenerImagenes(stitch.obtenerOutputRF().c_str());
 			return str;
 		}
 		if(multiespectral){

@@ -56,7 +56,18 @@ static void \mbox{\hyperlink{classCommonFunctions_a7b0e52ec4c30af5244724936f163c
 \begin{DoxyCompactList}\small\item\em Dibuja el histograma de una imágen. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}\label{classCommonFunctions_a46eb03d173a7e2ec7459a49a78e40d48}} 
 static string {\bfseries type2str} (Mat img)
-\end{DoxyCompactItemize}
+\item 
+static string \mbox{\hyperlink{classCommonFunctions_a6b4829d1fab8cd74c15c540cf97fe237}{obtener\+Fecha}} (string img)
+\begin{DoxyCompactList}\small\item\em Obtener fecha (todo lo que esta antes del segundo \+\_\+) de una imagen. \end{DoxyCompactList}\item 
+static int \mbox{\hyperlink{classCommonFunctions_adb7c245caab42a6dc8f484527dd2d447}{obtener\+Parametro}} (string str, string parametro)
+\begin{DoxyCompactList}\small\item\em Obtener el parametro que viene despues del string parametro. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommonFunctions_a96f64cedaa73dd2c2412f98beae60348}\label{classCommonFunctions_a96f64cedaa73dd2c2412f98beae60348}} 
+long static int {\bfseries cant\+Pixeles} (Mat img)
+\item 
+static string \mbox{\hyperlink{classCommonFunctions_a5393a67a9e631a763fe5874174e386d0}{remover\+Extension}} (string str)
+\begin{DoxyCompactList}\small\item\em Quita la extension del string que se le pase. \end{DoxyCompactList}\item 
+static bool \mbox{\hyperlink{classCommonFunctions_a91521d26a009071499a413ef4535ca8a}{exist\+File}} (string name)
+\begin{DoxyCompactList}\small\item\em Verifica si el archivo/carpeta existe. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -292,6 +303,26 @@ true
 
 false 
 \end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a91521d26a009071499a413ef4535ca8a}\label{classCommonFunctions_a91521d26a009071499a413ef4535ca8a}} 
+\index{Common\+Functions@{Common\+Functions}!exist\+File@{exist\+File}}
+\index{exist\+File@{exist\+File}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{exist\+File()}{existFile()}}
+{\footnotesize\ttfamily static bool Common\+Functions\+::exist\+File (\begin{DoxyParamCaption}\item[{string}]{name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Verifica si el archivo/carpeta existe. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em name} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}\label{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}} 
 \index{Common\+Functions@{Common\+Functions}!hist\+Draw@{hist\+Draw}}
 \index{hist\+Draw@{hist\+Draw}!Common\+Functions@{Common\+Functions}}
@@ -347,6 +378,24 @@ Verifica si la ubicación de un archivo existe, en caso contrario crea las carpe
 {\em carpeta} & \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a6b4829d1fab8cd74c15c540cf97fe237}\label{classCommonFunctions_a6b4829d1fab8cd74c15c540cf97fe237}} 
+\index{Common\+Functions@{Common\+Functions}!obtener\+Fecha@{obtener\+Fecha}}
+\index{obtener\+Fecha@{obtener\+Fecha}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{obtener\+Fecha()}{obtenerFecha()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::obtener\+Fecha (\begin{DoxyParamCaption}\item[{string}]{img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtener fecha (todo lo que esta antes del segundo \+\_\+) de una imagen. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em img} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}\label{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}} 
 \index{Common\+Functions@{Common\+Functions}!obtener\+Imagenes@{obtener\+Imagenes}}
 \index{obtener\+Imagenes@{obtener\+Imagenes}!Common\+Functions@{Common\+Functions}}
@@ -366,6 +415,26 @@ Obtiene las ubicaciones de un conjunto de imágenes que estan dentro de una carp
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 vector$<$string$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_adb7c245caab42a6dc8f484527dd2d447}\label{classCommonFunctions_adb7c245caab42a6dc8f484527dd2d447}} 
+\index{Common\+Functions@{Common\+Functions}!obtener\+Parametro@{obtener\+Parametro}}
+\index{obtener\+Parametro@{obtener\+Parametro}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{obtener\+Parametro()}{obtenerParametro()}}
+{\footnotesize\ttfamily static int Common\+Functions\+::obtener\+Parametro (\begin{DoxyParamCaption}\item[{string}]{str,  }\item[{string}]{parametro }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Obtener el parametro que viene despues del string parametro. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str} & \\
+\hline
+{\em parametro} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
 \end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}\label{classCommonFunctions_a9b3747c4d4a2bc6d897ba1ae2ec59f00}} 
 \index{Common\+Functions@{Common\+Functions}!obtener\+Ultimo\+Directorio@{obtener\+Ultimo\+Directorio}}
@@ -438,6 +507,24 @@ Quita el cuarto canal de una imágen.
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 Mat 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a5393a67a9e631a763fe5874174e386d0}\label{classCommonFunctions_a5393a67a9e631a763fe5874174e386d0}} 
+\index{Common\+Functions@{Common\+Functions}!remover\+Extension@{remover\+Extension}}
+\index{remover\+Extension@{remover\+Extension}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{remover\+Extension()}{removerExtension()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::remover\+Extension (\begin{DoxyParamCaption}\item[{string}]{str }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Quita la extension del string que se le pase. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
 \end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}\label{classCommonFunctions_a71529e35a71bbc74d49051d90a850c30}} 
 \index{Common\+Functions@{Common\+Functions}!show\+Window\+Normal@{show\+Window\+Normal}}

@@ -12,6 +12,9 @@ Calcula los indices de vegetación.
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
+\mbox{\Hypertarget{classIndexCalculation_acf1a471a4fc36510f3f2f629846ba3b8}\label{classIndexCalculation_acf1a471a4fc36510f3f2f629846ba3b8}} 
+{\bfseries Index\+Calculation} (bool output\+Stitching=false, bool multispectral=true, bool parallel=true)
+\item 
 \mbox{\Hypertarget{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}\label{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}} 
 void \mbox{\hyperlink{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}{process\+Manager}} ()
 \begin{DoxyCompactList}\small\item\em Maneja todo el proceso para generación de los indices. \end{DoxyCompactList}\item 
@@ -27,7 +30,7 @@ void \mbox{\hyperlink{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}{n
 \begin{DoxyCompactList}\small\item\em Calcula y escribe el indice N\+D\+VI=(Infrarojo-\/\+Rojo)/(Infrarojo+\+Rojo). \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classIndexCalculation_abd44fe3dd27ccd9641f29152fdf19a2e}{rvi\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
 \begin{DoxyCompactList}\small\item\em Calcula y escribe el indice R\+VI=Infrarojo/\+Rojo. \end{DoxyCompactList}\item 
-void \mbox{\hyperlink{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}{escribir\+Segmentaciones}} (Mat indice, Mat trans, string Nombre)
+void \mbox{\hyperlink{classIndexCalculation_acb0a9e1ded8f0d9550e7dad18e66058c}{escribir\+Segmentaciones}} (Mat indice, Mat trans, string str\+Img, string str\+Index)
 \begin{DoxyCompactList}\small\item\em Escribe los resultados de un indice con diferentes segmentaciones. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a65a88228b2caf575cbbac793a03d1dd6}{obtener\+Input}} (bool multiespectral, bool output\+Stitching)
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes de entrada en base al tipo de imágen y a la BD que la contiene. \end{DoxyCompactList}\item 
@@ -39,17 +42,29 @@ vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a23a9f9a23db08610998
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes R\+GB de salida. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a43b986cd58175d47714a399e7fdfd7e3}{obtener\+M\+S\+Output}} ()
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de salida. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a2a1ce2e6437e6bd929cf6f975876e4ca}\label{classIndexCalculation_a2a1ce2e6437e6bd929cf6f975876e4ca}} 
+bool {\bfseries output\+Stitching}
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a6b0355c3158fd94f6e0d9fa6d06f4634}\label{classIndexCalculation_a6b0355c3158fd94f6e0d9fa6d06f4634}} 
+bool {\bfseries parallel}
+\item 
+\mbox{\Hypertarget{classIndexCalculation_ab8b7a39b981cacd16e8bbbe1e680cc7a}\label{classIndexCalculation_ab8b7a39b981cacd16e8bbbe1e680cc7a}} 
+bool {\bfseries multispectral}
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
 Calcula los indices de vegetación. 
 
 \subsection{Member Function Documentation}
-\mbox{\Hypertarget{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}\label{classIndexCalculation_ae6a53e31c25458fd8c189e21fb89d80a}} 
+\mbox{\Hypertarget{classIndexCalculation_acb0a9e1ded8f0d9550e7dad18e66058c}\label{classIndexCalculation_acb0a9e1ded8f0d9550e7dad18e66058c}} 
 \index{Index\+Calculation@{Index\+Calculation}!escribir\+Segmentaciones@{escribir\+Segmentaciones}}
 \index{escribir\+Segmentaciones@{escribir\+Segmentaciones}!Index\+Calculation@{Index\+Calculation}}
 \subsubsection{\texorpdfstring{escribir\+Segmentaciones()}{escribirSegmentaciones()}}
-{\footnotesize\ttfamily void Index\+Calculation\+::escribir\+Segmentaciones (\begin{DoxyParamCaption}\item[{Mat}]{indice,  }\item[{Mat}]{trans,  }\item[{string}]{Nombre }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily void Index\+Calculation\+::escribir\+Segmentaciones (\begin{DoxyParamCaption}\item[{Mat}]{indice,  }\item[{Mat}]{trans,  }\item[{string}]{str\+Img,  }\item[{string}]{str\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -61,7 +76,9 @@ Escribe los resultados de un indice con diferentes segmentaciones.
 \hline
 {\em trans} & \\
 \hline
-{\em Nombre} & \\
+{\em str\+Img} & \\
+\hline
+{\em str\+Index} & \\
 \hline
 \end{DoxyParams}
 \mbox{\Hypertarget{classIndexCalculation_a07039b532b218e5cfe1e603966017373}\label{classIndexCalculation_a07039b532b218e5cfe1e603966017373}} 

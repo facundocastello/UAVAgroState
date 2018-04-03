@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <iostream>
 #include "CommonFunctions.h"
+#include "FSManager.h"
+
 using namespace cv;
 using namespace std;
 
@@ -828,8 +830,10 @@ namespace uav{
 						getchar();
 					}
 				}
-				resultName = CommonFunctions::obtenerFecha(strImgs[0]) + "tamano" + to_string(originalSize? 1:tamano) + "_altura" + to_string(altura);
-				cout << resultName << endl;
+				resultName = CommonFunctions::obtenerFecha(strImgs[0]);
+				
+				saveMetadata();
+
 				img = runAll();
 
 				if(img.empty()){
@@ -842,7 +846,15 @@ namespace uav{
 					img = runAll();
 					
 				}
-
+			}
+			/**
+			 * @brief Guarda tamano y altura a la metadata de la imagen.
+			 * 
+			 */
+			void saveMetadata(){
+				FSManager fs(resultName+".yml", "imagen");
+				fs.appendInt("tamano", tamano);
+				fs.appendInt("altura",altura);
 			}
 
 			/**

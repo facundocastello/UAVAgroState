@@ -3,6 +3,7 @@
 
 #include "CommonFunctions.h"
 #include "Color.h"
+#include "FSManager.h"
 
 /**
  * @brief Genera las diferentes segmentaciones.
@@ -167,7 +168,7 @@ public:
 	 * @param trans 
 	 * @return vector<Mat> 
 	 */
-	vector<Mat> static generarGrafico(Mat img,int cantidad, Mat trans){
+	vector<Mat> static generarGrafico(Mat img,int cantidad, Mat trans,string strImg, string strIndex){
 		Mat imgColor;
 		cvtColor(img,imgColor,CV_GRAY2BGR);
 		long int cantPix = 0;
@@ -232,6 +233,11 @@ public:
 				contadorAcum += porcentaje[k];
 			}
 		}
+
+		FSManager fs(strImg+".yml","imagen");
+		fs.appendVInt("limites"+strIndex,limites);
+		fs.appendVFloat("porcentaje"+strIndex,porcentaje);
+		
 		chart*=256;
 		chart.convertTo(chart,CV_8U);
 		vector<Mat> vecMat;

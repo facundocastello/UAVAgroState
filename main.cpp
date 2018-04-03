@@ -113,7 +113,7 @@ int main(int argc, char** argv)
 		break;
 		case 4:{
 			UtilInformation ui;
-			ui.readCameraProperties();
+			ui.selectCamera();
 			ui.calcularHectareas();
 		}
 		break;

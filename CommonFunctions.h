@@ -10,6 +10,7 @@
 #include "opencv2/video.hpp"
 #include <ctime>
 #include <dirent.h>
+#include <sys/stat.h>
 
 using namespace std;
 using namespace cv;
@@ -461,7 +462,7 @@ class CommonFunctions{
 		string static obtenerFecha(string img){
 			img = obtenerUltimoDirectorio2(img);
 			int indice = img.find("_",img.find("_")+1);
-			img = img.substr(0,indice+3)+"_";
+			img = img.substr(0,indice+3);
 			return img;
 		}
 		/**
@@ -492,6 +493,28 @@ class CommonFunctions{
 			}
 
 			return count;
+		}
+		/**
+		 * @brief Quita la extension del string que se le pase.
+		 * 
+		 * @param str 
+		 * @return string 
+		 */
+		string static removerExtension(string str){
+			int inicio = str.find(".");
+			str = str.substr(0,inicio);
+			return str;
+		}
+		/**
+		 * @brief Verifica si el archivo/carpeta existe
+		 * 
+		 * @param name 
+		 * @return true 
+		 * @return false 
+		 */
+		bool static existFile(string name){
+			struct stat buffer;   
+  			return (stat (name.c_str(), &buffer) == 0); 
 		}
 		
 

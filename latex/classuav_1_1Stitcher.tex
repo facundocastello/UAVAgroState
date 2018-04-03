@@ -12,8 +12,8 @@ Realiza el pegado de un conjunto de imágenes.
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classuav_1_1Stitcher_ac106b49de9c5d1162ff97a0f6d96d59c}\label{classuav_1_1Stitcher_ac106b49de9c5d1162ff97a0f6d96d59c}} 
-{\bfseries Stitcher} (int \mbox{\hyperlink{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}{tamano}}=4, int \mbox{\hyperlink{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}{min\+Keypoints}}=5000, bool \mbox{\hyperlink{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}{original\+Size}}=false)
+\mbox{\Hypertarget{classuav_1_1Stitcher_af5f3ef6450e3f54b1c62d53df26a75fd}\label{classuav_1_1Stitcher_af5f3ef6450e3f54b1c62d53df26a75fd}} 
+{\bfseries Stitcher} (int \mbox{\hyperlink{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}{tamano}}=4, int \mbox{\hyperlink{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}{min\+Keypoints}}=5000, bool \mbox{\hyperlink{classuav_1_1Stitcher_a222f8247abb4fafba61d86078d8f9c16}{original\+Size}}=false, int \mbox{\hyperlink{classuav_1_1Stitcher_a4dc4cd0546fef7f43b85d9079ea09f86}{altura}}=120)
 \item 
 vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a096e8020a5544325400743836c8ba58d}{stitch\+Warp}} (Mat scene, Mat obj, Mat homo\+Matrix)
 \begin{DoxyCompactList}\small\item\em funcion para pegar una imagen transformada por una homografia en otra imagen. En el caso de q tenga 4 canales (o sea el cuarto sea alpha \mbox{[}transparente\mbox{]}) hace un pegado especial para que no se pierda la transparencia, y en el caso contrario la pega de una manera q no se note el paso de una imagen a otra \end{DoxyCompactList}\item 
@@ -65,6 +65,9 @@ Mat \mbox{\hyperlink{classuav_1_1Stitcher_a0b78aba00328166db74d46884485f3bd}{run
 \mbox{\Hypertarget{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}\label{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}} 
 void \mbox{\hyperlink{classuav_1_1Stitcher_ac4616d6a6ed8e7aaf7b41464ed4b85d8}{process\+Manager}} ()
 \begin{DoxyCompactList}\small\item\em Realiza todo el proceso para pegar las imágenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a2ae32d1779c883faaf90253eb0b2fd51}\label{classuav_1_1Stitcher_a2ae32d1779c883faaf90253eb0b2fd51}} 
+void \mbox{\hyperlink{classuav_1_1Stitcher_a2ae32d1779c883faaf90253eb0b2fd51}{save\+Metadata}} ()
+\begin{DoxyCompactList}\small\item\em Guarda tamano y altura a la metadata de la imagen. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a33521f40ecd0a4b57e3433b32c33f872}{obtener\+Input}} ()
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones las imágenes a pegar. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classuav_1_1Stitcher_a4a31cc35b3bc69697cdaa8094d4490b8}{obtener\+Input\+Orto}} ()
@@ -83,6 +86,9 @@ void \mbox{\hyperlink{classuav_1_1Stitcher_aa3ed2d63f08d787b3b78ec4445195b2b}{es
 \subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a4dc4cd0546fef7f43b85d9079ea09f86}\label{classuav_1_1Stitcher_a4dc4cd0546fef7f43b85d9079ea09f86}} 
+int \mbox{\hyperlink{classuav_1_1Stitcher_a4dc4cd0546fef7f43b85d9079ea09f86}{altura}}
+\begin{DoxyCompactList}\small\item\em Altura a la que se obtuvieron las fotos. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}\label{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}} 
 int \mbox{\hyperlink{classuav_1_1Stitcher_aecfe8592eb3d8445c0f3e8b722558acb}{tamano}}
 \begin{DoxyCompactList}\small\item\em Tamaño con el que se redimensionan las imágenes. \end{DoxyCompactList}\item 
@@ -107,6 +113,9 @@ int \mbox{\hyperlink{classuav_1_1Stitcher_a3b54e9be9bda44c4a04b14a645bd9521}{min
 \mbox{\Hypertarget{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}\label{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}} 
 bool \mbox{\hyperlink{classuav_1_1Stitcher_af9e17d1709ac39044b31555d75b9bb54}{final\+Result}}
 \begin{DoxyCompactList}\small\item\em Booleano que decide si se esta procesando los resultados intermedios o el resultado final. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classuav_1_1Stitcher_a910ff14cc80b37beb8598894c535d00f}\label{classuav_1_1Stitcher_a910ff14cc80b37beb8598894c535d00f}} 
+string \mbox{\hyperlink{classuav_1_1Stitcher_a910ff14cc80b37beb8598894c535d00f}{result\+Name}}
+\begin{DoxyCompactList}\small\item\em Nombre del resultado. \end{DoxyCompactList}\item 
 \mbox{\Hypertarget{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}\label{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}} 
 vector$<$ Mat $>$ \mbox{\hyperlink{classuav_1_1Stitcher_af0c6f4217fb85386b4af03330997d960}{imgs}}
 \begin{DoxyCompactList}\small\item\em Imágenes a pegar. \end{DoxyCompactList}\item 
