@@ -2,6 +2,7 @@
 #include "Calibration.h"
 #include "Undistort.h"
 #include "IndexCalculation.h"
+#include "UtilInformation.h"
 #include "Redaction.h"
 
 
@@ -108,6 +109,12 @@ int main(int argc, char** argv)
 			IndexCalculation *uavIndex;
 			uavIndex = new IndexCalculation(otputSticthing,multispectral,paralell);
 			uavIndex->processManager();
+		}
+		break;
+		case 4:{
+			UtilInformation ui;
+			ui.readCameraProperties();
+			ui.calcularHectareas();
 		}
 		break;
 		case 6:{

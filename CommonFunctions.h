@@ -452,8 +452,47 @@ class CommonFunctions{
 		  
 			return r;
 		  }
+		/**
+		 * @brief Obtener fecha (todo lo que esta antes del segundo _) de una imagen
+		 * 
+		 * @param img 
+		 * @return string 
+		 */
+		string static obtenerFecha(string img){
+			img = obtenerUltimoDirectorio2(img);
+			int indice = img.find("_",img.find("_")+1);
+			img = img.substr(0,indice+3)+"_";
+			return img;
+		}
+		/**
+		 * @brief Obtener el parametro que viene despues del string parametro
+		 * 
+		 * @param str 
+		 * @param parametro 
+		 * @return string 
+		 */
+		int static obtenerParametro(string str, string parametro){
+			int inicio = str.find(parametro);
+			int fin = str.find("_",inicio);
+			str = str.substr(inicio+parametro.size(),fin);
+			int param = stoi(str);
+			return param;
+		}
+		long int static cantPixeles(Mat img){
+			long int count=0;
+			if(img.channels() == 3){
+				return img.rows*img.cols;
+			}
+			for(int i=0;i<img.rows;i++){
+				for(int j = 0; j < img.cols; j++){
+					if(img.at<Vec4b>(i,j)[3] != 0){
+						count ++;
+					}
+				}
+			}
 
-		  
+			return count;
+		}
 		
 
 };

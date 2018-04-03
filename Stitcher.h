@@ -19,6 +19,11 @@ namespace uav{
 	class Stitcher{
 		public:
 			/**
+			 * @brief Altura a la que se obtuvieron las fotos
+			 * 
+			 */
+			int altura;
+			/**
 			 * @brief Tamaño con el que se redimensionan las imágenes.
 			 * 
 			 */
@@ -58,6 +63,11 @@ namespace uav{
 			 * 
 			 */
 			bool finalResult;
+			/**
+			 * @brief Nombre del resultado
+			 * 
+			 */
+			string resultName;
 			/**
 			 * @brief Imágenes a pegar.
 			 * 
@@ -107,12 +117,14 @@ namespace uav{
 			Stitcher(
 						int tamano = 4,
 						int minKeypoints=5000,
-						bool originalSize=false
+						bool originalSize=false,
+						int altura = 120
 						)
 			{
 				this->tamano = tamano;
 				this->originalSize=originalSize;
 				this->minKeypoints = minKeypoints;
+				this->altura = altura;
 			}
 			/**
 			 * @brief funcion para pegar una imagen transformada por una homografia
@@ -757,7 +769,6 @@ namespace uav{
 				// usarHomografia = true;
 				struct timeval begin;
 				gettimeofday(&begin, NULL);
-
 				imgs = CommonFunctions::cargarImagenes(strImgs , tamano,IMREAD_UNCHANGED);
 				if(imgs.empty()){
 					return Mat();
@@ -817,7 +828,8 @@ namespace uav{
 						getchar();
 					}
 				}
-				
+				resultName = CommonFunctions::obtenerFecha(strImgs[0]) + "tamano" + to_string(originalSize? 1:tamano) + "_altura" + to_string(altura);
+				cout << resultName << endl;
 				img = runAll();
 
 				if(img.empty()){
@@ -864,7 +876,7 @@ namespace uav{
 			 * @return string 
 			 */
 			string obtenerOutputRF(){
-				return "Imagenes/Pegado/output/resultadofinal.png";
+				return "Imagenes/Pegado/output/final/";
 			}
 			/**
 			 * @brief Escribe los resultados intermedios o finaledependiendo de finalResult.
@@ -884,7 +896,7 @@ namespace uav{
 			 * 
 			 */
 			void escribirOutputRF(){
-				CommonFunctions::escribirImagen(obtenerOutputRF(),boundBox);
+				CommonFunctions::escribirImagen(obtenerOutputRF()+resultName+".png",boundBox);
 			}
 			/**
 			 * @brief Escribe resultados intermedios.
