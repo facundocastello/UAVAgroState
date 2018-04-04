@@ -242,7 +242,7 @@ namespace uav{
 			 * 
 			 */
 			void detectAndDescript(){
-				cout << "\033[1;32mObteniendo keypoints y descriptores: \033[0m"<< endl;
+				cout << CommonFunctions::stringAzul( "Obteniendo keypoints y descriptores: ")<< endl;
 				//CALCULA LOS KEYPOINTS Y DESCRIPTORES DE CADA IMAGEN
 				//-- Step 1 and 2 : Detect the keypoints and Calculate descriptors
 				vecDesc = vector<Mat>(imgs.size());
@@ -270,7 +270,7 @@ namespace uav{
 							orb->detectAndCompute(imgs[i] , mask , keypoints , descriptors);
 							kTres/=2;
 						}
-						cout << "\n KeyPoint imagen" + to_string(i) + ": " + to_string(keypoints.size());
+						cout << "\n    - KeyPoint imagen" + to_string(i) + ": " + to_string(keypoints.size());
 						vecDesc[i]=descriptors;
 						vecKp[i]=keypoints;
 					}
@@ -283,7 +283,7 @@ namespace uav{
 			 * 
 			 */
 			void matchKp(){
-				cout << "\033[1;32m Matcheando: \033[0m" << endl;
+				cout << CommonFunctions::stringAzul( "Realizando emparejamientos: ") << endl;
 				vecMatch = vector< vector< DMatch > >(imgs.size()-1);
 				best_inliers = vector< vector< DMatch > >(imgs.size()-1);
 				BFMatcher matcher(NORM_HAMMING,true);
@@ -294,7 +294,7 @@ namespace uav{
 						vector< DMatch > matches;
 						matcher.match(vecDesc[i],vecDesc[i+1], vecMatch[i]);
 						
-						cout << "Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[i].size()) +".\n" ;
+						cout << "    - Termino Match "+to_string(i)+ " con "+ to_string(vecMatch[i].size()) +".\n" ;
 					}
 				});
 			}
@@ -452,7 +452,6 @@ namespace uav{
 				
 
 				Mat aux;
-				cout << " " << bestvalx << endl;
 				// drawMatches(CommonFunctions::removeAlpha(imgs[numHomo]), vecKp[numHomo],CommonFunctions::removeAlpha(imgs[numHomo+1]),vecKp[numHomo+1],best_inliers[numHomo],aux,
 				// Scalar::all(-1),Scalar::all(-1),
 				// vector<char>(),DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
@@ -463,7 +462,7 @@ namespace uav{
 			 * 
 			 */
 			void getHomographies(){
-				cout << "\033[1;32mGenerando homografias: \033[0m" << endl;
+				cout << CommonFunctions::stringAzul("Generando homografias: ") << endl;
 				H.clear();
 				H = vector<Mat>();
 				homoNoMultiplicated = vector<Mat>(imgs.size());
@@ -471,7 +470,7 @@ namespace uav{
 				homoNoMultiplicated[0] = (Mat::eye(3, 3, CV_64F));
 				
 				for(int i = 0; i < imgs.size()-1;i++){
-					cout << "Realizando Homografia "+to_string(i)+ ". \n";
+					cout << "    - Realizando Homografia "+to_string(i)+ ". \n";
 					//caso comun
 					getHomography(i);
 
@@ -490,7 +489,7 @@ namespace uav{
 			 */
 
 			void findBoundBoxLimits(){
-				cout << "\033[1;32mObteniendo bordes boundbox: \033[0m"<< endl;
+				cout << CommonFunctions::stringAzul( "Obteniendo bordes boundbox: ")<< endl;
 
 				yMin=0;	yMax=0;	xMin=0;	xMax=0;
 				for(int i = 0; i < H.size()-1; i++){
@@ -524,7 +523,7 @@ namespace uav{
 						yMax = ((*max_element(newY.begin(),newY.end()) ) - imgResta.rows);
 					}
 				}
-				cout<< "ymin: "<< yMin << " ymax: "<< yMax<< "xmin: "<< xMin << " xmax: "<< xMax << endl;
+				cout<< "    - Espacio por debajo: "<< -1*yMin << "\n    - Espacio sobre: "<< yMax<< "\n    - Espacio a la izquierda: "<< -1*xMin << "\n    - Espacio a la derecha: "<< xMax << endl;
 			}
 			/**
 			 * @brief Evalua que los limites del boundbox no sean de una homogragia mal calculada.
@@ -551,7 +550,7 @@ namespace uav{
 			 * 
 			 */
 			void generateBoundBox(){
-				cout << "\033[1;32m Generando boundbox y calculando su homografia: \033[0m" << endl;
+				cout << CommonFunctions::stringAzul( " Generando boundbox y calculando su homografia:")<< endl;
 				/* Le agrego a la imagen inicial los bordes con el suficiente espacio para
 				poder pegar todas las imagenes */
 				boundBox = imgs[0];
@@ -590,7 +589,7 @@ namespace uav{
 
 			void rescaleHomographies(){
 				if(originalSize){
-					cout << "\033[1;32m Resize al tamaño original: \033[0m" << endl;
+					cout << CommonFunctions::stringAzul( " Resize al tamaño original:") << endl;
 
 					Mat project_down = (Mat::eye(3, 3, CV_64F));
 					project_down.at<double>(0,0)/=tamano;
@@ -639,13 +638,14 @@ namespace uav{
 			 * @return Mat 
 			 */
 			Mat stitchImgs(){
-				cout << "\033[1;32m Generando orthomosaico: ... ("<< H.size()-1<< ")\033[0m"<< endl;
+				cout << CommonFunctions::stringAzul( " Generando ortomosaico: ... (" + to_string(H.size()-1) + ")" )<< endl;
 				eraseFromVectors();
+				cout << "     ";
 				for (int i = 1; i < H.size(); i++){
 					cout.flush();
 					boundBox = stitchWarp(boundBox, imgs[0], H[i])[0];
 					eraseFromVectors();
-					cout << "-" << (i+1) * 100 / H.size() << "%";
+					cout << (i+1) * 100 / H.size() << "% -";
 				}
 				cout<<endl;
 				if(boundBox.channels() < 4){
@@ -781,8 +781,6 @@ namespace uav{
 
 				begin = CommonFunctions::tiempo(begin, "cargar las imagenes:");
 
-
-
 				detectAndDescript();
 				begin = CommonFunctions::tiempo(begin, "obtener keypoints:");
 
@@ -819,8 +817,8 @@ namespace uav{
 			 * @brief Realiza todo el proceso para pegar las imágenes.
 			 * 
 			*/
-			void processManager(){
-				cout << "Comenzando proceso de pegado con: -Tamaño: "<< tamano << " -Recuperar tamaño original: "<<originalSize<< " -Minimos kp: "<< minKeypoints << endl;
+			bool processManager(){
+				cout << CommonFunctions::stringAzul("Comenzando proceso de pegado con: -Tamaño: " + to_string(tamano) + " -Recuperar tamaño original: " + (originalSize?"true":"false") + " -Minimos kp: " + to_string(minKeypoints)) + "\n";
 
 				Mat img;
 				while(strImgs.size() == 0){
@@ -830,29 +828,40 @@ namespace uav{
 						getchar();
 					}
 				}
-				resultName = CommonFunctions::obtenerFecha(strImgs[0]);
+				resultName = CommonFunctions::obtenerFecha(strImgs[0])+ "_tamano"+ to_string(tamano);
+				if(existResult()){
+					cout << "La imágen ya existe, desea sobre-escribirla?";
+					bool sobreescribir;
+					cin >> sobreescribir;
+					if(!sobreescribir)
+						return false;
+				}
 				
-				saveMetadata();
+				saveMetadata(true);
 
 				img = runAll();
 
 				if(img.empty()){
-					cout << "\033[1;31m" << "Los archivos dentro de input, no son imágenes" << "\033[0m" << '\n';
+					cout <<CommonFunctions::stringRojo("Los archivos dentro de input, no son imágenes") << '\n';
 				}else{
 					minKeypoints = 10000;
 					tamano = originalSize? tamano:1;
 					strImgs = obtenerInputOrto();
 					finalResult = true;
-					img = runAll();
-					
+					img = runAll();	
 				}
+
+				return true;
+			}
+			bool existResult(){
+				return CommonFunctions::existFile(obtenerOutputRF()+resultName+".png");
 			}
 			/**
 			 * @brief Guarda tamano y altura a la metadata de la imagen.
 			 * 
 			 */
-			void saveMetadata(){
-				FSManager fs(resultName+".yml", "imagen");
+			void saveMetadata(bool sobreescribir){
+				FSManager fs(resultName+".yml", "imagen",sobreescribir);
 				fs.appendInt("tamano", tamano);
 				fs.appendInt("altura",altura);
 			}

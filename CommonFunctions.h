@@ -80,10 +80,10 @@ class CommonFunctions{
 		vector<Mat> static cargarImagenes(vector<string> strImgs, int tamano = 4, int Tipo = int(IMREAD_UNCHANGED))
 		{
 			vector<Mat> imgs;
-			cout << "\033[1;32mCargando Imagenes: (resize: 1/"
-			+ to_string(tamano) +" Cantidad:"<< strImgs.size()<<")\033[0m" << endl;
+			cout << stringAzul("Cargando Imagenes: (resize: 1/"+ to_string(tamano) +" Cantidad:" + to_string(strImgs.size()) + ")") << endl;
+			cout << "    ";
 			for (int i = 0; i < strImgs.size(); i++){
-				cout << "-" << (i+1) * 100 / strImgs.size() << "%";
+				cout << (i+1) * 100 / strImgs.size() << "% -";
 				cout.flush();
 				Mat img = cargarImagen(strImgs[i], tamano,Tipo);
 				if(!img.empty()){
@@ -101,7 +101,7 @@ class CommonFunctions{
 		 * @param reverse 
 		 * @return vector<string> 
 		 */
-		vector<string> static obtenerImagenes(const char* carpeta , bool reverse = false){
+		vector<string> static obtenerImagenes(const char* carpeta , bool verbose = false , bool reverse = false){
 			DIR *dir;
 			struct dirent *ent;
 			vector<string> argumentos;
@@ -121,8 +121,11 @@ class CommonFunctions{
 			if(reverse){
 				std::reverse(argumentos.begin(),argumentos.end());	
 			}
-			for(int i = 0; i < argumentos.size() ; i++){
-				cout << (argumentos[i] + '\n');
+			if(verbose){
+				for(int i = 0; i < argumentos.size() ; i++){
+					
+					cout << (argumentos[i] + '\n');
+				}
 			}
 			return argumentos;
 		}
@@ -230,7 +233,7 @@ class CommonFunctions{
 		
 			mtime = ((seconds) * 1000 + useconds/1000.0) + 0.5;
 
-			cout << "\033[1;33m" << "Tiempo en " <<msg << mtime/1000 << "\033[0m" << '\n';
+			cout << "\033[1;33m" << "  - Tiempo en " <<msg << mtime/1000 << "\033[0m" << '\n';
 			return end;
 		}
 		/**
@@ -516,7 +519,24 @@ class CommonFunctions{
 			struct stat buffer;   
   			return (stat (name.c_str(), &buffer) == 0); 
 		}
-		
+		/**
+		 * @brief Realiza un output de color verde.
+		 * 
+		 * @param info 
+		 * @return string 
+		 */
+		string static stringVerde(string info){
+			return "\033[1;32m" + info + " \033[0m"; 
+		}
+
+		string static stringAzul(string proceso){
+			return "\033[1;34m - " + proceso + " \033[0m"; 
+		}
+
+		string static stringRojo(string peligro){
+			return "\033[1;31m" + peligro + " \033[0m"; 
+		}
+
 
 };
 

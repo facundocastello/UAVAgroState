@@ -123,11 +123,11 @@ public:
 		int auxMin = ((min>0)?min:0)*100/256;
 		int auxMax = ((max<256)?max:255)*100/256;
 		putText(index, "0."+to_string(auxMin), cvPoint(index.cols*.1,index.rows*.2), 
-    	FONT_HERSHEY_TRIPLEX, index.rows/170, cvScalar(0,0,0), 3, CV_AA);
+    	FONT_HERSHEY_TRIPLEX, (float)index.rows/170, cvScalar(0,0,0), (float)index.rows/170*3, CV_AA);
 		putText(index, "0."+to_string(auxMin+(auxMax-auxMin)/2), cvPoint(index.cols*.1,index.rows*.55), 
-    	FONT_HERSHEY_TRIPLEX, index.rows/200, cvScalar(0,0,0), 3, CV_AA);
+    	FONT_HERSHEY_TRIPLEX, (float)index.rows/200, cvScalar(0,0,0),(float)index.rows/200*3, CV_AA);
 		putText(index, "0."+to_string(auxMax), cvPoint(index.cols*.1,index.rows*.9), 
-    	FONT_HERSHEY_TRIPLEX, index.rows/170, cvScalar(0,0,0), 3, CV_AA);
+    	FONT_HERSHEY_TRIPLEX, (float)index.rows/170, cvScalar(0,0,0), (float)index.rows/170*3, CV_AA);
 		//copio el indice a la imagen
 		index.copyTo(img(Rect(img.cols-1.1*index.cols,img.rows-1.1*index.rows,index.cols,index.rows)));
 
@@ -201,11 +201,13 @@ public:
 		}
 		//generl el grafico con colores aleatorios
 		Vec3f color;
-		Mat chart(Size(1200,500),CV_32FC3,Scalar(0,0,0));
+		Mat chart(Size(1500,500),CV_32FC3,Scalar(0,0,0));
 		float contadorAcum = 0;
 		int posText = 2;
-		putText(chart, "min  max  porcentaje" , cvPoint(1000,(posText-1)*25), FONT_HERSHEY_PLAIN, 1.1, cvScalar(1,1,1), 1, CV_AA);
+		float fontSize = 2.2; float thickness = 2; int xPos = 1020; int yPos = posText*35;
+		putText(chart, "min  max  porcentaje" , cvPoint(xPos,yPos*0.4), FONT_HERSHEY_PLAIN, fontSize, cvScalar(1,1,1), thickness, CV_AA);
 		for(int k = 0;k < porcentaje.size();k++){
+			yPos = posText*35;
 			if(porcentaje[k] > .3){
 				//dibujo pixel a pixel
 				Vec3f color = colors[k];
@@ -225,10 +227,12 @@ public:
 					color[0] *= .995;color[1] *= .995;color[2] *= .995;
 				}
 				//agrego el texto al grafico
-
-				putText(chart, to_string(limites[k]) , cvPoint(1000,posText*25), FONT_HERSHEY_PLAIN, 1.4, cvScalar(colorText[0],colorText[1],colorText[2]), 1, CV_AA);
-				putText(chart, to_string(limites[k+1]) , cvPoint(1050,posText*25), FONT_HERSHEY_PLAIN, 1.4, cvScalar(colorText[0],colorText[1],colorText[2]), 1, CV_AA);
-				putText(chart, to_string(porcentaje[k]) + "%" , cvPoint(1130,posText*25), FONT_HERSHEY_PLAIN, 1.6, cvScalar(colorText[0],colorText[1],colorText[2]), 1, CV_AA);
+				putText(chart, to_string(limites[k]) , cvPoint(xPos,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, to_string(limites[k]) , cvPoint(xPos,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
+				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+100,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+100,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
+				putText(chart, to_string(porcentaje[k]) + "%" , cvPoint(xPos+200,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, to_string(porcentaje[k]) + "%" , cvPoint(xPos+200,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
 				posText++;
 				contadorAcum += porcentaje[k];
 			}

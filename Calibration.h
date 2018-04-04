@@ -31,6 +31,9 @@ public:
         int numSquares = numCornersHor * numCornersVer;
         Size patternsize = Size(numCornersHor, numCornersVer);
 
+        struct timeval beginAll;
+		gettimeofday(&beginAll, NULL);
+
         vector<string> strImgs = obtenerInput();
         vector<vector<Point3f>> object_points(strImgs.size());		//physical position of the corners in 3d space. this has to be measured by us
         vector<vector<Point2f>> image_points(strImgs.size());		//location of corners on in the image (2d) once the program has actual physical locations and locations			
@@ -46,13 +49,18 @@ public:
 
 		parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
 			for(int i = range.start;i < range.end ; i++){
+
+                struct timeval begin;
+		        gettimeofday(&begin, NULL);
+                cout << CommonFunctions::stringAzul("Buscando patrones en imagen " +strImgs[i]) + "\n";
+
                 Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
                 vector<Mat> BGR;
                 split(frame, BGR);
                 frame=BGR[2];
                 
                 bool patternfound = findChessboardCorners(frame,patternsize,corners);
-                cout<< strImgs[i] <<"      "<<patternfound<<endl;
+                CommonFunctions::tiempo( begin , "Encontrar patrones para " + strImgs[i] + (patternfound?" con":" sin") + " éxito: ");
                 cornerSubPix(frame,corners, Size(11,11), Size(-1,-1), criteria);
                 drawChessboardCorners(frame, patternsize, Mat(corners), patternfound);
                 if(patternfound){
@@ -94,6 +102,7 @@ public:
         // CommonFunctions::writeMatOnFile(folder+"intrinsic" + cameraName,intrinsic);
         Calibration::storeCalibrationMat(intrinsic,distCoeffs,cameraName);
 
+        CommonFunctions::tiempo(beginAll, "Terminar de obtener matriz de calibración: ");
     }
 
     /**

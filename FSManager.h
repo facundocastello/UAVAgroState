@@ -16,14 +16,14 @@ public:
      * @param dir 
      * @param tipo 
      */
-     FSManager(string dir,string tipo){
+     FSManager(string dir,string tipo, bool sobreescribir=false){
          this-> dir = dir;
          if("camara"==tipo){
             this-> dir  = "Data/Camaras/" + dir;}
          if("imagen"==tipo){
             this-> dir  = "Data/Imagenes/" + dir;}
 
-         if(!CommonFunctions::existFile(this-> dir )){
+         if(!CommonFunctions::existFile(this-> dir ) || sobreescribir){
             CommonFunctions::manejarCarpeta(this-> dir );
             FileStorage fsW(this-> dir ,FileStorage::WRITE);
             fsW << "ubicacion" << this-> dir ;
@@ -132,6 +132,22 @@ public:
         fsR.release();
         return ret;
     }
+
+    vector<int> readVInt(string nombre){
+        FileStorage fsR(dir, FileStorage::READ);
+        vector<int> vecInt;
+        fsR[nombre] >> vecInt;
+        fsR.release();
+        return vecInt;
+    }
+    vector<float> readVFloat(string nombre){
+        FileStorage fsR(dir, FileStorage::READ);
+        vector<float> vecFloat;
+        fsR[nombre] >> vecFloat;
+        fsR.release();
+        return vecFloat;
+    }
+
     /**
      * @brief Verifica si existe un entero con ese nombre en el fs
      * 

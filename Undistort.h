@@ -32,6 +32,8 @@ public:
         vector<string> strImgs = obtenerInput();
         parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
 			for(int i = range.start;i < range.end ; i++){
+                string strImg = CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]);
+                cout << CommonFunctions::stringAzul("Comenzando imagen "+strImg) + "\n";
                 struct timeval begin;
                 gettimeofday(&begin, NULL);
                 Mat frame = CommonFunctions::cargarImagen(strImgs[i],1);
@@ -41,7 +43,7 @@ public:
                 strImgs[i].erase(strImgs[i].begin(),strImgs[i].begin()+position);
                 // frameUndistorted = CommonFunctions::addTransparence(frameUndistorted);
                 escribirOutput(frameUndistorted,strImgs[i]);
-                CommonFunctions::tiempo(begin, "Terminar " + CommonFunctions::obtenerUltimoDirectorio(strImgs[i])+":");
+                CommonFunctions::tiempo(begin, "Terminar " + strImg +":");
             }
         });
         CommonFunctions::tiempo(beginAll, "Terminar todo: ");

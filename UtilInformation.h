@@ -22,7 +22,7 @@ public:
         cin >> cameraName;
         FSManager fs(cameraName+".yml","camara");
         if( fs.existeString("cameraName") ){
-            cout << "La camara existe en la base de datos por lo que sus propiedades fueron cargadas en memoria. \n";
+            cout << CommonFunctions::stringVerde("La camara existe en la base de datos por lo que sus propiedades serán cargadas en memoria.") + "\n";
             readCameraProperties();
         }else{
             cout << "La camara no existe en la base de datos por lo que debe ingresar sus propiedades a continuación. \n";
@@ -68,15 +68,22 @@ public:
      */
     void calcularHectareas(){
         uav::Stitcher stitcher;
-        string strImg = CommonFunctions::obtenerImagenes(stitcher.obtenerOutputRF().c_str())[0];
-        FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImg)) + ".yml", "imagen");
-        float tamano = fs.readInt("tamano");
-        float altura = fs.readInt("altura");
-        float metrospx = mmpx/1000*altura;
-        Mat img = CommonFunctions::cargarImagen(strImg,1);
-        long int cantPix = CommonFunctions::cantPixeles(img);
-        float hectareas = metrospx * metrospx * tamano * tamano * cantPix / 10000;
-        fs.appendFloat("hectareas",hectareas);
+        vector<string> strImgs = CommonFunctions::obtenerImagenes(stitcher.obtenerOutputRF().c_str());
+        for(int i = 0 ; i < strImgs.size(); i++){
+            cout << CommonFunctions::stringAzul("Calculando hectareas de la imágen " + CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + "\n";
+            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + ".yml", "imagen");
+            float tamano = fs.readInt("tamano");
+            float altura = fs.readInt("altura");
+            if(tamano && altura){
+                float metrospx = mmpx/1000*altura;
+                Mat img = CommonFunctions::cargarImagen(strImgs[i],1);
+                long int cantPix = CommonFunctions::cantPixeles(img);
+                float hectareas = metrospx * metrospx * tamano * tamano * cantPix / 10000;
+                fs.appendFloat("hectareas",hectareas);
+            }else{
+                cout <<CommonFunctions::stringRojo("La imágen no tiene las propiedades 'tamano' o 'altura', por lo que no se puede calcular la dimensión hectareas por pixel.") << endl ;
+            }
+        }
     }
     
 
