@@ -54,6 +54,7 @@ int main(int argc, char** argv)
 				int tamano = 4;
 				int minKeypoints = 1000;
 				bool originalSize=false;
+				bool multispectral=true;
 
 				struct timeval begin;
 				gettimeofday(&begin, NULL);
@@ -76,9 +77,15 @@ int main(int argc, char** argv)
 					cout<< "Cantidad minima de kp?: ";
 					cin>>minKeypoints;
 				}
+				if(argc > 3){
+					multispectral = stoi(argv[3]);
+				}else{
+					cout<< "Las imágenes fueron tomadas con una camara multi-espectral? (0 o 1): ";
+					cin>>multispectral;
+				}
 
 				uav::Stitcher *uav;
-				uav = new uav::Stitcher(tamano,minKeypoints,originalSize);
+				uav = new uav::Stitcher(tamano,minKeypoints,originalSize,multispectral);
 				uav->processManager();
 
 				CommonFunctions::tiempo(begin, "realizar todo: ");
@@ -97,31 +104,28 @@ int main(int argc, char** argv)
 					cin>>otputSticthing;
 				}
 				if(argc > 3){
-					multispectral = stoi(argv[3]);
-				}else{
-					cout<< "Los indices a obtener son para imágenes multi-espectrales(1) o RGB(0)?";
-					cin>>multispectral;
-				}
-				if(argc > 4){
-					paralell = stoi(argv[4]);
+					paralell = stoi(argv[3]);
 				}else{
 					cout<< "Desea implementar calculo paralelo? (0 o 1)";
 					cin>>paralell;
 				}
-				if(argc > 5){
+				if(argc > 4){
 					sobreescribir = stoi(argv[4]);
 				}else{
 					cout<< "Desea sobre escribir los indices que ya hayan sido calculados? (0 o 1)";
 					cin>>sobreescribir;
 				}
 				IndexCalculation *uavIndex;
-				uavIndex = new IndexCalculation(otputSticthing,multispectral,paralell,sobreescribir);
+				uavIndex = new IndexCalculation(otputSticthing,paralell,sobreescribir);
 				uavIndex->processManager();
 			}
 			break;
 			case 4:{
 				UtilInformation ui;
-				ui.selectCamera();
+				// ui.selectCamera();
+				ui.dibujarBGR();
+				int cantMetros = 50;
+				ui.dibujarLineasMetro();
 				ui.calcularHectareas();
 			}
 			break;

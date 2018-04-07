@@ -72,6 +72,10 @@ public:
         for(int i = 0 ; i < strImgs.size(); i++){
             cout << CommonFunctions::stringAzul("Calculando hectareas de la imágen " + CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + "\n";
             FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + ".yml", "imagen");
+            
+            cameraName = (fs.readString("multispectral")=="ms"? "mapir":"sjcam");
+            readCameraProperties();
+
             float tamano = fs.readInt("tamano");
             float altura = fs.readInt("altura");
             if(tamano && altura){
@@ -83,6 +87,58 @@ public:
             }else{
                 cout <<CommonFunctions::stringRojo("La imágen no tiene las propiedades 'tamano' o 'altura', por lo que no se puede calcular la dimensión hectareas por pixel.") << endl ;
             }
+        }
+    }
+    /**
+     * @brief Dibuja lineas cada  cantMetros
+     * 
+     */
+    void dibujarLineasMetro(int cantMetros = 50){
+        uav::Stitcher stitch;
+        vector<string> strImgs = CommonFunctions::obtenerImagenes(stitch.obtenerOutputRF().c_str());
+
+        for(int i = 0 ; i < strImgs.size(); i++){
+            Mat img = CommonFunctions::cargarImagen(strImgs[i],1);
+
+            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + ".yml", "imagen");
+            
+            cameraName = (fs.readString("multispectral")=="ms"? "mapir":"sjcam");
+            int tamano = fs.readInt("tamano");
+            int altura = fs.readInt("altura");
+            readCameraProperties();
+            
+            float metropx = (mmpx*altura)/(1000*cantMetros);
+
+            int ancho=0;
+            int largo=0;
+            while(ancho < img.cols){
+                ancho += 1/(metropx*tamano);
+                line(img,Point(ancho,0),Point(ancho,img.rows),Scalar(100,100,100,255),2);
+            }
+            while(largo < img.rows){
+                largo += 1/(metropx*tamano);
+                line(img,Point(0,largo),Point(img.cols,largo),Scalar(100,100,100,255),2);
+            }
+
+            CommonFunctions::escribirImagen("Imagenes/Info/medidas/"+CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]),img);
+        }
+    }
+    /**
+     * @brief separa las conalesw BGR, los separa y hace la substraccion para corregir el problema de NIR
+     * 
+     */
+    void dibujarBGR(){
+        uav::Stitcher stitch;
+        vector<string> strImgs = CommonFunctions::obtenerImagenes(stitch.obtenerOutputRF().c_str());
+        vector<Mat> BGRA;
+
+        for(int i = 0 ; i < strImgs.size(); i++){
+            Mat img = CommonFunctions::cargarImagen(strImgs[i],1);
+            split(img, BGRA);
+            CommonFunctions::escribirImagen("Imagenes/Info/colores/"+CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]))+"infrarojo.png",BGRA[0]);
+            CommonFunctions::escribirImagen("Imagenes/Info/colores/" + CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]))+"rojo.png",BGRA[2]);
+            subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],BGRA[3],CV_8U);
+            CommonFunctions::escribirImagen("Imagenes/Info/colores/"+CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]))+"rojoSinInfra.png",BGRA[2]);
         }
     }
     

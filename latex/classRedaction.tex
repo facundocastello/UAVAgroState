@@ -14,7 +14,19 @@ Redacta el P\+DF final.
 \item 
 int \mbox{\hyperlink{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}{generate\+P\+DF}} ()
 \begin{DoxyCompactList}\small\item\em Crea un P\+DF con todas las imágenes. \end{DoxyCompactList}\item 
-int \mbox{\hyperlink{classRedaction_aac938c179683d6862f3f853c346a7b32}{write\+Full\+Page\+Img}} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file, int max\+Width=600, int max\+Height=840, int x\+Space=50, int y\+Space=50)
+void \mbox{\hyperlink{classRedaction_a95d771b7dcd46c323876a0ad597d46e4}{write\+Original}} (string str\+Img\+Name, H\+P\+D\+F\+\_\+\+Doc pdf)
+\begin{DoxyCompactList}\small\item\em Se escribe el ortomosaico y un texto que lo acompaña. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classRedaction_a5eb1526e3796eb6c1df1a78854d4f9d0}{write\+Index}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
+\begin{DoxyCompactList}\small\item\em Se escribe el indice y un texto que lo acompaña. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classRedaction_a1b092fb88b89ca238da44111f6a67ddc}{write\+Lut}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
+\begin{DoxyCompactList}\small\item\em Se escribe el mapa de colores y un texto que lo acompaña. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classRedaction_af897cc53c7d60685232fe19dd76d0d9f}{write\+Chart}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
+\begin{DoxyCompactList}\small\item\em Se escribe el gráfico de porcentajes y un texto que lo acompaña. \end{DoxyCompactList}\item 
+string \mbox{\hyperlink{classRedaction_a466ce7f7f8b2a4ec810b2da9c7832f26}{generate\+Chart\+Text}} (string str\+Img\+Name, string str\+Index)
+\begin{DoxyCompactList}\small\item\em Genera el texto para el gráfico, utilizando metadatos manejador por \mbox{\hyperlink{classFSManager}{F\+S\+Manager}}. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classRedaction_ab5716b51790373ff2726286e1d02d73d}{write\+Text}} (string text, H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page\+\_\+1, int size\+Font, int left, int top, int right, int bottom, H\+P\+D\+F\+\_\+\+Text\+Alignment text\+Align=H\+P\+D\+F\+\_\+\+T\+A\+L\+I\+G\+N\+\_\+\+J\+U\+S\+T\+I\+FY)
+\begin{DoxyCompactList}\small\item\em Escribe un texto en el rectangulo indicado por las coordenadas que se pasan por parametros. \end{DoxyCompactList}\item 
+int \mbox{\hyperlink{classRedaction_a3236e2af6e29f073fa487056af998924}{write\+Img}} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file, int max\+Width=600, int max\+Height=840, int x\+Space=50, int y\+Space=50)
 \begin{DoxyCompactList}\small\item\em Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
@@ -22,6 +34,26 @@ int \mbox{\hyperlink{classRedaction_aac938c179683d6862f3f853c346a7b32}{write\+Fu
 Redacta el P\+DF final. 
 
 \subsection{Member Function Documentation}
+\mbox{\Hypertarget{classRedaction_a466ce7f7f8b2a4ec810b2da9c7832f26}\label{classRedaction_a466ce7f7f8b2a4ec810b2da9c7832f26}} 
+\index{Redaction@{Redaction}!generate\+Chart\+Text@{generate\+Chart\+Text}}
+\index{generate\+Chart\+Text@{generate\+Chart\+Text}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{generate\+Chart\+Text()}{generateChartText()}}
+{\footnotesize\ttfamily string Redaction\+::generate\+Chart\+Text (\begin{DoxyParamCaption}\item[{string}]{str\+Img\+Name,  }\item[{string}]{str\+Index }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Genera el texto para el gráfico, utilizando metadatos manejador por \mbox{\hyperlink{classFSManager}{F\+S\+Manager}}. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img\+Name} & \\
+\hline
+{\em str\+Index} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}\label{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}} 
 \index{Redaction@{Redaction}!generate\+P\+DF@{generate\+P\+DF}}
 \index{generate\+P\+DF@{generate\+P\+DF}!Redaction@{Redaction}}
@@ -35,11 +67,30 @@ Crea un P\+DF con todas las imágenes.
 \begin{DoxyReturn}{Returns}
 int 
 \end{DoxyReturn}
-\mbox{\Hypertarget{classRedaction_aac938c179683d6862f3f853c346a7b32}\label{classRedaction_aac938c179683d6862f3f853c346a7b32}} 
-\index{Redaction@{Redaction}!write\+Full\+Page\+Img@{write\+Full\+Page\+Img}}
-\index{write\+Full\+Page\+Img@{write\+Full\+Page\+Img}!Redaction@{Redaction}}
-\subsubsection{\texorpdfstring{write\+Full\+Page\+Img()}{writeFullPageImg()}}
-{\footnotesize\ttfamily int Redaction\+::write\+Full\+Page\+Img (\begin{DoxyParamCaption}\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf,  }\item[{H\+P\+D\+F\+\_\+\+Page}]{page,  }\item[{const char $\ast$}]{file,  }\item[{int}]{max\+Width = {\ttfamily 600},  }\item[{int}]{max\+Height = {\ttfamily 840},  }\item[{int}]{x\+Space = {\ttfamily 50},  }\item[{int}]{y\+Space = {\ttfamily 50} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+\mbox{\Hypertarget{classRedaction_af897cc53c7d60685232fe19dd76d0d9f}\label{classRedaction_af897cc53c7d60685232fe19dd76d0d9f}} 
+\index{Redaction@{Redaction}!write\+Chart@{write\+Chart}}
+\index{write\+Chart@{write\+Chart}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Chart()}{writeChart()}}
+{\footnotesize\ttfamily void Redaction\+::write\+Chart (\begin{DoxyParamCaption}\item[{string}]{str\+Img\+Name,  }\item[{string}]{str\+Index,  }\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Se escribe el gráfico de porcentajes y un texto que lo acompaña. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img\+Name} & \\
+\hline
+{\em str\+Index} & \\
+\hline
+{\em pdf} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classRedaction_a3236e2af6e29f073fa487056af998924}\label{classRedaction_a3236e2af6e29f073fa487056af998924}} 
+\index{Redaction@{Redaction}!write\+Img@{write\+Img}}
+\index{write\+Img@{write\+Img}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Img()}{writeImg()}}
+{\footnotesize\ttfamily int Redaction\+::write\+Img (\begin{DoxyParamCaption}\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf,  }\item[{H\+P\+D\+F\+\_\+\+Page}]{page,  }\item[{const char $\ast$}]{file,  }\item[{int}]{max\+Width = {\ttfamily 600},  }\item[{int}]{max\+Height = {\ttfamily 840},  }\item[{int}]{x\+Space = {\ttfamily 50},  }\item[{int}]{y\+Space = {\ttfamily 50} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -65,6 +116,92 @@ Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida per
 \begin{DoxyReturn}{Returns}
 int 
 \end{DoxyReturn}
+\mbox{\Hypertarget{classRedaction_a5eb1526e3796eb6c1df1a78854d4f9d0}\label{classRedaction_a5eb1526e3796eb6c1df1a78854d4f9d0}} 
+\index{Redaction@{Redaction}!write\+Index@{write\+Index}}
+\index{write\+Index@{write\+Index}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Index()}{writeIndex()}}
+{\footnotesize\ttfamily void Redaction\+::write\+Index (\begin{DoxyParamCaption}\item[{string}]{str\+Img\+Name,  }\item[{string}]{str\+Index,  }\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Se escribe el indice y un texto que lo acompaña. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img\+Name} & \\
+\hline
+{\em str\+Index} & \\
+\hline
+{\em pdf} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classRedaction_a1b092fb88b89ca238da44111f6a67ddc}\label{classRedaction_a1b092fb88b89ca238da44111f6a67ddc}} 
+\index{Redaction@{Redaction}!write\+Lut@{write\+Lut}}
+\index{write\+Lut@{write\+Lut}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Lut()}{writeLut()}}
+{\footnotesize\ttfamily void Redaction\+::write\+Lut (\begin{DoxyParamCaption}\item[{string}]{str\+Img\+Name,  }\item[{string}]{str\+Index,  }\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Se escribe el mapa de colores y un texto que lo acompaña. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img\+Name} & \\
+\hline
+{\em str\+Index} & \\
+\hline
+{\em pdf} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classRedaction_a95d771b7dcd46c323876a0ad597d46e4}\label{classRedaction_a95d771b7dcd46c323876a0ad597d46e4}} 
+\index{Redaction@{Redaction}!write\+Original@{write\+Original}}
+\index{write\+Original@{write\+Original}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Original()}{writeOriginal()}}
+{\footnotesize\ttfamily void Redaction\+::write\+Original (\begin{DoxyParamCaption}\item[{string}]{str\+Img\+Name,  }\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Se escribe el ortomosaico y un texto que lo acompaña. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Img\+Name} & \\
+\hline
+{\em pdf} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classRedaction_ab5716b51790373ff2726286e1d02d73d}\label{classRedaction_ab5716b51790373ff2726286e1d02d73d}} 
+\index{Redaction@{Redaction}!write\+Text@{write\+Text}}
+\index{write\+Text@{write\+Text}!Redaction@{Redaction}}
+\subsubsection{\texorpdfstring{write\+Text()}{writeText()}}
+{\footnotesize\ttfamily void Redaction\+::write\+Text (\begin{DoxyParamCaption}\item[{string}]{text,  }\item[{H\+P\+D\+F\+\_\+\+Doc}]{pdf,  }\item[{H\+P\+D\+F\+\_\+\+Page}]{page\+\_\+1,  }\item[{int}]{size\+Font,  }\item[{int}]{left,  }\item[{int}]{top,  }\item[{int}]{right,  }\item[{int}]{bottom,  }\item[{H\+P\+D\+F\+\_\+\+Text\+Alignment}]{text\+Align = {\ttfamily HPDF\+\_\+TALIGN\+\_\+JUSTIFY} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Escribe un texto en el rectangulo indicado por las coordenadas que se pasan por parametros. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em text} & \\
+\hline
+{\em pdf} & \\
+\hline
+{\em page\+\_\+1} & \\
+\hline
+{\em size\+Font} & \\
+\hline
+{\em left} & \\
+\hline
+{\em top} & \\
+\hline
+{\em right} & \\
+\hline
+{\em bottom} & \\
+\hline
+{\em text\+Align} & \\
+\hline
+\end{DoxyParams}
 
 
 The documentation for this class was generated from the following file\+:\begin{DoxyCompactItemize}

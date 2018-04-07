@@ -3,17 +3,17 @@
   \item {add\+Alpha}
     \subitem {Common\+Functions}, \hyperpage{10}
   \item {add\+Transparence}
-    \subitem {Common\+Functions}, \hyperpage{10}
+    \subitem {Common\+Functions}, \hyperpage{11}
   \item {append\+Float}
-    \subitem {F\+S\+Manager}, \hyperpage{22}
+    \subitem {F\+S\+Manager}, \hyperpage{23}
   \item {append\+Int}
-    \subitem {F\+S\+Manager}, \hyperpage{22}
+    \subitem {F\+S\+Manager}, \hyperpage{23}
   \item {append\+String}
-    \subitem {F\+S\+Manager}, \hyperpage{22}
+    \subitem {F\+S\+Manager}, \hyperpage{23}
   \item {append\+V\+Float}
     \subitem {F\+S\+Manager}, \hyperpage{23}
   \item {append\+V\+Int}
-    \subitem {F\+S\+Manager}, \hyperpage{23}
+    \subitem {F\+S\+Manager}, \hyperpage{24}
 
   \indexspace
 
@@ -23,7 +23,7 @@
   \indexspace
 
   \item {calcular\+Hectareas}
-    \subitem {Util\+Information}, \hyperpage{45}
+    \subitem {Util\+Information}, \hyperpage{50}
   \item {calibrate\+Img}
     \subitem {Calibration}, \hyperpage{3}
   \item {Calibration}, \hyperpage{3}
@@ -40,7 +40,7 @@
     \subitem {scalar\+To\+Vec}, \hyperpage{8}
   \item {Common\+Functions}, \hyperpage{9}
     \subitem {add\+Alpha}, \hyperpage{10}
-    \subitem {add\+Transparence}, \hyperpage{10}
+    \subitem {add\+Transparence}, \hyperpage{11}
     \subitem {bounding\+Box}, \hyperpage{11}
     \subitem {cargar\+Imagen}, \hyperpage{12}
     \subitem {cargar\+Imagenes}, \hyperpage{12}
@@ -49,93 +49,98 @@
     \subitem {crop\+Rector\+R\+OI}, \hyperpage{13}
     \subitem {escribir\+Imagen}, \hyperpage{14}
     \subitem {escribir\+P\+DF}, \hyperpage{14}
-    \subitem {exist\+File}, \hyperpage{14}
+    \subitem {exist\+File}, \hyperpage{15}
     \subitem {hist\+Draw}, \hyperpage{15}
     \subitem {info}, \hyperpage{15}
-    \subitem {manejar\+Carpeta}, \hyperpage{16}
-    \subitem {obtener\+Fecha}, \hyperpage{16}
-    \subitem {obtener\+Imagenes}, \hyperpage{16}
-    \subitem {obtener\+Parametro}, \hyperpage{17}
-    \subitem {obtener\+Ultimo\+Directorio}, \hyperpage{17}
-    \subitem {obtener\+Ultimo\+Directorio2}, \hyperpage{17}
-    \subitem {rect\+R\+OI}, \hyperpage{18}
-    \subitem {remove\+Alpha}, \hyperpage{18}
-    \subitem {remover\+Extension}, \hyperpage{18}
+    \subitem {manejar\+Carpeta}, \hyperpage{17}
+    \subitem {obtener\+Fecha}, \hyperpage{17}
+    \subitem {obtener\+Imagenes}, \hyperpage{17}
+    \subitem {obtener\+Parametro}, \hyperpage{18}
+    \subitem {obtener\+Ultimo\+Directorio}, \hyperpage{18}
+    \subitem {obtener\+Ultimo\+Directorio2}, \hyperpage{18}
+    \subitem {rect\+R\+OI}, \hyperpage{19}
+    \subitem {remove\+Alpha}, \hyperpage{19}
+    \subitem {remover\+Extension}, \hyperpage{20}
     \subitem {show\+Window\+Normal}, \hyperpage{20}
-    \subitem {tiempo}, \hyperpage{20}
+    \subitem {string\+Verde}, \hyperpage{20}
+    \subitem {tiempo}, \hyperpage{21}
   \item {compare\+Mats}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{38}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{44}
   \item {copy\+To\+Transparent}
     \subitem {Common\+Functions}, \hyperpage{13}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{39}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{44}
   \item {crear\+Carpeta}
     \subitem {Common\+Functions}, \hyperpage{13}
   \item {create\+Lut}
-    \subitem {Segmentation}, \hyperpage{33}
+    \subitem {Segmentation}, \hyperpage{39}
   \item {crop\+Rector\+R\+OI}
     \subitem {Common\+Functions}, \hyperpage{13}
 
   \indexspace
 
   \item {draw\+Index\+Of\+Index}
-    \subitem {Segmentation}, \hyperpage{34}
+    \subitem {Segmentation}, \hyperpage{39}
 
   \indexspace
 
   \item {escribir\+Imagen}
     \subitem {Common\+Functions}, \hyperpage{14}
   \item {escribir\+Output}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{39}
-    \subitem {Undistort}, \hyperpage{43}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{45}
+    \subitem {Undistort}, \hyperpage{48}
   \item {escribir\+Output\+Orto}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{40}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{45}
   \item {escribir\+P\+DF}
     \subitem {Common\+Functions}, \hyperpage{14}
   \item {escribir\+Segmentaciones}
-    \subitem {Index\+Calculation}, \hyperpage{27}
+    \subitem {Index\+Calculation}, \hyperpage{30}
   \item {evaluate\+Homography}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{40}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{45}
   \item {exist\+File}
-    \subitem {Common\+Functions}, \hyperpage{14}
+    \subitem {Common\+Functions}, \hyperpage{15}
   \item {existe\+Float}
-    \subitem {F\+S\+Manager}, \hyperpage{23}
+    \subitem {F\+S\+Manager}, \hyperpage{24}
   \item {existe\+Int}
     \subitem {F\+S\+Manager}, \hyperpage{24}
   \item {existe\+String}
-    \subitem {F\+S\+Manager}, \hyperpage{24}
-  \item {existe\+V\+Float}
-    \subitem {F\+S\+Manager}, \hyperpage{24}
-  \item {existe\+V\+Int}
     \subitem {F\+S\+Manager}, \hyperpage{25}
+  \item {existe\+V\+Float}
+    \subitem {F\+S\+Manager}, \hyperpage{25}
+  \item {existe\+V\+Int}
+    \subitem {F\+S\+Manager}, \hyperpage{26}
 
   \indexspace
 
   \item {F\+S\+Manager}, \hyperpage{21}
-    \subitem {append\+Float}, \hyperpage{22}
-    \subitem {append\+Int}, \hyperpage{22}
-    \subitem {append\+String}, \hyperpage{22}
+    \subitem {append\+Float}, \hyperpage{23}
+    \subitem {append\+Int}, \hyperpage{23}
+    \subitem {append\+String}, \hyperpage{23}
     \subitem {append\+V\+Float}, \hyperpage{23}
-    \subitem {append\+V\+Int}, \hyperpage{23}
-    \subitem {existe\+Float}, \hyperpage{23}
+    \subitem {append\+V\+Int}, \hyperpage{24}
+    \subitem {existe\+Float}, \hyperpage{24}
     \subitem {existe\+Int}, \hyperpage{24}
-    \subitem {existe\+String}, \hyperpage{24}
-    \subitem {existe\+V\+Float}, \hyperpage{24}
-    \subitem {existe\+V\+Int}, \hyperpage{25}
-    \subitem {F\+S\+Manager}, \hyperpage{21}
-    \subitem {read\+Float}, \hyperpage{25}
+    \subitem {existe\+String}, \hyperpage{25}
+    \subitem {existe\+V\+Float}, \hyperpage{25}
+    \subitem {existe\+V\+Int}, \hyperpage{26}
+    \subitem {F\+S\+Manager}, \hyperpage{22}
+    \subitem {read\+Float}, \hyperpage{26}
     \subitem {read\+Int}, \hyperpage{26}
-    \subitem {read\+String}, \hyperpage{26}
+    \subitem {read\+String}, \hyperpage{27}
+    \subitem {read\+V\+Float}, \hyperpage{27}
+    \subitem {read\+V\+Int}, \hyperpage{27}
 
   \indexspace
 
   \item {generar\+Colores}
     \subitem {Color}, \hyperpage{8}
   \item {generar\+Grafico}
-    \subitem {Segmentation}, \hyperpage{34}
+    \subitem {Segmentation}, \hyperpage{39}
+  \item {generate\+Chart\+Text}
+    \subitem {Redaction}, \hyperpage{35}
   \item {generate\+P\+DF}
-    \subitem {Redaction}, \hyperpage{32}
+    \subitem {Redaction}, \hyperpage{35}
   \item {get\+Homography}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{40}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{45}
 
   \indexspace
 
@@ -145,158 +150,183 @@
   \indexspace
 
   \item {index\+Calcu}
-    \subitem {Index\+Calculation}, \hyperpage{28}
+    \subitem {Index\+Calculation}, \hyperpage{30}
   \item {index\+Calcu\+MS}
-    \subitem {Index\+Calculation}, \hyperpage{28}
+    \subitem {Index\+Calculation}, \hyperpage{31}
   \item {index\+Calcu\+R\+GB}
-    \subitem {Index\+Calculation}, \hyperpage{28}
-  \item {Index\+Calculation}, \hyperpage{26}
-    \subitem {escribir\+Segmentaciones}, \hyperpage{27}
-    \subitem {index\+Calcu}, \hyperpage{28}
-    \subitem {index\+Calcu\+MS}, \hyperpage{28}
-    \subitem {index\+Calcu\+R\+GB}, \hyperpage{28}
-    \subitem {ndvi\+Calculation}, \hyperpage{29}
-    \subitem {obtener\+Input}, \hyperpage{29}
-    \subitem {obtener\+M\+S\+Input}, \hyperpage{29}
-    \subitem {obtener\+M\+S\+Output}, \hyperpage{29}
-    \subitem {obtener\+R\+G\+B\+Input}, \hyperpage{30}
-    \subitem {obtener\+R\+G\+B\+Output}, \hyperpage{30}
-    \subitem {rg\+Calculation}, \hyperpage{30}
-    \subitem {rvi\+Calculation}, \hyperpage{31}
+    \subitem {Index\+Calculation}, \hyperpage{31}
+  \item {Index\+Calculation}, \hyperpage{29}
+    \subitem {escribir\+Segmentaciones}, \hyperpage{30}
+    \subitem {index\+Calcu}, \hyperpage{30}
+    \subitem {index\+Calcu\+MS}, \hyperpage{31}
+    \subitem {index\+Calcu\+R\+GB}, \hyperpage{31}
+    \subitem {ndvi\+Calculation}, \hyperpage{31}
+    \subitem {ngrdi\+Calculation}, \hyperpage{31}
+    \subitem {obtener\+Input}, \hyperpage{32}
+    \subitem {obtener\+M\+S\+Input}, \hyperpage{32}
+    \subitem {obtener\+M\+S\+Output}, \hyperpage{32}
+    \subitem {obtener\+R\+G\+B\+Input}, \hyperpage{32}
+    \subitem {obtener\+R\+G\+B\+Output}, \hyperpage{33}
+    \subitem {rg\+Calculation}, \hyperpage{33}
+    \subitem {rvi\+Calculation}, \hyperpage{33}
   \item {info}
     \subitem {Common\+Functions}, \hyperpage{15}
 
   \indexspace
 
   \item {manejar\+Carpeta}
-    \subitem {Common\+Functions}, \hyperpage{16}
+    \subitem {Common\+Functions}, \hyperpage{17}
 
   \indexspace
 
   \item {ndvi\+Calculation}
-    \subitem {Index\+Calculation}, \hyperpage{29}
+    \subitem {Index\+Calculation}, \hyperpage{31}
+  \item {ngrdi\+Calculation}
+    \subitem {Index\+Calculation}, \hyperpage{31}
   \item {normalizate\+Mat}
-    \subitem {Segmentation}, \hyperpage{35}
+    \subitem {Segmentation}, \hyperpage{40}
 
   \indexspace
 
   \item {obtener\+Fecha}
-    \subitem {Common\+Functions}, \hyperpage{16}
+    \subitem {Common\+Functions}, \hyperpage{17}
   \item {obtener\+Imagenes}
-    \subitem {Common\+Functions}, \hyperpage{16}
+    \subitem {Common\+Functions}, \hyperpage{17}
   \item {obtener\+Input}
     \subitem {Calibration}, \hyperpage{4}
-    \subitem {Index\+Calculation}, \hyperpage{29}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{40}
-    \subitem {Undistort}, \hyperpage{43}
+    \subitem {Index\+Calculation}, \hyperpage{32}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{46}
+    \subitem {Undistort}, \hyperpage{49}
   \item {obtener\+Input\+Orto}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{41}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{46}
   \item {obtener\+M\+S\+Input}
-    \subitem {Index\+Calculation}, \hyperpage{29}
+    \subitem {Index\+Calculation}, \hyperpage{32}
   \item {obtener\+M\+S\+Output}
-    \subitem {Index\+Calculation}, \hyperpage{29}
+    \subitem {Index\+Calculation}, \hyperpage{32}
   \item {obtener\+Output\+Orto}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{41}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{46}
   \item {obtener\+Output\+RF}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{41}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{46}
   \item {obtener\+Parametro}
-    \subitem {Common\+Functions}, \hyperpage{17}
+    \subitem {Common\+Functions}, \hyperpage{18}
   \item {obtener\+R\+G\+B\+Input}
-    \subitem {Index\+Calculation}, \hyperpage{30}
+    \subitem {Index\+Calculation}, \hyperpage{32}
   \item {obtener\+R\+G\+B\+Output}
-    \subitem {Index\+Calculation}, \hyperpage{30}
+    \subitem {Index\+Calculation}, \hyperpage{33}
   \item {obtener\+Ultimo\+Directorio}
-    \subitem {Common\+Functions}, \hyperpage{17}
+    \subitem {Common\+Functions}, \hyperpage{18}
   \item {obtener\+Ultimo\+Directorio2}
-    \subitem {Common\+Functions}, \hyperpage{17}
+    \subitem {Common\+Functions}, \hyperpage{18}
 
   \indexspace
 
-  \item {Performance}, \hyperpage{31}
+  \item {Performance}, \hyperpage{34}
 
   \indexspace
 
   \item {read\+Calibration\+Mat}
     \subitem {Calibration}, \hyperpage{4}
   \item {read\+Float}
-    \subitem {F\+S\+Manager}, \hyperpage{25}
+    \subitem {F\+S\+Manager}, \hyperpage{26}
   \item {read\+Int}
     \subitem {F\+S\+Manager}, \hyperpage{26}
   \item {read\+String}
-    \subitem {F\+S\+Manager}, \hyperpage{26}
+    \subitem {F\+S\+Manager}, \hyperpage{27}
+  \item {read\+V\+Float}
+    \subitem {F\+S\+Manager}, \hyperpage{27}
+  \item {read\+V\+Int}
+    \subitem {F\+S\+Manager}, \hyperpage{27}
   \item {rect\+R\+OI}
-    \subitem {Common\+Functions}, \hyperpage{18}
-  \item {Redaction}, \hyperpage{31}
-    \subitem {generate\+P\+DF}, \hyperpage{32}
-    \subitem {write\+Full\+Page\+Img}, \hyperpage{32}
+    \subitem {Common\+Functions}, \hyperpage{19}
+  \item {Redaction}, \hyperpage{34}
+    \subitem {generate\+Chart\+Text}, \hyperpage{35}
+    \subitem {generate\+P\+DF}, \hyperpage{35}
+    \subitem {write\+Chart}, \hyperpage{35}
+    \subitem {write\+Img}, \hyperpage{36}
+    \subitem {write\+Index}, \hyperpage{36}
+    \subitem {write\+Lut}, \hyperpage{37}
+    \subitem {write\+Original}, \hyperpage{37}
+    \subitem {write\+Text}, \hyperpage{37}
   \item {remove\+Alpha}
-    \subitem {Common\+Functions}, \hyperpage{18}
+    \subitem {Common\+Functions}, \hyperpage{19}
   \item {remover\+Extension}
-    \subitem {Common\+Functions}, \hyperpage{18}
+    \subitem {Common\+Functions}, \hyperpage{20}
   \item {rg\+Calculation}
-    \subitem {Index\+Calculation}, \hyperpage{30}
+    \subitem {Index\+Calculation}, \hyperpage{33}
   \item {run\+All}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{41}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{47}
   \item {rvi\+Calculation}
-    \subitem {Index\+Calculation}, \hyperpage{31}
+    \subitem {Index\+Calculation}, \hyperpage{33}
 
   \indexspace
 
   \item {scalar\+To\+Vec}
     \subitem {Color}, \hyperpage{8}
-  \item {Segmentation}, \hyperpage{33}
-    \subitem {create\+Lut}, \hyperpage{33}
-    \subitem {draw\+Index\+Of\+Index}, \hyperpage{34}
-    \subitem {generar\+Grafico}, \hyperpage{34}
-    \subitem {normalizate\+Mat}, \hyperpage{35}
-    \subitem {segmentation\+Variation}, \hyperpage{35}
-    \subitem {separar\+Suelo}, \hyperpage{36}
+  \item {Segmentation}, \hyperpage{38}
+    \subitem {create\+Lut}, \hyperpage{39}
+    \subitem {draw\+Index\+Of\+Index}, \hyperpage{39}
+    \subitem {generar\+Grafico}, \hyperpage{39}
+    \subitem {normalizate\+Mat}, \hyperpage{40}
+    \subitem {segmentation\+Variation}, \hyperpage{40}
+    \subitem {separar\+Suelo}, \hyperpage{41}
   \item {segmentation\+Variation}
-    \subitem {Segmentation}, \hyperpage{35}
+    \subitem {Segmentation}, \hyperpage{40}
   \item {separar\+Suelo}
-    \subitem {Segmentation}, \hyperpage{36}
+    \subitem {Segmentation}, \hyperpage{41}
   \item {show\+Window\+Normal}
     \subitem {Common\+Functions}, \hyperpage{20}
   \item {stitch\+Imgs}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{42}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{47}
   \item {stitch\+Warp}
-    \subitem {uav\+::\+Stitcher}, \hyperpage{42}
+    \subitem {uav\+::\+Stitcher}, \hyperpage{47}
   \item {store\+Calibration\+Mat}
     \subitem {Calibration}, \hyperpage{4}
+  \item {string\+Verde}
+    \subitem {Common\+Functions}, \hyperpage{20}
 
   \indexspace
 
   \item {tiempo}
-    \subitem {Common\+Functions}, \hyperpage{20}
+    \subitem {Common\+Functions}, \hyperpage{21}
 
   \indexspace
 
-  \item {uav\+::\+Stitcher}, \hyperpage{36}
-    \subitem {compare\+Mats}, \hyperpage{38}
-    \subitem {copy\+To\+Transparent}, \hyperpage{39}
-    \subitem {escribir\+Output}, \hyperpage{39}
-    \subitem {escribir\+Output\+Orto}, \hyperpage{40}
-    \subitem {evaluate\+Homography}, \hyperpage{40}
-    \subitem {get\+Homography}, \hyperpage{40}
-    \subitem {obtener\+Input}, \hyperpage{40}
-    \subitem {obtener\+Input\+Orto}, \hyperpage{41}
-    \subitem {obtener\+Output\+Orto}, \hyperpage{41}
-    \subitem {obtener\+Output\+RF}, \hyperpage{41}
-    \subitem {run\+All}, \hyperpage{41}
-    \subitem {stitch\+Imgs}, \hyperpage{42}
-    \subitem {stitch\+Warp}, \hyperpage{42}
-  \item {Undistort}, \hyperpage{43}
-    \subitem {escribir\+Output}, \hyperpage{43}
-    \subitem {obtener\+Input}, \hyperpage{43}
-    \subitem {undistort\+Imgs}, \hyperpage{44}
+  \item {uav\+::\+Stitcher}, \hyperpage{41}
+    \subitem {compare\+Mats}, \hyperpage{44}
+    \subitem {copy\+To\+Transparent}, \hyperpage{44}
+    \subitem {escribir\+Output}, \hyperpage{45}
+    \subitem {escribir\+Output\+Orto}, \hyperpage{45}
+    \subitem {evaluate\+Homography}, \hyperpage{45}
+    \subitem {get\+Homography}, \hyperpage{45}
+    \subitem {obtener\+Input}, \hyperpage{46}
+    \subitem {obtener\+Input\+Orto}, \hyperpage{46}
+    \subitem {obtener\+Output\+Orto}, \hyperpage{46}
+    \subitem {obtener\+Output\+RF}, \hyperpage{46}
+    \subitem {run\+All}, \hyperpage{47}
+    \subitem {stitch\+Imgs}, \hyperpage{47}
+    \subitem {stitch\+Warp}, \hyperpage{47}
+  \item {Undistort}, \hyperpage{48}
+    \subitem {escribir\+Output}, \hyperpage{48}
+    \subitem {obtener\+Input}, \hyperpage{49}
+    \subitem {undistort\+Imgs}, \hyperpage{49}
   \item {undistort\+Imgs}
-    \subitem {Undistort}, \hyperpage{44}
-  \item {Util\+Information}, \hyperpage{44}
-    \subitem {calcular\+Hectareas}, \hyperpage{45}
+    \subitem {Undistort}, \hyperpage{49}
+  \item {Util\+Information}, \hyperpage{49}
+    \subitem {calcular\+Hectareas}, \hyperpage{50}
 
   \indexspace
 
-  \item {write\+Full\+Page\+Img}
-    \subitem {Redaction}, \hyperpage{32}
+  \item {write\+Chart}
+    \subitem {Redaction}, \hyperpage{35}
+  \item {write\+Img}
+    \subitem {Redaction}, \hyperpage{36}
+  \item {write\+Index}
+    \subitem {Redaction}, \hyperpage{36}
+  \item {write\+Lut}
+    \subitem {Redaction}, \hyperpage{37}
+  \item {write\+Original}
+    \subitem {Redaction}, \hyperpage{37}
+  \item {write\+Text}
+    \subitem {Redaction}, \hyperpage{37}
 
 \end{theindex}

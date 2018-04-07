@@ -19,12 +19,10 @@ public:
 	bool sobreescribir;
 
 	IndexCalculation(bool outputStitching = false,
-		bool multispectral = true,
 		bool parallel = true,
 		bool sobreescribir = true){
 			this->outputStitching = outputStitching;
 			this->parallel = parallel;
-			this->multispectral = multispectral;
 			this->sobreescribir = sobreescribir;
 		}
 
@@ -33,21 +31,28 @@ public:
 	 * 
 	 */
 	void processManager(){
-		
 		struct timeval beginAll;
 		gettimeofday(&beginAll, NULL);
 
+
 		vector<string> strImgs = obtenerInput(multispectral , outputStitching);
+
 		if(parallel){
 			cout << CommonFunctions::stringAzul("Con calculo paralelo \n");
 			parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
-				indexCalcu(strImgs[i],multispectral);
+					string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
+					FSManager fs(strImg+".yml","imagen");
+					multispectral = (fs.readString("multiespectral")=="ms"? true:false);
+					indexCalcu(strImgs[i],multispectral);
 				}
 			});
 		}else{
 			cout << CommonFunctions::stringAzul("Sin calculo paralelo \n");
-			for(int i = 0;i < strImgs.size() ; i++){
+			for(int i = 0;i < strImgs.size() ; i++){	
+				string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
+				FSManager fs(strImg+".yml","imagen");
+				multispectral = (fs.readString("multiespectral")=="ms"? true:false);
 				indexCalcu(strImgs[i],multispectral);
 			}
 		}
@@ -98,8 +103,9 @@ public:
 		}
 
 		rgCalculation(BGRA,strImg);
+		ngrdiCalculation(BGRA,strImg);
 		Mat separado = Segmentation::separarSuelo(BGRA);
-		CommonFunctions::escribirImagen("Imagenes/Indices/output/rgb/"+ strImg +"/"+ strImg +"suelo.../", separado);
+		CommonFunctions::escribirImagen("Imagenes/Indices/output/rgb/"+ strImg +"/"+ strImg +"/suelo.png", separado);
 	}
 	/**
 	 * @brief Calcula y escribe el indice RG=Rojo/Verde.
@@ -110,9 +116,27 @@ public:
 	void rgCalculation(vector<Mat> BGRA, string strImg){
 		Mat rg,numerador,denominador;
 		divide(BGRA[2],BGRA[1],rg,123,CV_8U);
-		
-		String escribir = "Imagenes/Indices/output/rgb/"+ strImg +"/rg/rg";
+
 		escribirSegmentaciones(rg, BGRA[3],  strImg, "rg");
+	}
+	/**
+	 * @brief Calcula y escribe el indice NGRDI
+	 * 
+	 * @param BGRA 
+	 * @param strImg 
+	 */
+	void ngrdiCalculation(vector<Mat> BGRA, string strImg){
+		Mat ngrdi,numerador,denominador;
+		subtract(BGRA[1],BGRA[2],numerador,BGRA[3],CV_8S);
+		add(BGRA[1],BGRA[2],denominador,BGRA[3],CV_8S);
+		divide(numerador,denominador,ngrdi,1.,CV_32F);
+		//CONVIERTO DE SIGNED A UCHAR
+		
+		ngrdi = (ngrdi + 1) * 128;
+		ngrdi.convertTo(ngrdi,CV_8U);
+		
+		
+		escribirSegmentaciones(ngrdi, BGRA[3],  strImg, "ngrdi");
 	}
 	/**
 	 * @brief Calcula los indices para imágenes multi-espectrales.
@@ -157,7 +181,6 @@ public:
 		ndvi = (ndvi + 1) * 128;
 		ndvi.convertTo(ndvi,CV_8U);
 		
-		String escribir = "Imagenes/Indices/output/ms/"+ strImg +"/ndvi/ndvi";
 		escribirSegmentaciones(ndvi, BGRA[3],  strImg, "ndvi");
 	}
 	/**
@@ -182,7 +205,12 @@ public:
 	 * @param strIndex 
 	 */
 	void escribirSegmentaciones(Mat indice, Mat trans, string strImg,string strIndex){
-		String Nombre = "Imagenes/Indices/output/ms/"+ strImg + "/" + strIndex+ "/";
+		String Nombre;
+		if(strIndex != "rvi" && strIndex != "ndvi"){
+			Nombre = "Imagenes/Indices/output/rgb/"+ strImg + "/" + strIndex+ "/";
+		}else{
+			Nombre = "Imagenes/Indices/output/ms/"+ strImg + "/" + strIndex+ "/";
+		}
 		Mat indiceCuantizado = Segmentation::segmentationVariation(indice,trans,5);
 		Mat indiceLut = Segmentation::createLut(indice,trans);
 		vector<Mat> indiceChart = Segmentation::generarGrafico(indice, 20,trans,strImg,strIndex);

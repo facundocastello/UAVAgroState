@@ -12,7 +12,7 @@ Maneja la metadata de la camara e imágenes.
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\hyperlink{classFSManager_a888db17ac3bf2a22dfa6a18b6fed99d8}{F\+S\+Manager}} (string dir, string tipo)
+\mbox{\hyperlink{classFSManager_a6332022070523e78abdb3371fdb5befb}{F\+S\+Manager}} (string dir, string tipo, bool sobreescribir=false)
 \begin{DoxyCompactList}\small\item\em Construye un fsmanager y para esto crea el archivo de \textquotesingle{}dir\textquotesingle{} si es que no existe. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classFSManager_a3e4672be75f6edf00336adf883571963}{append\+Int}} (string nombre, int value)
 \begin{DoxyCompactList}\small\item\em Agrega un entero al fs con el nombre y valor ingresado. \end{DoxyCompactList}\item 
@@ -30,6 +30,10 @@ float \mbox{\hyperlink{classFSManager_a5362f82406fa9501f3c5126987565dc1}{read\+F
 \begin{DoxyCompactList}\small\item\em Lee un flotante del fs con el nombre ingresado. \end{DoxyCompactList}\item 
 string \mbox{\hyperlink{classFSManager_ac8de8da2e2ebf395340b46b353cec02e}{read\+String}} (string nombre)
 \begin{DoxyCompactList}\small\item\em Lee un string del fs con el nombre ingresado. \end{DoxyCompactList}\item 
+vector$<$ int $>$ \mbox{\hyperlink{classFSManager_a517c15d5e51eb4f07e6ada3aa38e1d0b}{read\+V\+Int}} (string nombre)
+\begin{DoxyCompactList}\small\item\em Lee un vector de strings del fs con el nombre ingresado. \end{DoxyCompactList}\item 
+vector$<$ float $>$ \mbox{\hyperlink{classFSManager_a1b052468230cc452488cadadc7a940d5}{read\+V\+Float}} (string nombre)
+\begin{DoxyCompactList}\small\item\em Lee un vector de floats del fs con el nombre ingresado. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{classFSManager_aae892b79cec4fc940972e9ab008e241e}{existe\+Int}} (string nombre)
 \begin{DoxyCompactList}\small\item\em Verifica si existe un entero con ese nombre en el fs. \end{DoxyCompactList}\item 
 bool \mbox{\hyperlink{classFSManager_a73be0c1d4d7aa7584f41c7bab0075bb2}{existe\+Float}} (string nombre)
@@ -52,11 +56,11 @@ string {\bfseries dir}
 Maneja la metadata de la camara e imágenes. 
 
 \subsection{Constructor \& Destructor Documentation}
-\mbox{\Hypertarget{classFSManager_a888db17ac3bf2a22dfa6a18b6fed99d8}\label{classFSManager_a888db17ac3bf2a22dfa6a18b6fed99d8}} 
+\mbox{\Hypertarget{classFSManager_a6332022070523e78abdb3371fdb5befb}\label{classFSManager_a6332022070523e78abdb3371fdb5befb}} 
 \index{F\+S\+Manager@{F\+S\+Manager}!F\+S\+Manager@{F\+S\+Manager}}
 \index{F\+S\+Manager@{F\+S\+Manager}!F\+S\+Manager@{F\+S\+Manager}}
 \subsubsection{\texorpdfstring{F\+S\+Manager()}{FSManager()}}
-{\footnotesize\ttfamily F\+S\+Manager\+::\+F\+S\+Manager (\begin{DoxyParamCaption}\item[{string}]{dir,  }\item[{string}]{tipo }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+{\footnotesize\ttfamily F\+S\+Manager\+::\+F\+S\+Manager (\begin{DoxyParamCaption}\item[{string}]{dir,  }\item[{string}]{tipo,  }\item[{bool}]{sobreescribir = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
 
 
 
@@ -310,6 +314,42 @@ Lee un string del fs con el nombre ingresado.
 \end{DoxyParams}
 \begin{DoxyReturn}{Returns}
 int 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classFSManager_a1b052468230cc452488cadadc7a940d5}\label{classFSManager_a1b052468230cc452488cadadc7a940d5}} 
+\index{F\+S\+Manager@{F\+S\+Manager}!read\+V\+Float@{read\+V\+Float}}
+\index{read\+V\+Float@{read\+V\+Float}!F\+S\+Manager@{F\+S\+Manager}}
+\subsubsection{\texorpdfstring{read\+V\+Float()}{readVFloat()}}
+{\footnotesize\ttfamily vector$<$float$>$ F\+S\+Manager\+::read\+V\+Float (\begin{DoxyParamCaption}\item[{string}]{nombre }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Lee un vector de floats del fs con el nombre ingresado. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em nombre} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$float$>$ 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classFSManager_a517c15d5e51eb4f07e6ada3aa38e1d0b}\label{classFSManager_a517c15d5e51eb4f07e6ada3aa38e1d0b}} 
+\index{F\+S\+Manager@{F\+S\+Manager}!read\+V\+Int@{read\+V\+Int}}
+\index{read\+V\+Int@{read\+V\+Int}!F\+S\+Manager@{F\+S\+Manager}}
+\subsubsection{\texorpdfstring{read\+V\+Int()}{readVInt()}}
+{\footnotesize\ttfamily vector$<$int$>$ F\+S\+Manager\+::read\+V\+Int (\begin{DoxyParamCaption}\item[{string}]{nombre }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Lee un vector de strings del fs con el nombre ingresado. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em nombre} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+vector$<$int$>$ 
 \end{DoxyReturn}
 
 

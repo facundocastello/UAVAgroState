@@ -18,7 +18,7 @@ static Mat \mbox{\hyperlink{classCommonFunctions_afd243765a93b61f26d97467a72838f
 \begin{DoxyCompactList}\small\item\em Carga y redimensiona una imágen en base a su ubicación. \end{DoxyCompactList}\item 
 static vector$<$ Mat $>$ \mbox{\hyperlink{classCommonFunctions_a35ffddd0b411b9a87e40743236827569}{cargar\+Imagenes}} (vector$<$ string $>$ str\+Imgs, int tamano=4, int Tipo=int(I\+M\+R\+E\+A\+D\+\_\+\+U\+N\+C\+H\+A\+N\+G\+ED))
 \begin{DoxyCompactList}\small\item\em Carga y redimensiona un grupo de imágenes en base a sus ubicaciones. \end{DoxyCompactList}\item 
-static vector$<$ string $>$ \mbox{\hyperlink{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}{obtener\+Imagenes}} (const char $\ast$carpeta, bool reverse=false)
+static vector$<$ string $>$ \mbox{\hyperlink{classCommonFunctions_a1c75d9fe2327ecfa13a4a1078e00c644}{obtener\+Imagenes}} (const char $\ast$carpeta, bool verbose=false, bool reverse=false)
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de un conjunto de imágenes que estan dentro de una carpeta. \end{DoxyCompactList}\item 
 static bool \mbox{\hyperlink{classCommonFunctions_acb8852ee747cb715a16e6dd9126d560d}{crear\+Carpeta}} (String str)
 \begin{DoxyCompactList}\small\item\em Crea una carpeta. \end{DoxyCompactList}\item 
@@ -67,7 +67,15 @@ long static int {\bfseries cant\+Pixeles} (Mat img)
 static string \mbox{\hyperlink{classCommonFunctions_a5393a67a9e631a763fe5874174e386d0}{remover\+Extension}} (string str)
 \begin{DoxyCompactList}\small\item\em Quita la extension del string que se le pase. \end{DoxyCompactList}\item 
 static bool \mbox{\hyperlink{classCommonFunctions_a91521d26a009071499a413ef4535ca8a}{exist\+File}} (string name)
-\begin{DoxyCompactList}\small\item\em Verifica si el archivo/carpeta existe. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Verifica si el archivo/carpeta existe. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}{string\+Verde}} (string \mbox{\hyperlink{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}{info}})
+\begin{DoxyCompactList}\small\item\em Realiza un output de color verde. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}\label{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}} 
+static string {\bfseries string\+Azul} (string proceso)
+\item 
+\mbox{\Hypertarget{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}\label{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}} 
+static string {\bfseries string\+Rojo} (string peligro)
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -396,11 +404,11 @@ Obtener fecha (todo lo que esta antes del segundo \+\_\+) de una imagen.
 \begin{DoxyReturn}{Returns}
 string 
 \end{DoxyReturn}
-\mbox{\Hypertarget{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}\label{classCommonFunctions_a79ab98672a5297e53ea032a9ecf7ec02}} 
+\mbox{\Hypertarget{classCommonFunctions_a1c75d9fe2327ecfa13a4a1078e00c644}\label{classCommonFunctions_a1c75d9fe2327ecfa13a4a1078e00c644}} 
 \index{Common\+Functions@{Common\+Functions}!obtener\+Imagenes@{obtener\+Imagenes}}
 \index{obtener\+Imagenes@{obtener\+Imagenes}!Common\+Functions@{Common\+Functions}}
 \subsubsection{\texorpdfstring{obtener\+Imagenes()}{obtenerImagenes()}}
-{\footnotesize\ttfamily static vector$<$string$>$ Common\+Functions\+::obtener\+Imagenes (\begin{DoxyParamCaption}\item[{const char $\ast$}]{carpeta,  }\item[{bool}]{reverse = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+{\footnotesize\ttfamily static vector$<$string$>$ Common\+Functions\+::obtener\+Imagenes (\begin{DoxyParamCaption}\item[{const char $\ast$}]{carpeta,  }\item[{bool}]{verbose = {\ttfamily false},  }\item[{bool}]{reverse = {\ttfamily false} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
 
 
 
@@ -543,6 +551,24 @@ Muesta una imágen en una ventana.
 {\em namewindow} & \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}\label{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}} 
+\index{Common\+Functions@{Common\+Functions}!string\+Verde@{string\+Verde}}
+\index{string\+Verde@{string\+Verde}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{string\+Verde()}{stringVerde()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::string\+Verde (\begin{DoxyParamCaption}\item[{string}]{info }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Realiza un output de color verde. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em info} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}\label{classCommonFunctions_a72ec70e251bf9b34409318b71e55d34e}} 
 \index{Common\+Functions@{Common\+Functions}!tiempo@{tiempo}}
 \index{tiempo@{tiempo}!Common\+Functions@{Common\+Functions}}

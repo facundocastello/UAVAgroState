@@ -132,7 +132,12 @@ public:
         fsR.release();
         return ret;
     }
-
+    /**
+     * @brief Lee un  vector de strings del fs con el nombre ingresado
+     * 
+     * @param nombre 
+     * @return vector<int> 
+     */
     vector<int> readVInt(string nombre){
         FileStorage fsR(dir, FileStorage::READ);
         vector<int> vecInt;
@@ -140,6 +145,12 @@ public:
         fsR.release();
         return vecInt;
     }
+    /**
+     * @brief  Lee un  vector de floats del fs con el nombre ingresado
+     * 
+     * @param nombre 
+     * @return vector<float> 
+     */
     vector<float> readVFloat(string nombre){
         FileStorage fsR(dir, FileStorage::READ);
         vector<float> vecFloat;

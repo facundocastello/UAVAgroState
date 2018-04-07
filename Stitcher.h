@@ -35,6 +35,7 @@ namespace uav{
 			 * 
 			 */
 			bool originalSize=false;
+			bool multispectral=true;
 			/**
 			 * @brief Limite superior de la caja de limites.
 			 * 
@@ -120,12 +121,14 @@ namespace uav{
 						int tamano = 4,
 						int minKeypoints=5000,
 						bool originalSize=false,
+						bool multispectral=true,
 						int altura = 120
 						)
 			{
 				this->tamano = tamano;
 				this->originalSize=originalSize;
 				this->minKeypoints = minKeypoints;
+				this->multispectral = multispectral;
 				this->altura = altura;
 			}
 			/**
@@ -775,7 +778,8 @@ namespace uav{
 				if(imgs.empty()){
 					return Mat();
 				}
-				// compensateBright();
+				if(finalResult)
+					compensateBright();
 
 				removeCorners();
 
@@ -818,7 +822,7 @@ namespace uav{
 			 * 
 			*/
 			bool processManager(){
-				cout << CommonFunctions::stringAzul("Comenzando proceso de pegado con: -Tamaño: " + to_string(tamano) + " -Recuperar tamaño original: " + (originalSize?"true":"false") + " -Minimos kp: " + to_string(minKeypoints)) + "\n";
+				cout << CommonFunctions::stringAzul("Comenzando proceso de pegado con: -Tamaño: " + to_string(originalSize?1:tamano) + " -Recuperar tamaño original: " + (originalSize?"true":"false") + " -Minimos kp: " + to_string(minKeypoints)) + "\n";
 
 				Mat img;
 				while(strImgs.size() == 0){
@@ -828,7 +832,7 @@ namespace uav{
 						getchar();
 					}
 				}
-				resultName = CommonFunctions::obtenerFecha(strImgs[0])+ "_tamano"+ to_string(tamano);
+				resultName = CommonFunctions::obtenerFecha(strImgs[0])+ "_tamano"+ to_string(originalSize?1:tamano);
 				if(existResult()){
 					cout << "La imágen ya existe, desea sobre-escribirla?";
 					bool sobreescribir;
@@ -862,8 +866,9 @@ namespace uav{
 			 */
 			void saveMetadata(bool sobreescribir){
 				FSManager fs(resultName+".yml", "imagen",sobreescribir);
-				fs.appendInt("tamano", tamano);
+				fs.appendInt("tamano", (originalSize?1:tamano));
 				fs.appendInt("altura",altura);
+				fs.appendString("multiespectral",(multispectral?"ms":"rgb"));
 			}
 
 			/**

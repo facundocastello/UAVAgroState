@@ -12,8 +12,8 @@ Calcula los indices de vegetación.
 \subsection*{Public Member Functions}
 \begin{DoxyCompactItemize}
 \item 
-\mbox{\Hypertarget{classIndexCalculation_acf1a471a4fc36510f3f2f629846ba3b8}\label{classIndexCalculation_acf1a471a4fc36510f3f2f629846ba3b8}} 
-{\bfseries Index\+Calculation} (bool output\+Stitching=false, bool multispectral=true, bool parallel=true)
+\mbox{\Hypertarget{classIndexCalculation_aeddaf18ed523bb71a75d773cb1febaa1}\label{classIndexCalculation_aeddaf18ed523bb71a75d773cb1febaa1}} 
+{\bfseries Index\+Calculation} (bool output\+Stitching=false, bool parallel=true, bool sobreescribir=true)
 \item 
 \mbox{\Hypertarget{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}\label{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}} 
 void \mbox{\hyperlink{classIndexCalculation_a4890d5b4758672dfba23830b59b18892}{process\+Manager}} ()
@@ -24,6 +24,8 @@ void \mbox{\hyperlink{classIndexCalculation_a7070ce3aebd8abd71074270eff8f88b6}{i
 \begin{DoxyCompactList}\small\item\em Calcula los indices para imágenes R\+GB. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classIndexCalculation_a562111a1b8920fa0136811ecd7e51e36}{rg\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
 \begin{DoxyCompactList}\small\item\em Calcula y escribe el indice RG=Rojo/\+Verde. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{classIndexCalculation_ae42cea9b3bb253446995a80ae01ff429}{ngrdi\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
+\begin{DoxyCompactList}\small\item\em Calcula y escribe el indice N\+G\+R\+DI. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classIndexCalculation_a9c19fb3bdd84afb8769c90a1e31857b3}{index\+Calcu\+MS}} (string str\+Img)
 \begin{DoxyCompactList}\small\item\em Calcula los indices para imágenes multi-\/espectrales. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classIndexCalculation_a4d727b91eeb0676b3ffcfaf26ec02a32}{ndvi\+Calculation}} (vector$<$ Mat $>$ B\+G\+RA, string str\+Img)
@@ -36,12 +38,30 @@ vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a65a88228b2caf575cbb
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes de entrada en base al tipo de imágen y a la BD que la contiene. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_aacf5294ab87007a511f9f9e9772855af}{obtener\+R\+G\+B\+Input}} ()
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes R\+GB de entrada. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classIndexCalculation_a4f6d8515c187dde8c9edd962ceee6271}\label{classIndexCalculation_a4f6d8515c187dde8c9edd962ceee6271}} 
+string {\bfseries obtener\+R\+G\+B\+Input\+Str} ()
+\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a889a95c13bc480c1194016ca0e1e9559}{obtener\+M\+S\+Input}} ()
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de entrada. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classIndexCalculation_a1acdd629f4edc2c3cb74746832783203}\label{classIndexCalculation_a1acdd629f4edc2c3cb74746832783203}} 
+string {\bfseries obtener\+M\+S\+Input\+Str} ()
+\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a23a9f9a23db086109989fb93450a70d7}{obtener\+R\+G\+B\+Output}} ()
 \begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes R\+GB de salida. \end{DoxyCompactList}\item 
 vector$<$ string $>$ \mbox{\hyperlink{classIndexCalculation_a43b986cd58175d47714a399e7fdfd7e3}{obtener\+M\+S\+Output}} ()
-\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de salida. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Obtiene las ubicaciones de las imágenes multi-\/espectrales de salida. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classIndexCalculation_ae317d7859059ba6ad24fc54dadd8b2b7}\label{classIndexCalculation_ae317d7859059ba6ad24fc54dadd8b2b7}} 
+string {\bfseries obtener\+Index} (string str\+Img, string str\+Index)
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a41d32a9c7c279ae5192d38f4863fe0e4}\label{classIndexCalculation_a41d32a9c7c279ae5192d38f4863fe0e4}} 
+string {\bfseries obtener\+Chart} (string str\+Img, string str\+Index)
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a52874b7110859a2ce475ea058ac68bfd}\label{classIndexCalculation_a52874b7110859a2ce475ea058ac68bfd}} 
+string {\bfseries obtener\+Chart\+Img} (string str\+Img, string str\+Index)
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a33f09c3755a9e6a83261c1fd71a9e20d}\label{classIndexCalculation_a33f09c3755a9e6a83261c1fd71a9e20d}} 
+string {\bfseries obtener\+Lut} (string str\+Img, string str\+Index)
+\end{DoxyCompactItemize}
 \subsection*{Public Attributes}
 \begin{DoxyCompactItemize}
 \item 
@@ -53,6 +73,9 @@ bool {\bfseries parallel}
 \item 
 \mbox{\Hypertarget{classIndexCalculation_ab8b7a39b981cacd16e8bbbe1e680cc7a}\label{classIndexCalculation_ab8b7a39b981cacd16e8bbbe1e680cc7a}} 
 bool {\bfseries multispectral}
+\item 
+\mbox{\Hypertarget{classIndexCalculation_a830090130362271d6732a770f99e23ce}\label{classIndexCalculation_a830090130362271d6732a770f99e23ce}} 
+bool {\bfseries sobreescribir}
 \end{DoxyCompactItemize}
 
 
@@ -137,6 +160,23 @@ Calcula los indices para imágenes R\+GB.
 
 
 Calcula y escribe el indice N\+D\+VI=(Infrarojo-\/\+Rojo)/(Infrarojo+\+Rojo). 
+
+
+\begin{DoxyParams}{Parameters}
+{\em B\+G\+RA} & \\
+\hline
+{\em str\+Img} & \\
+\hline
+\end{DoxyParams}
+\mbox{\Hypertarget{classIndexCalculation_ae42cea9b3bb253446995a80ae01ff429}\label{classIndexCalculation_ae42cea9b3bb253446995a80ae01ff429}} 
+\index{Index\+Calculation@{Index\+Calculation}!ngrdi\+Calculation@{ngrdi\+Calculation}}
+\index{ngrdi\+Calculation@{ngrdi\+Calculation}!Index\+Calculation@{Index\+Calculation}}
+\subsubsection{\texorpdfstring{ngrdi\+Calculation()}{ngrdiCalculation()}}
+{\footnotesize\ttfamily void Index\+Calculation\+::ngrdi\+Calculation (\begin{DoxyParamCaption}\item[{vector$<$ Mat $>$}]{B\+G\+RA,  }\item[{string}]{str\+Img }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}}
+
+
+
+Calcula y escribe el indice N\+G\+R\+DI. 
 
 
 \begin{DoxyParams}{Parameters}
