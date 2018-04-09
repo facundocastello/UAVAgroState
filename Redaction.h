@@ -343,6 +343,8 @@ class Redaction{
 				writeText(strText,pdf,page_1,20,x0+20,altura,x1-20,x0+10,HPDF_TALIGN_CENTER);
 			draw_line(page_1,x0,x1,840-(altura+20),840-(altura+20));
 			writeText("Creado con UAVAgroState",pdf,page_1,12,300,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);
+			writeText(CommonFunctions::nowDate(),pdf,page_1,12,300,840-(altura+20)-20,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);
+			
 			writeImg2(pdf,page_1,"UAVAgroState.png",50,50,100,840-(altura+20)-55);
 
 			writeText(to_string(++page),pdf,page_1,12,x0+10,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_CENTER);

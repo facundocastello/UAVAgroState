@@ -14,10 +14,16 @@ Redacta el P\+DF final.
 \item 
 int \mbox{\hyperlink{classRedaction_a4659115b2df63c9e0694c7f7cf325ff6}{generate\+P\+DF}} ()
 \begin{DoxyCompactList}\small\item\em Crea un P\+DF con todas las imágenes. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classRedaction_a469bf3427fb89a1c93c0fdda38ab5de1}\label{classRedaction_a469bf3427fb89a1c93c0fdda38ab5de1}} 
+void {\bfseries write\+Portada} (H\+P\+D\+F\+\_\+\+Doc pdf, string str\+Name)
+\item 
 void \mbox{\hyperlink{classRedaction_a95d771b7dcd46c323876a0ad597d46e4}{write\+Original}} (string str\+Img\+Name, H\+P\+D\+F\+\_\+\+Doc pdf)
 \begin{DoxyCompactList}\small\item\em Se escribe el ortomosaico y un texto que lo acompaña. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classRedaction_a5eb1526e3796eb6c1df1a78854d4f9d0}{write\+Index}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
 \begin{DoxyCompactList}\small\item\em Se escribe el indice y un texto que lo acompaña. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classRedaction_a4e5995467609e29e715088fe0495d55a}\label{classRedaction_a4e5995467609e29e715088fe0495d55a}} 
+void {\bfseries write\+Cuantizado} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
+\item 
 void \mbox{\hyperlink{classRedaction_a1b092fb88b89ca238da44111f6a67ddc}{write\+Lut}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
 \begin{DoxyCompactList}\small\item\em Se escribe el mapa de colores y un texto que lo acompaña. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{classRedaction_af897cc53c7d60685232fe19dd76d0d9f}{write\+Chart}} (string str\+Img\+Name, string str\+Index, H\+P\+D\+F\+\_\+\+Doc pdf)
@@ -27,7 +33,40 @@ string \mbox{\hyperlink{classRedaction_a466ce7f7f8b2a4ec810b2da9c7832f26}{genera
 void \mbox{\hyperlink{classRedaction_ab5716b51790373ff2726286e1d02d73d}{write\+Text}} (string text, H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page\+\_\+1, int size\+Font, int left, int top, int right, int bottom, H\+P\+D\+F\+\_\+\+Text\+Alignment text\+Align=H\+P\+D\+F\+\_\+\+T\+A\+L\+I\+G\+N\+\_\+\+J\+U\+S\+T\+I\+FY)
 \begin{DoxyCompactList}\small\item\em Escribe un texto en el rectangulo indicado por las coordenadas que se pasan por parametros. \end{DoxyCompactList}\item 
 int \mbox{\hyperlink{classRedaction_a3236e2af6e29f073fa487056af998924}{write\+Img}} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file, int max\+Width=600, int max\+Height=840, int x\+Space=50, int y\+Space=50)
-\begin{DoxyCompactList}\small\item\em Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada. \end{DoxyCompactList}\item 
+\mbox{\Hypertarget{classRedaction_aed4dc98baf261fd3864b083d901aeba7}\label{classRedaction_aed4dc98baf261fd3864b083d901aeba7}} 
+int {\bfseries write\+Img2} (H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page, const char $\ast$file, int max\+Width=600, int max\+Height=840, int x\+Space=50, int y\+Space=50)
+\item 
+\mbox{\Hypertarget{classRedaction_a730c74cfc42da0e0c26dde04f827327b}\label{classRedaction_a730c74cfc42da0e0c26dde04f827327b}} 
+void {\bfseries write\+Context} (string str\+Text, H\+P\+D\+F\+\_\+\+Doc pdf, H\+P\+D\+F\+\_\+\+Page page\+\_\+1, bool write\+Title=true)
+\item 
+\mbox{\Hypertarget{classRedaction_abc1ee2bcbecc9009f0f2c098ffbaa450}\label{classRedaction_abc1ee2bcbecc9009f0f2c098ffbaa450}} 
+void {\bfseries draw\+\_\+line} (H\+P\+D\+F\+\_\+\+Page page, float x0, float x1, float y0, float y1)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classRedaction_ad90a9d83dd25949cb02d7175127c0a61}\label{classRedaction_ad90a9d83dd25949cb02d7175127c0a61}} 
+int {\bfseries altura}
+\item 
+\mbox{\Hypertarget{classRedaction_a4a8fdc2588fe7d86ee2565e051324fc4}\label{classRedaction_a4a8fdc2588fe7d86ee2565e051324fc4}} 
+int {\bfseries page} = 0
+\item 
+\mbox{\Hypertarget{classRedaction_a9ba976b11231ce5e328aed590d5fc357}\label{classRedaction_a9ba976b11231ce5e328aed590d5fc357}} 
+int {\bfseries x0} = 80
+\item 
+\mbox{\Hypertarget{classRedaction_a482cdb457625ad5bd40d7b06e9a71c9e}\label{classRedaction_a482cdb457625ad5bd40d7b06e9a71c9e}} 
+int {\bfseries x1} = 520
+\item 
+\mbox{\Hypertarget{classRedaction_a275712d1283400ede4bb27dde4dbe626}\label{classRedaction_a275712d1283400ede4bb27dde4dbe626}} 
+int {\bfseries line\+Spacing} = 17
+\item 
+\mbox{\Hypertarget{classRedaction_ab5f00fe8ea50f45404989dc4df7e830a}\label{classRedaction_ab5f00fe8ea50f45404989dc4df7e830a}} 
+string {\bfseries fonts} = \char`\"{}cmunbsr.\+ttf\char`\"{}
+\item 
+\mbox{\Hypertarget{classRedaction_a4e1d2e3d453c0af5db42a3dd8b649745}\label{classRedaction_a4e1d2e3d453c0af5db42a3dd8b649745}} 
+vector$<$ int $>$ {\bfseries size\+Img}
+\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}

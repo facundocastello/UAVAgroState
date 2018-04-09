@@ -69,13 +69,17 @@ static string \mbox{\hyperlink{classCommonFunctions_a5393a67a9e631a763fe5874174e
 static bool \mbox{\hyperlink{classCommonFunctions_a91521d26a009071499a413ef4535ca8a}{exist\+File}} (string name)
 \begin{DoxyCompactList}\small\item\em Verifica si el archivo/carpeta existe. \end{DoxyCompactList}\item 
 static string \mbox{\hyperlink{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}{string\+Verde}} (string \mbox{\hyperlink{classCommonFunctions_a51a3e18bdcc2c918ebc81f0cc1f47851}{info}})
-\begin{DoxyCompactList}\small\item\em Realiza un output de color verde. \end{DoxyCompactList}\item 
-\mbox{\Hypertarget{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}\label{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}} 
-static string {\bfseries string\+Azul} (string proceso)
-\item 
-\mbox{\Hypertarget{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}\label{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}} 
-static string {\bfseries string\+Rojo} (string peligro)
-\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Realiza un string que en salida a consola ees de color verde. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}{string\+Azul}} (string proceso)
+\begin{DoxyCompactList}\small\item\em Realiza un string que en salida a consola ees de color Azul. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}{string\+Rojo}} (string peligro)
+\begin{DoxyCompactList}\small\item\em Realiza un string que en salida a consola ees de color verde. \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a54f92a4fbce258e4c73bbdcb2f37a594}{f\+ToS}} (float my\+Float, int cant=4)
+\begin{DoxyCompactList}\small\item\em convierte un flotante a string \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_aa8211622807d5dc2721a9c8fe834da79}{now\+Date}} ()
+\begin{DoxyCompactList}\small\item\em devuelve un string con la fecha de hoy en formato D\+D/\+M\+M/\+A\+A\+AA \end{DoxyCompactList}\item 
+static string \mbox{\hyperlink{classCommonFunctions_a91cd4c4a5cf95a892dd9e117e709b810}{name\+To\+Date}} (string str\+Name)
+\begin{DoxyCompactList}\small\item\em pasa uns tring de un formato de fecha a otro A\+A\+A\+A\+\_\+\+M\+M\+DD -\/$>$ D\+D/\+M\+M/\+A\+A\+AA \end{DoxyCompactList}\end{DoxyCompactItemize}
 
 
 \subsection{Detailed Description}
@@ -331,6 +335,24 @@ true
 
 false 
 \end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a54f92a4fbce258e4c73bbdcb2f37a594}\label{classCommonFunctions_a54f92a4fbce258e4c73bbdcb2f37a594}} 
+\index{Common\+Functions@{Common\+Functions}!f\+ToS@{f\+ToS}}
+\index{f\+ToS@{f\+ToS}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{f\+To\+S()}{fToS()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::f\+ToS (\begin{DoxyParamCaption}\item[{float}]{my\+Float,  }\item[{int}]{cant = {\ttfamily 4} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+convierte un flotante a string 
+
+
+\begin{DoxyParams}{Parameters}
+{\em my\+Float} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}\label{classCommonFunctions_a7b0e52ec4c30af5244724936f163c2d1}} 
 \index{Common\+Functions@{Common\+Functions}!hist\+Draw@{hist\+Draw}}
 \index{hist\+Draw@{hist\+Draw}!Common\+Functions@{Common\+Functions}}
@@ -386,6 +408,37 @@ Verifica si la ubicación de un archivo existe, en caso contrario crea las carpe
 {\em carpeta} & \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a91cd4c4a5cf95a892dd9e117e709b810}\label{classCommonFunctions_a91cd4c4a5cf95a892dd9e117e709b810}} 
+\index{Common\+Functions@{Common\+Functions}!name\+To\+Date@{name\+To\+Date}}
+\index{name\+To\+Date@{name\+To\+Date}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{name\+To\+Date()}{nameToDate()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::name\+To\+Date (\begin{DoxyParamCaption}\item[{string}]{str\+Name }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+pasa uns tring de un formato de fecha a otro A\+A\+A\+A\+\_\+\+M\+M\+DD -\/$>$ D\+D/\+M\+M/\+A\+A\+AA 
+
+
+\begin{DoxyParams}{Parameters}
+{\em str\+Name} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_aa8211622807d5dc2721a9c8fe834da79}\label{classCommonFunctions_aa8211622807d5dc2721a9c8fe834da79}} 
+\index{Common\+Functions@{Common\+Functions}!now\+Date@{now\+Date}}
+\index{now\+Date@{now\+Date}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{now\+Date()}{nowDate()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::now\+Date (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+devuelve un string con la fecha de hoy en formato D\+D/\+M\+M/\+A\+A\+AA 
+
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a6b4829d1fab8cd74c15c540cf97fe237}\label{classCommonFunctions_a6b4829d1fab8cd74c15c540cf97fe237}} 
 \index{Common\+Functions@{Common\+Functions}!obtener\+Fecha@{obtener\+Fecha}}
 \index{obtener\+Fecha@{obtener\+Fecha}!Common\+Functions@{Common\+Functions}}
@@ -551,6 +604,42 @@ Muesta una imágen en una ventana.
 {\em namewindow} & \\
 \hline
 \end{DoxyParams}
+\mbox{\Hypertarget{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}\label{classCommonFunctions_a62aed3b1ac21b7d1d813e39be5693dc1}} 
+\index{Common\+Functions@{Common\+Functions}!string\+Azul@{string\+Azul}}
+\index{string\+Azul@{string\+Azul}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{string\+Azul()}{stringAzul()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::string\+Azul (\begin{DoxyParamCaption}\item[{string}]{proceso }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Realiza un string que en salida a consola ees de color Azul. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em proceso} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
+\mbox{\Hypertarget{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}\label{classCommonFunctions_a2d9910d407ce3d46d934068f6bacfe08}} 
+\index{Common\+Functions@{Common\+Functions}!string\+Rojo@{string\+Rojo}}
+\index{string\+Rojo@{string\+Rojo}!Common\+Functions@{Common\+Functions}}
+\subsubsection{\texorpdfstring{string\+Rojo()}{stringRojo()}}
+{\footnotesize\ttfamily static string Common\+Functions\+::string\+Rojo (\begin{DoxyParamCaption}\item[{string}]{peligro }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [inline]}, {\ttfamily [static]}}
+
+
+
+Realiza un string que en salida a consola ees de color verde. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em peligro} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+string 
+\end{DoxyReturn}
 \mbox{\Hypertarget{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}\label{classCommonFunctions_a00300c316aebf02cd5917c7335247fba}} 
 \index{Common\+Functions@{Common\+Functions}!string\+Verde@{string\+Verde}}
 \index{string\+Verde@{string\+Verde}!Common\+Functions@{Common\+Functions}}
@@ -559,7 +648,7 @@ Muesta una imágen en una ventana.
 
 
 
-Realiza un output de color verde. 
+Realiza un string que en salida a consola ees de color verde. 
 
 
 \begin{DoxyParams}{Parameters}
