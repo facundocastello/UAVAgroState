@@ -42,7 +42,7 @@ public:
 			parallel_for_(Range(0, strImgs.size()), [&](const Range& range){
 				for(int i = range.start;i < range.end ; i++){
 					string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
-					FSManager fs(strImg+".yml","imagen");
+					FSManager fs(strImg,"imagen");
 					multispectral = (fs.readString("multiespectral")=="ms"? true:false);
 					indexCalcu(strImgs[i],multispectral);
 				}
@@ -51,7 +51,7 @@ public:
 			cout << CommonFunctions::stringAzul("Sin calculo paralelo \n");
 			for(int i = 0;i < strImgs.size() ; i++){	
 				string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
-				FSManager fs(strImg+".yml","imagen");
+				FSManager fs(strImg,"imagen");
 				multispectral = (fs.readString("multiespectral")=="ms"? true:false);
 				indexCalcu(strImgs[i],multispectral);
 			}
@@ -117,6 +117,8 @@ public:
 		Mat rg,numerador,denominador;
 		divide(BGRA[2],BGRA[1],rg,123,CV_8U);
 
+		GaussianBlur( rg, rg, Size( 7,7 ), 0, 0 );
+
 		escribirSegmentaciones(rg, BGRA[3],  strImg, "rg");
 	}
 	/**
@@ -135,6 +137,7 @@ public:
 		ngrdi = (ngrdi + 1) * 128;
 		ngrdi.convertTo(ngrdi,CV_8U);
 		
+		GaussianBlur( ngrdi, ngrdi, Size( 7,7 ), 0, 0 );
 		
 		escribirSegmentaciones(ngrdi, BGRA[3],  strImg, "ngrdi");
 	}
@@ -154,7 +157,7 @@ public:
 		vector<Mat> BGRA;
 		split(imgaux, BGRA);
 		//CORRIJO EL PROBLEMA DE QUE EL INFRAROJO 'INVADE' EL ROJO
-		subtract(BGRA[2],BGRA[0]*0.8,BGRA[2],cv::noArray(),CV_8U);
+		subtract(BGRA[2],BGRA[0],BGRA[2],cv::noArray(),CV_8U);
 		if(BGRA.size() == 3){
 			BGRA.push_back(Mat(BGRA[0].size(),CV_8U,Scalar(255,255,255)));
 		}
@@ -180,6 +183,8 @@ public:
 		
 		ndvi = (ndvi + 1) * 128;
 		ndvi.convertTo(ndvi,CV_8U);
+
+		GaussianBlur( ndvi, ndvi, Size( 7,7 ), 0, 0 );
 		
 		escribirSegmentaciones(ndvi, BGRA[3],  strImg, "ndvi");
 	}
@@ -193,6 +198,8 @@ public:
 		Mat rvi,numerador,denominador;
 		//OBTENGO EL NDVI
 		divide(BGRA[0],BGRA[2],rvi,127,CV_8U);
+
+		GaussianBlur( rvi, rvi, Size( 7,7 ), 0, 0 );
 		
 		escribirSegmentaciones(rvi, BGRA[3], strImg, "rvi");
 	}

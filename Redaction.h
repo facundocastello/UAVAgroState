@@ -11,6 +11,12 @@
  */
 class Redaction{
     public:
+	int altura;
+	int page = 0;
+	int x0 = 80;
+	int x1 = 520;
+	string fonts = "cmunbsr.ttf";
+	vector<int> sizeImg;
 		/**
 		 * @brief Crea un PDF con todas las imágenes.
 		 * 
@@ -19,8 +25,14 @@ class Redaction{
         int generatePDF(){
 			//Se usa un booleano para verificar si se quieren sobre-escribir los informes
 			cout << "Desea sobre-escribir los informes ya redactados?(0 no, 1 si)";
-			bool sobreescribir;
-			cin >> sobreescribir;
+			altura = 740;
+			sizeImg.push_back(500);
+			sizeImg.push_back(500);
+			sizeImg.push_back(50);
+			sizeImg.push_back(100);
+			
+			bool sobreescribir = true;
+			// cin >> sobreescribir;
 			cout << CommonFunctions::stringAzul("Comenzando proceso de redacción: ")+"\n"; 
 			//se inicializa el contador de tiempo
 			struct timeval beginAll;
@@ -57,6 +69,7 @@ class Redaction{
 					pdf = HPDF_New (error_handler, NULL);
 					HPDF_SetCompressionMode (pdf, HPDF_COMP_ALL);
 					//se escribe la imagen original
+					writePortada(pdf,strImgName);
 					writeOriginal(strImgName,pdf);
 					for(int j = 0 ; j < strIndexs.size() ; j++){
 						string strIndex = CommonFunctions::obtenerUltimoDirectorio2(strIndexs[j]);
@@ -76,6 +89,25 @@ class Redaction{
 			// HPDF_Page_SetSize (page_1, HPDF_PAGE_SIZE_B5, HPDF_PAGE_LANDSCAPE);
             return 0;
         }
+		void writePortada(HPDF_Doc pdf,string strName){
+			IndexCalculation ic;	
+			HPDF_Page page_1;
+			page_1 = HPDF_AddPage (pdf);
+			
+			fonts = "cmunsx.ttf";
+
+			writeText("Informe periodico del cultivo",pdf,page_1,25,x0-10,350,x1+10,100,HPDF_TALIGN_CENTER);
+			writeText("Fecha de generacion del informe: " + CommonFunctions::nowDate(),pdf,page_1,20,x0-10,250,x1+10,100,HPDF_TALIGN_CENTER);
+
+			fonts = "cmunbsr.ttf";
+			
+			// string text = generateChartText(strImgName, strIndex);
+			// writeText(text,pdf,page_1,12,50,700,520,100);
+
+			// page_1 = HPDF_AddPage (pdf);
+			
+			writeImg2(pdf, page_1, "UAVAgroState.png",300,300,160,400);
+		}
 		/**
 		 * @brief Se escribe el ortomosaico y un texto que lo acompaña.
 		 * 
@@ -87,14 +119,21 @@ class Redaction{
 			string strOriginalImg = stitch.obtenerOutputRF() + strImgName + ".png";
 			HPDF_Page page_1;
 			page_1 = HPDF_AddPage (pdf);
+			FSManager fs(strImgName,"imagen");
+
+			writeContext("Imagen " + strImgName,pdf, page_1);
+
+			writeText(" - El orto-mosaico fue redimensionada a la escala 1/" + to_string(fs.readInt("tamano")),pdf,page_1,12,x0+10,altura-40,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - Las imagenes fueron capturadas a una altura de " + to_string(fs.readInt("altura")) + "m",pdf,page_1,12,x0+10,altura-60,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - La dimension que representa la imagen son " + CommonFunctions::fToS(fs.readFloat("hectareas")) + "ha",pdf,page_1,12,x0+10,altura-80,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - Fecha de captura de las imagenes: "+CommonFunctions::nameToDate(strImgName) ,pdf,page_1,12,x0+10,altura-100,x1-10,100,HPDF_TALIGN_LEFT);
 			
-			writeText("Imagen: " + strImgName,pdf,page_1,25,50,800,550,100,HPDF_TALIGN_CENTER);
 			// string text = generateChartText(strImgName, strIndex);
-			// writeText(text,pdf,page_1,12,50,700,550,100);
+			// writeText(text,pdf,page_1,12,50,700,510,100);
 
 			// page_1 = HPDF_AddPage (pdf);
 			
-			writeImg(pdf, page_1, strOriginalImg.c_str(),450,650,50,50);
+			writeImg(pdf, page_1, strOriginalImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
 		}
 		/**
 		 * @brief Se escribe el indice y un texto que lo acompaña.
@@ -109,13 +148,9 @@ class Redaction{
 			HPDF_Page page_1;
 			page_1 = HPDF_AddPage (pdf);
 			
-			writeText("Indice: " + strIndex,pdf,page_1,25,50,800,550,100,HPDF_TALIGN_CENTER);
-			// string text = generateChartText(strImgName, strIndex);
-			// writeText(text,pdf,page_1,12,50,700,550,100);
-
-			// page_1 = HPDF_AddPage (pdf);
+			writeContext("Indice " + strIndex,pdf, page_1);
 			
-			writeImg(pdf, page_1, strIndexImg.c_str(),450,650,50,50);
+			writeImg(pdf, page_1, strIndexImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
 		}
 		/**
 		 * @brief Se escribe el mapa de colores y un texto que lo acompaña.
@@ -130,13 +165,14 @@ class Redaction{
 			HPDF_Page page_1;
 			page_1 = HPDF_AddPage (pdf);
 			
-			writeText("Mapa de colores: " + strIndex,pdf,page_1,25,50,800,550,100,HPDF_TALIGN_CENTER);
-			string text = "Para facilitar la visualización del indice "+strIndex+" se aplica un mapa de colores";
-			writeText(text,pdf,page_1,12,50,750,550,100);
+			writeContext("Mapa de colores del indice " + strIndex,pdf, page_1);
+
+			string text = "Para facilitar la visualizacion del indice "+strIndex+" se aplica un mapa de colores";
+			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
 
 			// page_1 = HPDF_AddPage (pdf);
 			
-			writeImg(pdf, page_1, strLutImg.c_str(),450,625,50,25);
+			writeImg(pdf, page_1, strLutImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
 		}
 		/**
 		 * @brief Se escribe el gráfico de porcentajes y un texto que lo acompaña.
@@ -152,14 +188,15 @@ class Redaction{
 			HPDF_Page page_1;
 			page_1 = HPDF_AddPage (pdf);
 			
-			writeText("Cuantización y gráfico: " + strIndex,pdf,page_1,25,50,800,550,100,HPDF_TALIGN_CENTER);
+			writeContext("Cuantizacion y grafico del indice " + strIndex, pdf, page_1);
 			string text = generateChartText(strImgName, strIndex);
-			writeText(text,pdf,page_1,12,50,750,550,100);
+			writeText(text,pdf,page_1,12,x0+10,altura-70,x1-10,100);
 
 			page_1 = HPDF_AddPage (pdf);
 			
-			writeImg(pdf, page_1, strChartImg.c_str(),450,670,50,160);
-			writeImg(pdf, page_1, strChart.c_str(),300,100,280,50);
+			writeContext(" ", pdf, page_1);
+			writeImg(pdf, page_1, strChartImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
+			writeImg(pdf, page_1, strChart.c_str(),300,altura,150,330);
 		}
 		/**
 		 * @brief Genera el texto para el gráfico, utilizando metadatos manejador por FSManager.
@@ -169,17 +206,17 @@ class Redaction{
 		 * @return string 
 		 */
 		string generateChartText(string strImgName, string strIndex){
-			FSManager fs(strImgName + ".yml", "imagen");
-			string text="Para facilitar la distinsión entre la vegetacion saludable, la no saludable y la tierra, se realizó una cuantización utilizando diferentes colores y asignandolos a multiples intervalos de valores. Con esto se obtuvieron los siguientes valores: \n";
+			FSManager fs(strImgName, "imagen");
+			string text="Para facilitar la distinsion entre la vegetacion saludable, la no saludable y la tierra, se realizo una cuantizacion utilizando diferentes colores y asignandolos a multiples intervalos de valores. Con esto se obtuvieron los siguientes valores: \n";
 			vector<float> porcentajes = fs.readVFloat("porcentaje"+strIndex);
 			vector<int> limites = fs.readVInt("limites"+strIndex);
 			float hectareas = fs.readFloat("hectareas");
 			for(int i=0; i < porcentajes.size(); i++){
 				if(porcentajes[i] > 0.1){
-					text+= "        *" + to_string(porcentajes[i]*hectareas/100) + " hectareas tienen valores entre " + to_string(limites[i]) + " y " + to_string(limites[i+1]) + "\n";
+					text+= "        * " + to_string(porcentajes[i]*hectareas/100) + " hectareas tienen valores entre " + to_string(limites[i]) + " y " + to_string(limites[i+1]) + "\n";
 				}
 			}
-			text+= "Además se aplicó la cuantización al ortomosaico y se genero un gráfico que muestra en que porcentaje participa cada cuantizado.";
+			text+= "Ademas se aplico la cuantizacion al ortomosaico y se genero un grafico que muestra en que porcentaje participa cada cuantizado.";
 			return text;
 		}
 		/**
@@ -203,7 +240,8 @@ class Redaction{
 			
 			// HPDF_UseUTFEncodings(pdf);
 			// HPDF_SetCurrentEncoder(pdf, "UTF-8");
-			HPDF_Font  font = HPDF_GetFont(pdf, HPDF_LoadTTFontFromFile(pdf, "arial.ttf", HPDF_TRUE), NULL);
+
+			HPDF_Font  font = HPDF_GetFont(pdf, HPDF_LoadTTFontFromFile(pdf, fonts.c_str(), HPDF_TRUE), NULL);
 			HPDF_Page_SetFontAndSize(page_1, font, sizeFont);
 			HPDF_Rect rect;
 			/* HPDF_TALIGN_LEFT */
@@ -255,6 +293,53 @@ class Redaction{
             return 0;
         }
 
+		int writeImg2(HPDF_Doc pdf,HPDF_Page page,const char* file,int maxWidth = 600,int maxHeight = 840,int xSpace = 50,int ySpace = 50){
+            try {
+				HPDF_Image img = HPDF_LoadPngImageFromFile(pdf,file);
+				int width = HPDF_Image_GetWidth(img);
+				int height = HPDF_Image_GetHeight(img);
+				float resolucion;
+				if(width > maxWidth){
+					resolucion = (float)height/(float)width;
+					width = maxWidth;
+					height = width*resolucion;
+				}
+				if(height > maxHeight){
+					resolucion = (float)width/(float)height;
+					height = maxHeight;
+					width = height*resolucion;
+				}
+				HPDF_Page_DrawImage(page,img,xSpace,ySpace,width,height);		
+			} catch (...) {
+				HPDF_Free (pdf);
+				return 1;
+			}
+
+            return 0;
+        }
+
+		void writeContext(string strText, HPDF_Doc pdf,HPDF_Page page_1){
+			HPDF_Page_SetLineWidth (page_1, 1.0);
+			draw_line(page_1,x0,x1,altura+20,altura+20);
+			writeText(strText,pdf,page_1,25,x0+20,altura,x1-20,x0+10,HPDF_TALIGN_CENTER);
+			draw_line(page_1,x0,x1,840-(altura+20),840-(altura+20));
+			writeText("Creado con UAVAgroState",pdf,page_1,12,300,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);
+			writeImg2(pdf,page_1,"UAVAgroState.png",50,50,100,840-(altura+20)-55);
+
+			writeText(to_string(++page),pdf,page_1,12,x0+10,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_CENTER);
+
+		}
+
+		void draw_line  (HPDF_Page    page,
+            float        x0,
+			float        x1,
+			float        y0,
+            float        y1)
+		{
+			HPDF_Page_MoveTo (page, x0, y0);
+			HPDF_Page_LineTo (page, x1, y1);
+			HPDF_Page_Stroke (page);
+		}
 
 };
 

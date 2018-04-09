@@ -238,7 +238,7 @@ public:
 			}
 		}
 
-		FSManager fs(strImg+".yml","imagen");
+		FSManager fs(strImg,"imagen");
 		fs.appendVInt("limites"+strIndex,limites);
 		fs.appendVFloat("porcentaje"+strIndex,porcentaje);
 		

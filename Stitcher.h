@@ -778,8 +778,8 @@ namespace uav{
 				if(imgs.empty()){
 					return Mat();
 				}
-				if(finalResult)
-					compensateBright();
+				// if(finalResult)
+				// 	compensateBright();
 
 				removeCorners();
 
@@ -865,7 +865,7 @@ namespace uav{
 			 * 
 			 */
 			void saveMetadata(bool sobreescribir){
-				FSManager fs(resultName+".yml", "imagen",sobreescribir);
+				FSManager fs(resultName, "imagen",sobreescribir);
 				fs.appendInt("tamano", (originalSize?1:tamano));
 				fs.appendInt("altura",altura);
 				fs.appendString("multiespectral",(multispectral?"ms":"rgb"));

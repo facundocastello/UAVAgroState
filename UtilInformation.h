@@ -20,7 +20,7 @@ public:
     void selectCamera(){
         cout << "Nombre de la camara: ";
         cin >> cameraName;
-        FSManager fs(cameraName+".yml","camara");
+        FSManager fs(cameraName,"camara");
         if( fs.existeString("cameraName") ){
             cout << CommonFunctions::stringVerde("La camara existe en la base de datos por lo que sus propiedades serán cargadas en memoria.") + "\n";
             readCameraProperties();
@@ -41,7 +41,7 @@ public:
         cout << "Longitud focal en mm: ";
         cin >> focal;
         mmpx = width/height/focal;
-        FSManager fs(cameraName+".yml","camara");
+        FSManager fs(cameraName,"camara");
         fs.appendString("cameraName",cameraName);
         fs.appendFloat("width",width);
         fs.appendFloat("height",height);
@@ -53,7 +53,7 @@ public:
      * 
      */
     void readCameraProperties(){
-        FSManager fs(cameraName+".yml","camara");
+        FSManager fs(cameraName,"camara");
 
         cameraName = fs.readString("cameraName");
         width = fs.readFloat("width");
@@ -61,6 +61,7 @@ public:
         focal = fs.readFloat("focal");
         mmpx = fs.readFloat("mmpx");
     }
+    
     /**
      * @brief Calcula las hectareas que tiene una imágen
      * 
@@ -71,7 +72,7 @@ public:
         vector<string> strImgs = CommonFunctions::obtenerImagenes(stitcher.obtenerOutputRF().c_str());
         for(int i = 0 ; i < strImgs.size(); i++){
             cout << CommonFunctions::stringAzul("Calculando hectareas de la imágen " + CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + "\n";
-            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + ".yml", "imagen");
+            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])), "imagen");
             
             cameraName = (fs.readString("multispectral")=="ms"? "mapir":"sjcam");
             readCameraProperties();
@@ -100,7 +101,7 @@ public:
         for(int i = 0 ; i < strImgs.size(); i++){
             Mat img = CommonFunctions::cargarImagen(strImgs[i],1);
 
-            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])) + ".yml", "imagen");
+            FSManager fs(CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i])), "imagen");
             
             cameraName = (fs.readString("multispectral")=="ms"? "mapir":"sjcam");
             int tamano = fs.readInt("tamano");

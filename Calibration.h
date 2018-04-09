@@ -113,7 +113,7 @@ public:
      * @param cameraName 
      */
     void static storeCalibrationMat(Mat intrinsic, Mat distCoeffs, string cameraName){
-        FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::WRITE);
+        FileStorage fs("Data/Calibrar/"+cameraName, FileStorage::WRITE);
         fs << "intrinsic" << intrinsic << "distCoeffs" << distCoeffs;
         fs.release();
     }
@@ -124,7 +124,7 @@ public:
      * @return vector<Mat> 
      */
     vector<Mat> static readCalibrationMat(string cameraName){
-        FileStorage fs("Data/Calibrar/"+cameraName+".yml", FileStorage::READ);
+        FileStorage fs("Data/Calibrar/"+cameraName, FileStorage::READ);
 
         Mat intrinsic, distCoeffs;
         fs["intrinsic"] >> intrinsic;

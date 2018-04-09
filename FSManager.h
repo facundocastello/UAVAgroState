@@ -17,6 +17,7 @@ public:
      * @param tipo 
      */
      FSManager(string dir,string tipo, bool sobreescribir=false){
+         dir += ".yml";
          this-> dir = dir;
          if("camara"==tipo){
             this-> dir  = "Data/Camaras/" + dir;}

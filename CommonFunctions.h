@@ -520,7 +520,7 @@ class CommonFunctions{
   			return (stat (name.c_str(), &buffer) == 0); 
 		}
 		/**
-		 * @brief Realiza un output de color verde.
+		 * @brief Realiza un string que en salida a consola ees de color verde.
 		 * 
 		 * @param info 
 		 * @return string 
@@ -528,16 +528,70 @@ class CommonFunctions{
 		string static stringVerde(string info){
 			return "\033[1;32m" + info + " \033[0m"; 
 		}
-
+		/**
+		 * @brief Realiza un string que en salida a consola ees de color Azul.
+		 * 
+		 * @param proceso 
+		 * @return string 
+		 */
 		string static stringAzul(string proceso){
 			return "\033[1;34m - " + proceso + " \033[0m"; 
 		}
-
+		/**
+		 * @brief Realiza un string que en salida a consola ees de color verde.
+		 * 
+		 * @param peligro 
+		 * @return string 
+		 */
 		string static stringRojo(string peligro){
 			return "\033[1;31m" + peligro + " \033[0m"; 
 		}
-
-
+		/**
+		 * @brief convierte un flotante a string
+		 * 
+		 * @param myFloat 
+		 * @return string 
+		 */
+		string static fToS(float myFloat){
+			std::ostringstream ss;
+			ss << myFloat;
+			std::string s(ss.str());
+			return s;
+		}
+		/**
+		 * @brief devuelve un string con la fecha de hoy en formato
+		 * DD/MM/AAAA
+		 * 
+		 * @return string 
+		 */
+		string static nowDate(){
+			std::time_t t = std::time(0);   // get time now
+			std::tm* now = std::localtime(&t);
+			string dia =  to_string(now->tm_mday);
+			string mes = to_string(now->tm_mon + 1);
+			string anio = to_string(now->tm_year + 1900);
+			if(dia.size()<2)
+				dia = "0"+dia;
+			if(mes.size()<2)
+				mes = "0"+mes;
+			string str =  dia + '/' + mes + '/' + anio;
+			return str;
+		}
+		/**
+		 * @brief pasa uns tring de un formato de fecha a otro 
+		 * AAAA_MMDD -> DD/MM/AAAA
+		 * 
+		 * @param strName 
+		 * @return string 
+		 */
+		string static nameToDate(string strName){
+			int indice = strName.find("_");
+			string anio = strName.substr(0,indice);
+			strName =  strName.substr(indice+1,indice+5);
+			string mes = strName.substr(0,2);
+			string dia =  strName.substr(2,2);
+			return dia+"/"+mes+"/"+anio;
+		}
 };
 
 #endif
