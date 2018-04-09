@@ -120,13 +120,13 @@ public:
 			}
 		}
 		//ingreso el texto
-		int auxMin = ((min>0)?min:0)*100/256;
-		int auxMax = ((max<256)?max:255)*100/256;
-		putText(index, "0."+to_string(auxMin), cvPoint(index.cols*.1,index.rows*.2), 
+		float auxMin = ((min>0)?min:0)/256;
+		float auxMax = ((max<256)?max:255)/256;
+		putText(index, CommonFunctions::fToS(auxMin), cvPoint(index.cols*.1,index.rows*.2), 
     	FONT_HERSHEY_TRIPLEX, (float)index.rows/170, cvScalar(0,0,0), (float)index.rows/170*3, CV_AA);
-		putText(index, "0."+to_string(auxMin+(auxMax-auxMin)/2), cvPoint(index.cols*.1,index.rows*.55), 
+		putText(index, CommonFunctions::fToS(auxMin+(auxMax-auxMin)/2), cvPoint(index.cols*.1,index.rows*.55), 
     	FONT_HERSHEY_TRIPLEX, (float)index.rows/200, cvScalar(0,0,0),(float)index.rows/200*3, CV_AA);
-		putText(index, "0."+to_string(auxMax), cvPoint(index.cols*.1,index.rows*.9), 
+		putText(index, CommonFunctions::fToS(auxMax), cvPoint(index.cols*.1,index.rows*.9), 
     	FONT_HERSHEY_TRIPLEX, (float)index.rows/170, cvScalar(0,0,0), (float)index.rows/170*3, CV_AA);
 		//copio el indice a la imagen
 		index.copyTo(img(Rect(img.cols-1.1*index.cols,img.rows-1.1*index.rows,index.cols,index.rows)));
@@ -227,12 +227,12 @@ public:
 					color[0] *= .995;color[1] *= .995;color[2] *= .995;
 				}
 				//agrego el texto al grafico
-				putText(chart, to_string(limites[k]) , cvPoint(xPos,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
-				putText(chart, to_string(limites[k]) , cvPoint(xPos,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
-				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+100,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
-				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+100,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
-				putText(chart, to_string(porcentaje[k]) + "%" , cvPoint(xPos+200,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
-				putText(chart, to_string(porcentaje[k]) + "%" , cvPoint(xPos+200,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
+				putText(chart, to_string(limites[k]) , cvPoint(xPos+10,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, to_string(limites[k]) , cvPoint(xPos+10,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
+				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+110,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, to_string(limites[k+1]) , cvPoint(xPos+110,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
+				putText(chart, CommonFunctions::fToS(porcentaje[k],6) + "%" , cvPoint(xPos+230,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(255,255,255), thickness+1, CV_AA);
+				putText(chart, CommonFunctions::fToS(porcentaje[k],6) + "%" , cvPoint(xPos+230,yPos), FONT_HERSHEY_PLAIN, fontSize, cvScalar(colorText[0],colorText[1],colorText[2]), thickness, CV_AA);
 				posText++;
 				contadorAcum += porcentaje[k];
 			}

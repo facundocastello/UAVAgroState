@@ -292,6 +292,13 @@ public:
 			return "Imagenes/Indices/output/rgb/"+strImg+"/"+strIndex+"/Index.png";
 		}
 	}
+	string obtenerCuant(string strImg, string strIndex){
+		if(strIndex == "ndvi" || strIndex == "rvi"){
+			return "Imagenes/Indices/output/ms/"+strImg+"/"+strIndex+"/Cuantizado.png";
+		}else{
+			return "Imagenes/Indices/output/rgb/"+strImg+"/"+strIndex+"/Cuantizado.png";
+		}
+	}
 	string obtenerChart(string strImg, string strIndex){
 		if(strIndex == "ndvi" || strIndex == "rvi"){
 			return "Imagenes/Indices/output/ms/"+strImg+"/"+strIndex+"/Chart.png";

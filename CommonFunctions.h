@@ -375,7 +375,7 @@ class CommonFunctions{
 			Mat resultado;
 			if(!trans.empty() && img.channels() < 4){
 				if(img.channels()==1){
-					Mat auxAlpha[4]={img*0,img,img*0,trans};
+					Mat auxAlpha[4]={img,img,img,trans};
 					merge(auxAlpha,4,resultado);
 				}else{
 					vector<Mat> BGR;
@@ -552,11 +552,11 @@ class CommonFunctions{
 		 * @param myFloat 
 		 * @return string 
 		 */
-		string static fToS(float myFloat){
+		string static fToS(float myFloat, int cant=4){
 			std::ostringstream ss;
 			ss << myFloat;
 			std::string s(ss.str());
-			return s;
+			return s.substr(0,cant);
 		}
 		/**
 		 * @brief devuelve un string con la fecha de hoy en formato
