@@ -121,7 +121,7 @@ class Redaction{
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			FSManager fs(strImgName,"imagen");
 
-			writeContext("Ortomosaico " + strImgName,pdf, page_1);
+			writeContext("Ortomosaico " + strImgName, " ", strImgName,pdf, page_1);
 
 			writeText(" - El orto-mosaico fue redimensionada a la escala 1/" + to_string(fs.readInt("tamano")),pdf,page_1,12,x0+10,altura-40,x1-10,100,HPDF_TALIGN_LEFT);
 			writeText(" - Las imagenes fueron capturadas a una altura de " + to_string(fs.readInt("altura")) + "m",pdf,page_1,12,x0+10,altura-60,x1-10,100,HPDF_TALIGN_LEFT);
@@ -144,9 +144,9 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Indice " + strIndex,pdf, page_1);
+			writeContext("Indice de vegetación " + strIndex, strIndex, strImgName,pdf, page_1);
 
-			string text = "    Indice representado en escala de grises, donde los valores mas oscuros significan vegetacion menos saludable y los mas iluminados significan vegetacion mas saludable.";
+			string text = "El índice de vegetación es una combinación de las bandas espectrales para producir un simple valor que indique la cantidad o vigor de vegetación dentro de un píxel. Permitiéndonos estimar y evaluar el estado de salud de la vegetación, en base a la medición de la radiación que las plantas emiten o reflejan. Se representa en escala de grises donde a mayor intensidad, mas saludable es la vegeteción.";
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
 			
 			writeImg(pdf, page_1, strIndexImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
@@ -159,7 +159,7 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Cuantificación del indice " + strIndex,pdf, page_1);
+			writeContext("Cuantificación", strIndex, strImgName,pdf, page_1);
 
 			string text = "    Se implentó una técnica de compresión con pérdida que consiste en comprimir un rango de valores a un único valor y, de esta forma, cuando el número de símbolos discretos en un flujo dado se reduce, el flujo se vuelve más comprensible. A este procedimiento se le denomina cuantificación del color.";
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
@@ -180,7 +180,7 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Mapa de colores del indice " + strIndex,pdf, page_1);
+			writeContext("Mapa de colores", strIndex, strImgName,pdf, page_1);
 
 			string text = "    La percepción humana no está construida para observar cambios finos en las imágenes en escala de grises, por lo que a menudo se necesita colorear las imágenes para obtener una mejor percepcion. Para lograr esto se aplica un mapa de colores que relaciona cada intensidad de la escala de grises con un color.";
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
@@ -204,14 +204,14 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Cuantizacion y grafico del indice " + strIndex, pdf, page_1);
+			writeContext("Cuantizacion y grafico", strIndex, strImgName, pdf, page_1);
 			string text = generateChartText(strImgName, strIndex);
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
 
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Cuantizacion y grafico del indice " + strIndex, pdf, page_1,false);
+			writeContext(" ", strIndex, strImgName, pdf, page_1,false);
 			writeImg(pdf, page_1, strChartImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
 			writeImg(pdf, page_1, strChart.c_str(),300,altura,150,310);
 		}
@@ -335,20 +335,23 @@ class Redaction{
             return 0;
         }
 
-		void writeContext(string strText, HPDF_Doc pdf,HPDF_Page page_1, bool writeTitle=true){
+		void writeContext(string strText,string strIndex,string strName, HPDF_Doc pdf,HPDF_Page page_1, bool writeTitle=true){
 			HPDF_Page_SetLineWidth (page_1, 1.0);
-			writeText(strText,pdf,page_1,12,x0,altura+40,x1,altura,HPDF_TALIGN_RIGHT);
+			//encabezado
+			writeText("Ortomosaico " + strName,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_LEFT);
+			if(strIndex != " ")
+				writeText("Indice "+strIndex,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_RIGHT);
 			draw_line(page_1,x0,x1,altura+20,altura+20);
+			//cuerpo
 			if(writeTitle)
 				writeText(strText,pdf,page_1,20,x0+20,altura,x1-20,x0+10,HPDF_TALIGN_CENTER);
+			//pie de pagina
 			draw_line(page_1,x0,x1,840-(altura+20),840-(altura+20));
 			writeText("Creado con UAVAgroState",pdf,page_1,12,300,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);
 			writeText(CommonFunctions::nowDate(),pdf,page_1,12,300,840-(altura+20)-20,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);
-			
 			writeImg2(pdf,page_1,"UAVAgroState.png",50,50,100,840-(altura+20)-55);
-
 			writeText(to_string(++page),pdf,page_1,12,x0+10,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_CENTER);
-
+			
 		}
 
 		void draw_line  (HPDF_Page    page,
