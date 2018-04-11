@@ -224,7 +224,7 @@ class Redaction{
 		 */
 		string generateChartText(string strImgName, string strIndex){
 			FSManager fs(strImgName, "imagen");
-			string text="    Se busca representar los datos de una manera que se puedan realizar comparaciones con otros ortomosaicos, sean de una parcela diferente, de otro tipo de cultivo o de otro período de tiempo. \n    Para facilitar la distinsion entre la vegetacion saludable, la no saludable y la tierra, se realizo una cuantizacion utilizando diferentes colores y asignandolos a multiples intervalos de valores. Con esto se obtuvieron los siguientes valores: \n";
+			string text="    Se busca representar los datos de una manera que se puedan realizar comparaciones con otros ortomosaicos, sean de una parcela diferente, de otro tipo de cultivo o de otro periodo de tiempo. Para facilitar la distinsion entre la vegetacion saludable, la no saludable y la tierra, se realizo una cuantizacion utilizando diferentes colores y asignandolos a multiples intervalos de valores. \n Con esto se obtuvieron los siguientes valores: \n";
 			vector<float> porcentajes = fs.readVFloat("porcentaje"+strIndex);
 			vector<int> limites = fs.readVInt("limites"+strIndex);
 			float hectareas = fs.readFloat("hectareas");
