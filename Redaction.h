@@ -16,6 +16,8 @@ class Redaction{
 	int x0 = 80;
 	int x1 = 520;
 	int lineSpacing = 17;
+	int numSec;
+	int numSubSec = 0;
 	string fonts = "cmunbsr.ttf";
 	vector<int> sizeImg;
 		/**
@@ -60,6 +62,10 @@ class Redaction{
 			vector<string> strImgs = CommonFunctions::obtenerImagenes((strIndexs[0]+"/").c_str());
 			//se recorren las carpetas dentro de cada "ortomosaico"
 			for(int i = 0 ; i < strImgsName.size() ; i++){
+				//para la numeración de las secciones
+				numSec = 0;
+				numSubSec=0;
+
 				string strImgName = CommonFunctions::obtenerUltimoDirectorio2(strImgsName[i]);
 				string ubicacion = "Data/Informes/" + strImgName+".pdf";
 				if(sobreescribir || !CommonFunctions::existFile(ubicacion)){
@@ -76,10 +82,13 @@ class Redaction{
 						string strIndex = CommonFunctions::obtenerUltimoDirectorio2(strIndexs[j]);
 						cout << CommonFunctions::stringAzul(" - Redactando información del indice: " + strIndex ) + "\n"; 
 						//se escriben las imagenes y textos correspondientes al indice, lut y chart.
+						numSec++;
 						writeIndex(strImgName,strIndex, pdf);
-						writeCuantizado(strImgName,strIndex, pdf);
-						writeLut(strImgName, strIndex, pdf);
-						writeChart(strImgName, strIndex, pdf);
+						numSubSec++;
+						writeCuantizado(strImgName,strIndex, pdf);numSubSec++;
+						writeLut(strImgName, strIndex, pdf);numSubSec++;
+						writeChart(strImgName, strIndex, pdf);numSubSec++;
+						numSubSec=0;
 					}
 					//se escribe el pdf
 					cout << CommonFunctions::stringAzul(" - Escribiendo PDF " + ubicacion ) + "\n"; 
@@ -340,11 +349,16 @@ class Redaction{
 			//encabezado
 			writeText("Ortomosaico " + strName,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_LEFT);
 			if(strIndex != " ")
-				writeText("Indice "+strIndex,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_RIGHT);
+				writeText(to_string(numSec) + ". Indice "+strIndex,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_RIGHT);
 			draw_line(page_1,x0,x1,altura+20,altura+20);
 			//cuerpo
-			if(writeTitle)
-				writeText(strText,pdf,page_1,20,x0+20,altura,x1-20,x0+10,HPDF_TALIGN_CENTER);
+			if(writeTitle){
+				string numSeccion = ( ( numSec == 0 )? "" : (to_string(numSec))+"." );
+				numSeccion += ( ( numSubSec == 0 )? " " : (to_string(numSubSec))+". " );
+				strText = numSeccion + strText;
+				int tamLetra = ( numSubSec == 0 )? 20:16;
+				writeText(strText,pdf,page_1,tamLetra,x0+20,altura,x1-20,x0+10,HPDF_TALIGN_LEFT);
+			}
 			//pie de pagina
 			draw_line(page_1,x0,x1,840-(altura+20),840-(altura+20));
 			writeText("Creado con UAVAgroState",pdf,page_1,12,300,840-(altura+20)-5,500,840-(altura+20)-20,HPDF_TALIGN_RIGHT);

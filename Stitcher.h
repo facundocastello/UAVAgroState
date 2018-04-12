@@ -778,6 +778,11 @@ namespace uav{
 				if(imgs.empty()){
 					return Mat();
 				}
+				if(imgs.size() == 1){
+					boundBox = imgs[0];
+					escribirOutput(0);
+					return boundBox;
+				}
 				// if(finalResult)
 				// 	compensateBright();
 
