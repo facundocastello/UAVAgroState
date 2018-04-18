@@ -43,7 +43,7 @@ public:
 				for(int i = range.start;i < range.end ; i++){
 					string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
 					FSManager fs(strImg,"imagen");
-					multispectral = (fs.readString("multiespectral")=="ms"? true:false);
+					multispectral = (( fs.readString("multiespectral")=="ms" || !fs.existeString("multiespectral") )? true:false);
 					indexCalcu(strImgs[i],multispectral);
 				}
 			});
@@ -52,7 +52,7 @@ public:
 			for(int i = 0;i < strImgs.size() ; i++){	
 				string strImg = CommonFunctions::removerExtension(CommonFunctions::obtenerUltimoDirectorio2(strImgs[i]));
 				FSManager fs(strImg,"imagen");
-				multispectral = (fs.readString("multiespectral")=="ms"? true:false);
+				multispectral = (( fs.readString("multiespectral")=="ms" || !fs.existeString("multiespectral") )? true:false);
 				indexCalcu(strImgs[i],multispectral);
 			}
 		}

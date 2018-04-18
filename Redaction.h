@@ -18,7 +18,8 @@ class Redaction{
 	int lineSpacing = 17;
 	int numSec;
 	int numSubSec = 0;
-	string fonts = "cmunbsr.ttf";
+	string fonts = "arial.ttf";
+	HPDF_Font  font;
 	vector<int> sizeImg;
 		/**
 		 * @brief Crea un PDF con todas las imágenes.
@@ -45,6 +46,8 @@ class Redaction{
 			//se inicializa el pdf
             HPDF_Doc pdf;
 			HPDF_Error_Handler error_handler;
+
+
 			jmp_buf env;
 			pdf = HPDF_New (error_handler, NULL);
 			if (!pdf) {
@@ -55,6 +58,7 @@ class Redaction{
 				HPDF_Free (pdf);
 				return 1;
 			}
+
 			//se obtienen las ubicaciones de las imágenes y carpetas
 			IndexCalculation ic;
 			vector<string> strImgsName = ic.obtenerMSOutput();
@@ -69,19 +73,23 @@ class Redaction{
 				string strImgName = CommonFunctions::obtenerUltimoDirectorio2(strImgsName[i]);
 				string ubicacion = "Data/Informes/" + strImgName+".pdf";
 				if(sobreescribir || !CommonFunctions::existFile(ubicacion)){
-					cout << CommonFunctions::stringAzul("Redactando información de la imágen: " + strImgName ) + "\n"; 
+					cout << CommonFunctions::stringAzul("Redactando información de la imagen: " + strImgName ) + "\n"; 
 					//se obtienen los indices
 					vector<string> strIndexs = CommonFunctions::obtenerImagenes((strImgsName[i]+"/").c_str());
 					// se crea un pdf nuevo para cada ortomosaico
 					pdf = HPDF_New (error_handler, NULL);
 					HPDF_SetCompressionMode (pdf, HPDF_COMP_ALL);
 					//se escribe la imagen original
+
+					HPDF_UseUTFEncodings(pdf);
+					font = HPDF_GetFont(pdf, HPDF_LoadTTFontFromFile(pdf, fonts.c_str(), HPDF_TRUE), "UTF-8");
+
 					writePortada(pdf,strImgName);
 					writeOriginal(strImgName,pdf);
 					for(int j = 0 ; j < strIndexs.size() ; j++){
 						string strIndex = CommonFunctions::obtenerUltimoDirectorio2(strIndexs[j]);
 						cout << CommonFunctions::stringAzul(" - Redactando información del indice: " + strIndex ) + "\n"; 
-						//se escriben las imagenes y textos correspondientes al indice, lut y chart.
+						//se escriben las imágenes y textos correspondientes al indice, lut y chart.
 						numSec++;
 						writeIndex(strImgName,strIndex, pdf);
 						numSubSec++;
@@ -106,12 +114,12 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			fonts = "cmunsx.ttf";
+			fonts = "arial.ttf";
 
-			writeText("Informe periodico del cultivo",pdf,page_1,25,x0-10,350,x1+10,100,HPDF_TALIGN_CENTER);
-			writeText("Fecha de generacion del informe: " + CommonFunctions::nowDate(),pdf,page_1,20,x0-10,250,x1+10,100,HPDF_TALIGN_CENTER);
+			writeText("Informe periódico del cultivo",pdf,page_1,25,x0-10,350,x1+10,100,HPDF_TALIGN_CENTER);
+			writeText("Fecha de generación del informe: " + CommonFunctions::nowDate(),pdf,page_1,20,x0-10,250,x1+10,100,HPDF_TALIGN_CENTER);
 
-			fonts = "cmunbsr.ttf";
+			fonts = "arial.ttf";
 			
 			
 			writeImg2(pdf, page_1, "UAVAgroState.png",300,300,160,400);
@@ -130,12 +138,12 @@ class Redaction{
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			FSManager fs(strImgName,"imagen");
 
-			writeContext("Ortomosaico " + strImgName, " ", strImgName,pdf, page_1);
+			writeContext("Orto-mosaico " + strImgName, " ", strImgName,pdf, page_1);
 
-			writeText(" - El orto-mosaico fue redimensionada a la escala 1/" + to_string(fs.readInt("tamano")),pdf,page_1,12,x0+10,altura-40,x1-10,100,HPDF_TALIGN_LEFT);
-			writeText(" - Las imagenes fueron capturadas a una altura de " + to_string(fs.readInt("altura")) + "m",pdf,page_1,12,x0+10,altura-60,x1-10,100,HPDF_TALIGN_LEFT);
-			writeText(" - La dimension que representa el ortomosaico son " + CommonFunctions::fToS(fs.readFloat("hectareas")) + "ha",pdf,page_1,12,x0+10,altura-80,x1-10,100,HPDF_TALIGN_LEFT);
-			writeText(" - Fecha de captura de las imagenes: "+CommonFunctions::nameToDate(strImgName) ,pdf,page_1,12,x0+10,altura-100,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - El orto-mosaico fue redimensionado a la escala 1/" + to_string(fs.readInt("tamano")),pdf,page_1,12,x0+10,altura-40,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - Las imágenes fueron capturadas a una altura de " + to_string(fs.readInt("altura")) + "m",pdf,page_1,12,x0+10,altura-60,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - La dimensión que representa el orto-mosaico son " + CommonFunctions::fToS(fs.readFloat("hectareas")) + "ha",pdf,page_1,12,x0+10,altura-80,x1-10,100,HPDF_TALIGN_LEFT);
+			writeText(" - Fecha de captura de las imágenes: "+CommonFunctions::nameToDate(strImgName) ,pdf,page_1,12,x0+10,altura-100,x1-10,100,HPDF_TALIGN_LEFT);
 			
 			writeImg(pdf, page_1, strOriginalImg.c_str(),sizeImg[0],sizeImg[1],sizeImg[2],sizeImg[3]);
 		}
@@ -168,7 +176,7 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Cuantificación", strIndex, strImgName,pdf, page_1);
+			writeContext("Cuantificación del color", strIndex, strImgName,pdf, page_1);
 
 			string text = "    Se implentó una técnica de compresión con pérdida que consiste en comprimir un rango de valores a un único valor y, de esta forma, cuando el número de símbolos discretos en un flujo dado se reduce, el flujo se vuelve más comprensible. A este procedimiento se le denomina cuantificación del color.";
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
@@ -191,7 +199,7 @@ class Redaction{
 			
 			writeContext("Mapa de colores", strIndex, strImgName,pdf, page_1);
 
-			string text = "    La percepción humana no está construida para observar cambios finos en las imágenes en escala de grises, por lo que a menudo se necesita colorear las imágenes para obtener una mejor percepcion. Para lograr esto se aplica un mapa de colores que relaciona cada intensidad de la escala de grises con un color.";
+			string text = "    La percepción humana no está construida para observar cambios finos en las imágenes en escala de grises, por lo que a menudo se necesita colorear las imágenes para obtener una mejor percepción. Para lograr esto se aplica un mapa de colores que relaciona cada intensidad de la escala de grises con un color.";
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
 
 			// page_1 = HPDF_AddPage (pdf);
@@ -213,7 +221,7 @@ class Redaction{
 			page_1 = HPDF_AddPage (pdf);
 			HPDF_Page_SetTextLeading(page_1,lineSpacing);
 			
-			writeContext("Cuantizacion y grafico", strIndex, strImgName, pdf, page_1);
+			writeContext("Cuantificación y gráfico", strIndex, strImgName, pdf, page_1);
 			string text = generateChartText(strImgName, strIndex);
 			writeText(text,pdf,page_1,12,x0+10,altura-40,x1-10,100);
 
@@ -233,7 +241,7 @@ class Redaction{
 		 */
 		string generateChartText(string strImgName, string strIndex){
 			FSManager fs(strImgName, "imagen");
-			string text="    Se busca representar los datos de una manera que se puedan realizar comparaciones con otros ortomosaicos, sean de una parcela diferente, de otro tipo de cultivo o de otro periodo de tiempo. Para facilitar la distinsion entre la vegetacion saludable, la no saludable y la tierra, se realizo una cuantizacion utilizando diferentes colores y asignandolos a multiples intervalos de valores. \n Con esto se obtuvieron los siguientes valores: \n";
+			string text="    Se busca representar los datos de una manera que se puedan realizar comparaciones con otros orto-mosaicos, sean de una parcela diferente, de otro tipo de cultivo o de otro periodo de tiempo. Para facilitar la distinción entre la vegetación saludable, la no saludable y la tierra, se realizo una cuantificación utilizando diferentes colores y asignandolos a multiples intervalos de valores. \n Con esto se obtuvieron los siguientes valores: \n";
 			vector<float> porcentajes = fs.readVFloat("porcentaje"+strIndex);
 			vector<int> limites = fs.readVInt("limites"+strIndex);
 			float hectareas = fs.readFloat("hectareas");
@@ -242,7 +250,7 @@ class Redaction{
 					text+= "        * " + to_string(porcentajes[i]*hectareas/100) + " hectareas tienen valores entre " + to_string(limites[i]) + " y " + to_string(limites[i+1]) + "\n";
 				}
 			}
-			text+= "    Ademas se aplico la cuantizacion al ortomosaico y se genero un grafico que muestra en que porcentaje participa cada cuantizado.";
+			text+= "    Ademas se aplico la cuantificación al orto-mosaico y se genero un gráfico que muestra en que porcentaje participa cada cuantizado.";
 			return text;
 		}
 		/**
@@ -267,7 +275,6 @@ class Redaction{
 			// HPDF_UseUTFEncodings(pdf);
 			// HPDF_SetCurrentEncoder(pdf, "UTF-8");
 
-			HPDF_Font  font = HPDF_GetFont(pdf, HPDF_LoadTTFontFromFile(pdf, fonts.c_str(), HPDF_TRUE), NULL);
 			HPDF_Page_SetFontAndSize(page_1, font, sizeFont);
 			HPDF_Rect rect;
 			/* HPDF_TALIGN_LEFT */
@@ -280,7 +287,7 @@ class Redaction{
 			HPDF_Page_EndText (page_1);
 		}
 		/**
-		 * @brief Escribe una imágen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada.
+		 * @brief Escribe una imagen dentro de un pdf, con su relación ancho/largo mantenida pero redimensionada.
 		 * 
 		 * @param pdf 
 		 * @param page 
@@ -347,7 +354,7 @@ class Redaction{
 		void writeContext(string strText,string strIndex,string strName, HPDF_Doc pdf,HPDF_Page page_1, bool writeTitle=true){
 			HPDF_Page_SetLineWidth (page_1, 1.0);
 			//encabezado
-			writeText("Ortomosaico " + strName,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_LEFT);
+			writeText("Orto-mosaico " + strName,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_LEFT);
 			if(strIndex != " ")
 				writeText(to_string(numSec) + ". Indice "+strIndex,pdf,page_1,10,x0,altura+40,x1,altura,HPDF_TALIGN_RIGHT);
 			draw_line(page_1,x0,x1,altura+20,altura+20);
